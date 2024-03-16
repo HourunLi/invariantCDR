@@ -33,8 +33,9 @@ class Runner(object):
         min_epoch = args.min_epoch
         max_patience = args.patience
         patience = 0
+        optimizer = args.optimizer
         self.model.train()
-        optimizer = self.optimizer
+        # 对每个图进行DGCL，得到disentangle learning
         emb, y = self.model.encoder.get_embeddings(
             [self.data["train"]["edge_lists"][ind].long().to(args.device) for ind in range(self.len)]
         )

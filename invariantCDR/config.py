@@ -16,6 +16,8 @@ parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
 parser.add_argument('--optim', choices=['sgd', 'adagrad', 'adam', 'adamax'], default='adam',
                     help='Optimizer: sgd, adagrad, adam or adamax.')
 parser.add_argument("--n_factors", type=int, default=8, help="latent factors")
+parser.add_argument('--num_layers', type=int, default=4, help="number of graph layers")
+parser.add_argument('--head_layers', type=int, default=1, help="number of graph head layers")
 parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
 parser.add_argument('--l2_reg', type=float, default=1e-7, help='the L2 weight')
 parser.add_argument('--lr_decay', type=float, default=0.98, help='decay learning rate')

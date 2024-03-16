@@ -22,36 +22,36 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 
 class invariantCDR(nn.Module):
-    def __init__(self, opt):
+    def __init__(self, args):
         super(invariantCDR, self).__init__()
-        self.model = DGCL(opt)
-        self.opt = opt
+        self.model = DGCL(args)
+        self.args = args
         self.user_embedding_list = []
         self.item_embedding_lsit = []
         
-        for i in range(self.opt["num_domains"]):
-            self.user_embedding_list.append(nn.Embedding(opt["user_max"][i], opt["latent_dim"]))
-            self.item_embedding_lsit.append(nn.Embedding(opt["item_max"][i] + 1, opt["latent_dim"], padding_idx=0))
+        for i in range(self.args.num_domains):
+            self.user_embedding_list.append(nn.Embedding(args.user_max[i], args.latent_dim))
+            self.item_embedding_lsit.append(nn.Embedding(args.item_max[i] + 1, args.latent_dim, padding_idx=0))
         
         self.user_embedding_list = nn.ModuleList(self.user_embedding_list)
         self.item_embedding_lsit = nn.ModuleList(self.item_embedding_lsit)
         
 class DGCL(nn.Module):
-    def __init__(self, opt):
+    def __init__(self, args):
         super(DGCL, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
-        self.args = opt.args
-        self.device = opt.device
-        self.T = opt.tau # The temperature parameter for contrastive learning, set to 0.2
-        self.K = opt.num_latent_factors # 3
-        self.embedding_dim = opt.hidden_dim
+        self.args = args
+        self.device = args.device
+        self.T = args.tau # The temperature parameter for contrastive learning, set to 0.2
+        self.K = args.num_latent_factors # 3
+        self.embedding_dim = args.hidden_dim
         self.d = self.embedding_dim // self.K
 
         self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
-        self.encoder = DisenEncoder(opt)
+        self.encoder = DisenEncoder(args)
 
         self.init_emb()
     # the init_emb method is responsible for initializing the weights and biases of all linear layers in the neural network
@@ -113,23 +113,23 @@ class DGCL(nn.Module):
 
 
 class DisenEncoder(torch.nn.Module):
-    def __init__(self, opt):
+    def __init__(self, args):
         super(DisenEncoder, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
-        self.args = opt
-        self.device = opt.device
-        self.num_features = opt.num_features
-        self.K = opt.K # k latent factor (hyper parameter)
-        self.d = opt.hidden_dim // self.K # dimension for each latent factor
-        self.num_layer = opt.num_layer 
-        self.head_layers = opt.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
-        self.gc_layers = self.num_layer - self.head_layers
-        self.if_proj_head = opt.if_proj_head # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
-        self.drop_ratio = opt.drop_ratio
-        self.graph_pooling = opt.graph_pooling
+        self.args = args
+        self.device = args.device
+        self.num_features = args.num_features
+        self.K = args.K # k latent factor (hyper parameter)
+        self.d = args.hidden_dim // self.K # dimension for each latent factor
+        self.num_layers = args.num_layers 
+        self.head_layers = args.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
+        self.gc_layers = self.num_layers - self.head_layers
+        self.if_proj_head = args.if_proj_head # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
+        self.drop_ratio = args.drop_ratio
+        self.graph_pooling = args.graph_pooling
         if self.graph_pooling == "sum" or self.graph_pooling == 'add':
             self.pool = global_add_pool
         elif self.graph_pooling == "mean":
@@ -138,14 +138,15 @@ class DisenEncoder(torch.nn.Module):
             self.pool = global_max_pool
         else:
             raise ValueError("Invalid graph pooling type.")
-        self.JK = opt.JK
+        self.JK = args.JK
         if self.JK == 'last':
             pass
         elif self.JK == 'sum':
-            self.JK_proj = Linear(self.gc_layers * opt.hidden_dim, opt.hidden_dim)
+            self.JK_proj = Linear(self.gc_layers * args.hidden_dim, args.hidden_dim)
         else:
             assert False
-        self.residual = opt.residual
+        self.residual = args.residual
+        
         # build the graph convolutional network 
         self.convs = torch.nn.ModuleList() # convolutional layers
         self.bns = torch.nn.ModuleList() # batch normalization layers 
@@ -155,11 +156,11 @@ class DisenEncoder(torch.nn.Module):
 
         for i in range(self.gc_layers):
             if i == 0:
-                nn = Sequential(Linear(opt.num_features, opt.emb_dim), ReLU(), Linear(opt.hidden_dim, opt.hidden_dim))
+                nn = Sequential(Linear(args.num_features, args.emb_dim), ReLU(), Linear(args.hidden_dim, args.hidden_dim))
             else:
-                nn = Sequential(Linear(opt.hidden_dim, opt.hidden_dim), ReLU(), Linear(opt.hidden_dim, opt.hidden_dim))
+                nn = Sequential(Linear(args.hidden_dim, args.hidden_dim), ReLU(), Linear(args.hidden_dim, args.hidden_dim))
             conv = GINConv(nn) # Graph Isomorphism Network, GIN
-            bn = torch.nn.BatchNorm1d(opt.hidden_dim)
+            bn = torch.nn.BatchNorm1d(args.hidden_dim)
 
             self.convs.append(conv)
             # A batch normalization layer (bn) is created for the embedding dimension (emb_dim)
@@ -168,7 +169,7 @@ class DisenEncoder(torch.nn.Module):
         for i in range(self.K): # 外循环是K factor，内循环是head layers，说白了就是有几个encoder
             for j in range(self.head_layers):
                 if j == 0:
-                    nn = Sequential(Linear(opt.hidden_dim, self.d), ReLU(), Linear(self.d, self.d))
+                    nn = Sequential(Linear(args.hidden_dim, self.d), ReLU(), Linear(self.d, self.d))
                 else:
                     nn = Sequential(Linear(self.d, self.d), ReLU(), Linear(self.d, self.d))
                 conv = GINConv(nn)
