@@ -5,7 +5,7 @@ from torch_geometric.utils.convert import to_networkx
 from torch.nn import functional as F
 from torch import nn
 from tqdm import tqdm
-from ..utils.utils import *
+from utils.utils import *
 import os
 import sys
 import time

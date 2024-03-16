@@ -29,20 +29,14 @@ from invariantCDR.config import args
 import json
 
 
-def main():
-    args, data = load_data(args)
-    print_config(args)
+args, data = load_data(args)
+print(args)
 
-    # model = invariantCDR(args = args)
-    # runner = Runner(args, data, model)
-    # results = []
+# model = invariantCDR(args = args)
+# runner = Runner(args, data, model)
+# results = []
 
-    # if args.mode == "train":
-    #     results = runner.run()
-    # elif args.mode == "eval":
-    #     results = runner.re_run()
-
-
-if __name__ == "__main__":
-    main()
-
+# if args.mode == "train":
+#     results = runner.run()
+# elif args.mode == "eval":
+#     results = runner.re_run()
