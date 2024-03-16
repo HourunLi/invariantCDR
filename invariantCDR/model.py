@@ -21,36 +21,37 @@ from sklearn.svm import SVC
 from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 
+class invariantCDR(nn.Module):
+    def __init__(self, opt):
+        super(invariantCDR, self).__init__()
+        self.model = DGCL(opt)
+        self.opt = opt
+        self.user_embedding_list = []
+        self.item_embedding_lsit = []
+        
+        for i in range(self.opt["num_domains"]):
+            self.user_embedding_list.append(nn.Embedding(opt["user_max"][i], opt["latent_dim"]))
+            self.item_embedding_lsit.append(nn.Embedding(opt["item_max"][i] + 1, opt["latent_dim"], padding_idx=0))
+        
+        self.user_embedding_list = nn.ModuleList(self.user_embedding_list)
+        self.item_embedding_lsit = nn.ModuleList(self.item_embedding_lsit)
+        
 class DGCL(nn.Module):
-    def __init__(self, num_features, hidden_dim, num_layer, device, args):
+    def __init__(self, opt):
         super(DGCL, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
-        self.args = args
-        self.device = device
-        self.T = self.args.tau # The temperature parameter for contrastive learning, set to 0.2
-        self.K = args.num_latent_factors # 3
-        self.embedding_dim = hidden_dim
+        self.args = opt.args
+        self.device = opt.device
+        self.T = opt.tau # The temperature parameter for contrastive learning, set to 0.2
+        self.K = opt.num_latent_factors # 3
+        self.embedding_dim = opt.hidden_dim
         self.d = self.embedding_dim // self.K
 
-        self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(device)
-
-        self.encoder = DisenEncoder(
-            num_features=num_features,
-            emb_dim=hidden_dim,
-            num_layer=num_layer,
-            K=args.num_latent_factors,
-            head_layers=args.head_layers,
-            device=device,
-            args=args,
-            if_proj_head=args.proj > 0, # A flag or parameter related to projection, set to 1.
-            drop_ratio=args.drop_ratio, 
-            graph_pooling=args.pool,
-            JK=args.JK,
-            residual=args.residual > 0
-        )
+        self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        self.encoder = DisenEncoder(opt)
 
         self.init_emb()
     # the init_emb method is responsible for initializing the weights and biases of all linear layers in the neural network
@@ -64,7 +65,7 @@ class DGCL(nn.Module):
 
     def forward(self, x, edge_index, batch, num_graphs):
         if x is None:
-            x = torch.ones(batch.shape[0]).to(device)
+            x = torch.ones(batch.shape[0]).to(self.device)
         z_graph, _ = self.encoder(x, edge_index, batch)
         return z_graph
 
@@ -112,24 +113,23 @@ class DGCL(nn.Module):
 
 
 class DisenEncoder(torch.nn.Module):
-    def __init__(self, num_features, emb_dim, num_layer, K, head_layers, if_proj_head=False, drop_ratio=0.0,
-                 graph_pooling='add', JK='last', residual=False, device=None, args=None):
+    def __init__(self, opt):
         super(DisenEncoder, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
-        self.args = args
-        self.device = device
-        self.num_features = num_features
-        self.K = K
-        self.d = emb_dim // self.K
-        self.num_layer = num_layer
-        self.head_layers = head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
+        self.args = opt
+        self.device = opt.device
+        self.num_features = opt.num_features
+        self.K = opt.K # k latent factor (hyper parameter)
+        self.d = opt.hidden_dim // self.K # dimension for each latent factor
+        self.num_layer = opt.num_layer 
+        self.head_layers = opt.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
         self.gc_layers = self.num_layer - self.head_layers
-        self.if_proj_head = if_proj_head # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
-        self.drop_ratio = drop_ratio
-        self.graph_pooling = graph_pooling
+        self.if_proj_head = opt.if_proj_head # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
+        self.drop_ratio = opt.drop_ratio
+        self.graph_pooling = opt.graph_pooling
         if self.graph_pooling == "sum" or self.graph_pooling == 'add':
             self.pool = global_add_pool
         elif self.graph_pooling == "mean":
@@ -138,14 +138,14 @@ class DisenEncoder(torch.nn.Module):
             self.pool = global_max_pool
         else:
             raise ValueError("Invalid graph pooling type.")
-        self.JK = JK
-        if JK == 'last':
+        self.JK = opt.JK
+        if self.JK == 'last':
             pass
-        elif JK == 'sum':
-            self.JK_proj = Linear(self.gc_layers * emb_dim, emb_dim)
+        elif self.JK == 'sum':
+            self.JK_proj = Linear(self.gc_layers * opt.hidden_dim, opt.hidden_dim)
         else:
             assert False
-        self.residual = residual
+        self.residual = opt.residual
         # build the graph convolutional network 
         self.convs = torch.nn.ModuleList() # convolutional layers
         self.bns = torch.nn.ModuleList() # batch normalization layers 
@@ -155,11 +155,11 @@ class DisenEncoder(torch.nn.Module):
 
         for i in range(self.gc_layers):
             if i == 0:
-                nn = Sequential(Linear(num_features, emb_dim), ReLU(), Linear(emb_dim, emb_dim))
+                nn = Sequential(Linear(opt.num_features, opt.emb_dim), ReLU(), Linear(opt.hidden_dim, opt.hidden_dim))
             else:
-                nn = Sequential(Linear(emb_dim, emb_dim), ReLU(), Linear(emb_dim, emb_dim))
+                nn = Sequential(Linear(opt.hidden_dim, opt.hidden_dim), ReLU(), Linear(opt.hidden_dim, opt.hidden_dim))
             conv = GINConv(nn) # Graph Isomorphism Network, GIN
-            bn = torch.nn.BatchNorm1d(emb_dim)
+            bn = torch.nn.BatchNorm1d(opt.hidden_dim)
 
             self.convs.append(conv)
             # A batch normalization layer (bn) is created for the embedding dimension (emb_dim)
@@ -168,7 +168,7 @@ class DisenEncoder(torch.nn.Module):
         for i in range(self.K): # 外循环是K factor，内循环是head layers，说白了就是有几个encoder
             for j in range(self.head_layers):
                 if j == 0:
-                    nn = Sequential(Linear(emb_dim, self.d), ReLU(), Linear(self.d, self.d))
+                    nn = Sequential(Linear(opt.hidden_dim, self.d), ReLU(), Linear(self.d, self.d))
                 else:
                     nn = Sequential(Linear(self.d, self.d), ReLU(), Linear(self.d, self.d))
                 conv = GINConv(nn)
@@ -182,95 +182,28 @@ class DisenEncoder(torch.nn.Module):
         for i in range(self.K):
             nn = Sequential(Linear(self.d, self.d), ReLU(inplace=True), Linear(self.d, self.d))
             self.proj_heads.append(nn)
-    # This method applies standard graph convolutional layers to the input graph features x
-    def _normal_conv(self, x, edge_index, batch):
-        xs = []
-        for i in range(self.gc_layers): # For each layer, it applies a graph convolution (self.convs[i]) followed by batch normalization (self.bns[i]).
-            # x是特征值，edge_index是边
-            # 先经历一次卷机进行message passing，然后过一次batch normalization
-            x = self.convs[i](x, edge_index)
-            x = self.bns[i](x)
-            # 如果是最后一层，那么直接输出，否则过一次激活函数。
-            if i == self.gc_layers - 1:
-                x = F.dropout(x, self.drop_ratio, training=self.training)
-            else:
-                x = F.dropout(F.relu(x), self.drop_ratio, training=self.training)
-            # 根据residual设置xs，说白了就是为后面jumping knwoledge 做准备，需要获取之前layer的信息知识
-            if self.residual and i > 0: # If residual connections are enabled (self.residual), the output of the current layer is added to the output of the previous layer.
-                x += xs[i - 1]
-            xs.append(x)
-        if self.JK == 'last':
-            return xs[-1]
-        elif self.JK == 'sum':
-            return self.JK_proj(torch.cat(xs, dim=-1))
-
-    def _disen_conv(self, x, edge_index, batch):
-        x_proj_list = []
-        x_proj_pool_list = []
-        for i in range(self.K):
-            x_proj = x
-            for j in range(self.head_layers):
-                # 因为所有k个factor对应的conv都放一个modulelist了，所以先计算index
-                tmp_index = i * self.head_layers + j
-                # 跟前面的处理方式是一样的
-                x_proj = self.disen_convs[tmp_index](x_proj, edge_index)
-                x_proj = self.disen_bns[tmp_index](x_proj)
-                # 这里没有dropout
-                if j != self.head_layers - 1:
-                    x_proj = F.relu(x_proj)
-            x_proj_list.append(x_proj)
-            # x_proj_pool_list是想要获得一个graph level的representation (based on the disentangled node representations.)
-            x_proj_pool_list.append(self.pool(x_proj, batch))
-        # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
-        # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
-        if self.if_proj_head:
-            x_proj_pool_list = self._proj_head(x_proj_pool_list)
-        # dim = 0是默认参数， 把x_proj_pool_list把第一位堆叠起来，其实等价于直接转换为tensor
-        x_graph_multi = torch.stack(x_proj_pool_list)
-        # print(f"the size of x_graph_multi is {x_graph_multi.size()}") 
-        # the size of x_graph_multi is torch.Size([3, 128, 42])
-        x_node_multi = torch.stack(x_proj_list)
-        # print(f"the size of x_node_multi is {x_node_multi.size()}") 
-        # the size of x_node_multi is torch.Size([3, 2298, 42])
-        # contiguous有利于后续连续访问性能
-        x_graph_multi = x_graph_multi.permute(1, 0, 2).contiguous()
-        x_node_multi = x_node_multi.permute(1, 0, 2).contiguous()
-        return x_graph_multi, x_node_multi
-
-    def _proj_head(self, x_proj_pool_list):
-        ret = []
-        for k in range(self.K):
-            x_graph_proj = self.proj_heads[k](x_proj_pool_list[k])
-            ret.append(x_graph_proj)
-        return ret
 
     def forward(self, x, edge_index, batch):
         if x is None:
-            x = torch.ones((batch.shape[0], 1)).to(device)
+            x = torch.ones((batch.shape[0], 1)).to(self.device)
         h_node = self._normal_conv(x, edge_index, batch)
         h_graph_multi, h_node_multi = self._disen_conv(h_node, edge_index, batch)
         return h_graph_multi, h_node_multi
-
-    def get_embeddings(self, loader):
-        device = self.device
+    
+    def get_embeddings(self, data):
         ret = []
         y = []
         with torch.no_grad():
-            for data in loader:
-                data = data[0]
-                # print(len(data), data)
-                # for i in range(len(data)):
-                #     print(data[i])
-                data.to(device)
-                x, edge_index, batch = data.x, data.edge_index, data.batch
-                if x is None:
-                    x = torch.ones((batch.shape[0], 1)).to(device)
-                x, _ = self.forward(x, edge_index, batch)
-                B, K, d = x.size()
-                x = x.view(B, K * d)
-                ret.append(x.cpu().numpy())
-                y.append(data.y.cpu().numpy())
+            data.to(        device = self.device
+)
+            x, edge_index, batch = data.x, data.edge_index, data.batch
+            if x is None:
+                x = torch.ones((batch.shape[0], 1)).to(self.device)
+            x, _ = self.forward(x, edge_index, batch)
+            B, K, d = x.size()
+            x = x.view(B, K * d)
+            ret.append(x.cpu().numpy())
+            y.append(data.y.cpu().numpy())
         ret = np.concatenate(ret, 0)
         y = np.concatenate(y, 0)
         return ret, y
-

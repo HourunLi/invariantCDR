@@ -27,21 +27,21 @@ def loadFile(opt, mode):
     print(len(edge_list), len(edge_list[0]))
     return edge_list
 
-def load_data(opt):
+def load_data(args):
     data = defaultdict(dict)
-
-    def getDomains(opt):
-        if "dual" in opt["task"]:
-            filename = opt["domains"].split("_")
-            opt["domains"] = []
-            opt["domains"].append(filename[0] + "_" + filename[1])
-            opt["domains"].append(filename[1] + "_" + filename[0])
-        else:
-            opt["domains"] = opt["domains"].split('_')
-
-    print("Loading domains:", opt["domains"])
-
-    data["train"]["edge_lists"] = loadFile(opt, mode = "train")
-    data["valid"]["edge_lists"] = loadFile(opt, mode = "valid")
-    data["test"]["edge_lists"] = loadFile(opt, mode = "test")
-    return data
+    if "dual" in args.task:
+        filename = args.domains.split("_")
+        args.domains = []
+        args.domains.append(filename[0] + "_" + filename[1])
+        args.domains.append(filename[1] + "_" + filename[0])
+    else:
+        args.domains = args.domains.split('_')
+        
+    print("Loading domains:", args.domains)
+    data["train"]["edge_lists"] = loadFile(args, mode = "train")
+    data["valid"]["edge_lists"] = loadFile(args, mode = "valid")
+    data["test"]["edge_lists"] = loadFile(args, mode = "test")
+    
+    # set args
+    args.graphs = len(args.domains)
+    return args, data
