@@ -32,11 +32,11 @@ import json
 args, data = load_data(args)
 print(args)
 
-# model = invariantCDR(args = args)
-# runner = Runner(args, data, model)
+model = invariantCDR(args = args)
+runner = Runner(args, data, model)
 # results = []
 
-# if args.mode == "train":
-#     results = runner.run()
-# elif args.mode == "eval":
-#     results = runner.re_run()
+if args.mode == "train":
+    results = runner.train()
+elif args.mode == "eval":
+    results = runner.eval()
