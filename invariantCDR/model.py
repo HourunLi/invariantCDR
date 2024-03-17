@@ -41,13 +41,13 @@ class DGCL(nn.Module):
         super(DGCL, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
-        # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
+        # epoch=30, fe=0, head_layers=1, latent_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
         self.device = args.device
         self.T = args.tau # The temperature parameter for contrastive learning, set to 0.2
         self.K = args.num_latent_factors # 3
-        self.embedding_dim = args.hidden_dim
+        self.embedding_dim = args.latent_dim
         self.d = self.embedding_dim // self.K
 
         self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
@@ -66,8 +66,8 @@ class DGCL(nn.Module):
     def forward(self, x, edge_index, batch, num_graphs):
         if x is None:
             x = torch.ones(batch.shape[0]).to(self.device)
-        z_graph, _ = self.encoder(x, edge_index, batch)
-        return z_graph
+        graph_dis_emb, nod_dis_emb, _ = self.encoder(x, edge_index, batch)
+        return graph_dis_emb
 
     def loss_cal(self, x, x_aug):
         T = self.T #  temperature parameter for scaling the similarity scores
@@ -117,13 +117,13 @@ class DisenEncoder(torch.nn.Module):
         super(DisenEncoder, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
-        # epoch=30, fe=0, head_layers=1, hidden_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
+        # epoch=30, fe=0, head_layers=1, latent_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
         self.device = args.device
         self.num_features = args.num_features
         self.K = args.K # k latent factor (hyper parameter)
-        self.d = args.hidden_dim // self.K # dimension for each latent factor
+        self.d = args.latent_dim // self.K # dimension for each latent factor
         self.num_layers = args.num_layers 
         self.head_layers = args.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
         self.gc_layers = self.num_layers - self.head_layers
@@ -142,7 +142,7 @@ class DisenEncoder(torch.nn.Module):
         if self.JK == 'last':
             pass
         elif self.JK == 'sum':
-            self.JK_proj = Linear(self.gc_layers * args.hidden_dim, args.hidden_dim)
+            self.JK_proj = Linear(self.gc_layers * args.latent_dim, args.latent_dim)
         else:
             assert False
         self.residual = args.residual
@@ -156,11 +156,11 @@ class DisenEncoder(torch.nn.Module):
 
         for i in range(self.gc_layers):
             if i == 0:
-                nn = Sequential(Linear(args.num_features, args.emb_dim), ReLU(), Linear(args.hidden_dim, args.hidden_dim))
+                nn = Sequential(Linear(args.node_dim, args.latent_dim), ReLU(), Linear(args.latent_dim, args.latent_dim))
             else:
-                nn = Sequential(Linear(args.hidden_dim, args.hidden_dim), ReLU(), Linear(args.hidden_dim, args.hidden_dim))
+                nn = Sequential(Linear(args.latent_dim, args.latent_dim), ReLU(), Linear(args.latent_dim, args.latent_dim))
             conv = GINConv(nn) # Graph Isomorphism Network, GIN
-            bn = torch.nn.BatchNorm1d(args.hidden_dim)
+            bn = torch.nn.BatchNorm1d(args.latent_dim)
 
             self.convs.append(conv)
             # A batch normalization layer (bn) is created for the embedding dimension (emb_dim)
@@ -169,13 +169,11 @@ class DisenEncoder(torch.nn.Module):
         for i in range(self.K): # 外循环是K factor，内循环是head layers，说白了就是有几个encoder
             for j in range(self.head_layers):
                 if j == 0:
-                    nn = Sequential(Linear(args.hidden_dim, self.d), ReLU(), Linear(self.d, self.d))
+                    nn = Sequential(Linear(args.latent_dim, self.d), ReLU(), Linear(self.d, self.d))
                 else:
                     nn = Sequential(Linear(self.d, self.d), ReLU(), Linear(self.d, self.d))
                 conv = GINConv(nn)
-                # 进行归一化
                 bn = torch.nn.BatchNorm1d(self.d)
-
                 self.disen_convs.append(conv)
                 self.disen_bns.append(bn)
         # projection head就是k factor对应的变换层
@@ -184,11 +182,11 @@ class DisenEncoder(torch.nn.Module):
             nn = Sequential(Linear(self.d, self.d), ReLU(inplace=True), Linear(self.d, self.d))
             self.proj_heads.append(nn)
 
-    def forward(self, x, edge_index, batch):
+    def forward(self, x, edge_index):
         if x is None:
             x = torch.ones((batch.shape[0], 1)).to(self.device)
-        h_node = self._normal_conv(x, edge_index, batch)
-        h_graph_multi, h_node_multi = self._disen_conv(h_node, edge_index, batch)
+        h_node = self._normal_conv(x, edge_index)
+        h_graph_multi, h_node_multi = self._disen_conv(h_node, edge_index)
         return h_graph_multi, h_node_multi
     
     def get_embeddings(self, data):

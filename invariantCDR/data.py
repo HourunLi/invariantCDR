@@ -51,7 +51,4 @@ def load_data(args):
     
     # set args
     args.num_domains = len(args.domains)
-    args.
-            #     self.user_embedding_list.append(nn.Embedding(args.user_max[i], args.latent_dim))
-            # self.item_embedding_lsit.append(nn.Embedding(args.item_max[i] + 1, args.latent_dim, padding_idx=0))
     return args, data
