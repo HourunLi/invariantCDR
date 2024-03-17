@@ -45,28 +45,27 @@ class DGCL(nn.Module):
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
         self.device = args.device
+        self.encoder = DisenEncoder(args)
         self.T = args.tau # The temperature parameter for contrastive learning, set to 0.2
         self.K = args.num_latent_factors # 3
-        self.embedding_dim = args.latent_dim
-        self.d = self.embedding_dim // self.K
-
+        self.latent_dim = args.latent_dim
+        self.d = self.latent_dim // self.K
+        self.node_dim = args.node_dim
+        self.num_layers = args.num_layers
         self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
-        self.encoder = DisenEncoder(args)
-
         self.init_emb()
+
     # the init_emb method is responsible for initializing the weights and biases of all linear layers in the neural network
     def init_emb(self):
-        initrange = -1.5 / self.embedding_dim
+        initrange = -1.5 / self.latent_dim
         for m in self.modules():
             if isinstance(m, nn.Linear): # For each module, it checks if the module is an instance of a linear layer (nn.Linear).
                 torch.nn.init.xavier_uniform_(m.weight.data)
                 if m.bias is not None:
                     m.bias.data.fill_(0.0)
 
-    def forward(self, x, edge_index, batch, num_graphs):
-        if x is None:
-            x = torch.ones(batch.shape[0]).to(self.device)
-        graph_dis_emb, nod_dis_emb, _ = self.encoder(x, edge_index, batch)
+    def forward(self, edge_index):
+        graph_dis_emb, nod_dis_emb = self.encoder(edge_index)
         return graph_dis_emb
 
     def loss_cal(self, x, x_aug):

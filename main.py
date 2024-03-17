@@ -34,9 +34,8 @@ print(args)
 
 model = invariantCDR(args = args)
 runner = Runner(args, data, model)
-# results = []
 
 if args.mode == "train":
-    results = runner.train()
+    results = runner.run()
 elif args.mode == "eval":
     results = runner.eval()
