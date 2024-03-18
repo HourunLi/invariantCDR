@@ -14,6 +14,7 @@ import numpy as np
 import torch.optim as optim
 import pandas as pd
 import math
+from invariantCDR.model import *
 
 class Runner(object):
     def __init__(self, args, model, data, writer=None, **kwargs):
@@ -21,13 +22,16 @@ class Runner(object):
         self.args = args
         self.model = model
         self.data = data
-        self.DGCL = DGCL(args = args)
+        self.DGCL = DGCL(args)
         self.len = len(data["train"]["edge_list"]) # number of graphs
 
     def train(self, epoch, data):
+        # epoch_losses, train_auc_list, val_auc_list, test_auc_list 
         args = self.args
         self.model.train()
         optimizer = self.optimizer
+        # embeddings 
+        
         
     def run(self):
         args = self.args

@@ -66,7 +66,7 @@ class DGCL(nn.Module):
 
     def forward(self, edge_index):
         graph_dis_emb, nod_dis_emb = self.encoder(edge_index)
-        return graph_dis_emb
+        return graph_dis_emb, nod_dis_emb
 
     def loss_cal(self, x, x_aug):
         T = self.T #  temperature parameter for scaling the similarity scores

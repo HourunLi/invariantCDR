@@ -29,7 +29,7 @@ from invariantCDR.config import args
 import json
 
 
-args, data = load_data(args)
+args, data, data_aug= load_data(args)
 print(args)
 
 model = invariantCDR(args = args)

@@ -10,7 +10,6 @@ parser.add_argument('--task', type=str, default='dual-user-intra', help='dual-us
 parser.add_argument("--nfeat", type=int, default=128, help="dim of input feature")
 
 # model
-
 parser.add_argument('--aggregator', type=str, default='mean', help='switching the user-item aggregation')
 parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
 parser.add_argument('--optim', choices=['sgd', 'adagrad', 'adam', 'adamax'], default='adam',
@@ -24,6 +23,7 @@ parser.add_argument('--lr_decay', type=float, default=0.98, help='decay learning
 parser.add_argument('--weight_decay', type=float, default=1e-5, help='decay learning rate')
 parser.add_argument('--node_dim', type=int, default=128, help='user or item embedding dimensions')
 # parser.add_argument('--item_dim', type=int, default=128, help='item embedding dimensions')
+parser.add_argument('--aug', type=str, default='random4', help='augmentation methods')
 parser.add_argument('--latent_dim', type=int, default=128, help='latent dimensions')
 parser.add_argument('--num_negative', type=int, default=10, help='num of negative samples during training')
 parser.add_argument('--maxlen', type=int, default=10, help='num of item sequence')
@@ -35,6 +35,7 @@ parser.add_argument('--lambda_loss', type=float, default=0.4, help='the paramete
 parser.add_argument('--static_sample', action='store_true', help='accelerate the dataloader')
 # others
 parser.add_argument('--epoch', type=int, default=100, help='number of epoches')
+parser.add_argument("--min_epoch", type=int, default=50, help="min epoch")
 parser.add_argument("--mode", type=str, default="train", help="train, eval")
 parser.add_argument('--cuda', action='store_true', help='use of cuda')
 parser.add_argument("--device", type=str, default="gpu", help="training device")
