@@ -33,7 +33,7 @@ args, data, data_aug= load_data(args)
 print(args)
 
 model = invariantCDR(args = args)
-runner = Runner(args, data, model)
+runner = Runner(args, data, data_aug, model)
 
 if args.mode == "train":
     results = runner.run()

@@ -17,19 +17,27 @@ import math
 from invariantCDR.model import *
 
 class Runner(object):
-    def __init__(self, args, model, data, writer=None, **kwargs):
+    def __init__(self, args, model, data, data_aug, writer=None, **kwargs):
         seed_everything(args.seed)
         self.args = args
         self.model = model
         self.data = data
+        self.data_aug = data_aug
         self.DGCL = DGCL(args)
-        self.len = len(data["train"]["edge_list"]) # number of graphs
+        self.length = len(data["train"]["edge_list"]) # number of graphs
 
-    def train(self, epoch, data):
+    def train(self, epoch, data, data_aug):
         # epoch_losses, train_auc_list, val_auc_list, test_auc_list 
         args = self.args
         self.model.train()
         optimizer = self.optimizer
+        # for graph in data, data_aug
+        for idx in range(self.length):
+            graph = data["edge_list"][idx] # get the idx grpah
+            graph_aug = data_aug["edge_list"][idx]
+            optimizer.zero_grad() # 重置梯度
+            node_num, _ = data.x.size() 
+            data = data.to(device)
         # embeddings 
         
         
@@ -49,7 +57,7 @@ class Runner(object):
         with tqdm(range(1, args.epoch+1)) as bar:
             for epoch in bar:
                 epoch_start = time.time()
-                epoch_losses, train_auc_list, val_auc_list, test_auc_list = self.train(epoch, self.data["train"])
+                epoch_losses, train_auc_list, val_auc_list, test_auc_list = self.train(epoch, self.data["train"], self.data_aug)
                 average_epoch_loss = epoch_losses
                 average_train_auc = np.mean(train_auc_list)
                 average_val_auc = np.mean(val_auc_list)

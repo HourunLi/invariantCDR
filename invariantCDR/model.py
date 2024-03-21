@@ -192,8 +192,7 @@ class DisenEncoder(torch.nn.Module):
         ret = []
         y = []
         with torch.no_grad():
-            data.to(        device = self.device
-)
+            data.to(device = self.device)
             x, edge_index, batch = data.x, data.edge_index, data.batch
             if x is None:
                 x = torch.ones((batch.shape[0], 1)).to(self.device)
