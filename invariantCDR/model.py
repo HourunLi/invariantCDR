@@ -59,7 +59,7 @@ class DGCL(nn.Module):
         self.K = args.num_latent_factors # 3
         self.latent_dim = args.latent_dim
         self.d = self.latent_dim // self.K
-        self.node_dim = args.node_dim
+        self.node_feature = args.node_feature
         self.num_layers = args.num_layers
         self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
         self.init_emb()
@@ -132,7 +132,7 @@ class DisenEncoder(torch.nn.Module):
         self.args = args
         self.device = args.device
         self.num_features = args.num_features
-        self.K = args.K # k latent factor (hyper parameter)
+        self.K = args.num_latent_factors # k latent factor (hyper parameter)
         self.d = args.latent_dim // self.K # dimension for each latent factor
         self.num_layers = args.num_layers 
         self.head_layers = args.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
@@ -166,10 +166,11 @@ class DisenEncoder(torch.nn.Module):
 
         for i in range(self.gc_layers):
             if i == 0:
-                nn = Sequential(Linear(args.node_dim, args.latent_dim), ReLU(), Linear(args.latent_dim, args.latent_dim))
+                nn = Sequential(Linear(args.node_feature, args.latent_dim), ReLU(), Linear(args.latent_dim, args.latent_dim))
             else:
                 nn = Sequential(Linear(args.latent_dim, args.latent_dim), ReLU(), Linear(args.latent_dim, args.latent_dim))
-            conv = GINConv(nn) # Graph Isomorphism Network, GIN
+            # Graph Isomorphism Network, GIN
+            conv = GINConv(nn) 
             bn = torch.nn.BatchNorm1d(args.latent_dim)
 
             self.convs.append(conv)
@@ -186,6 +187,7 @@ class DisenEncoder(torch.nn.Module):
                 bn = torch.nn.BatchNorm1d(self.d)
                 self.disen_convs.append(conv)
                 self.disen_bns.append(bn)
+                
         # projection head就是k factor对应的变换层
         self.proj_heads = torch.nn.ModuleList()
         for i in range(self.K):
@@ -247,6 +249,13 @@ class DisenEncoder(torch.nn.Module):
         x_node_multi = x_node_multi.permute(1, 0, 2).contiguous()
         return x_graph_multi, x_node_multi
 
+    def _proj_head(self, x_proj_pool_list):
+        ret = []
+        for k in range(self.K):
+            x_graph_proj = self.proj_heads[k](x_proj_pool_list[k])
+            ret.append(x_graph_proj)
+        return ret
+    
 
     def forward(self, x, edge_index):
         h_node = self._normal_conv(x, edge_index)
