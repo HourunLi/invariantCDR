@@ -216,7 +216,7 @@ class DisenEncoder(torch.nn.Module):
         elif self.JK == 'sum':
             return self.JK_proj(torch.cat(xs, dim=-1))
 
-    def _disen_conv(self, x, edge_index, batch):
+    def _disen_conv(self, x, edge_index):
         x_proj_list = []
         x_proj_pool_list = []
         for i in range(self.K):
@@ -232,7 +232,7 @@ class DisenEncoder(torch.nn.Module):
                     x_proj = F.relu(x_proj)
             x_proj_list.append(x_proj)
             # x_proj_pool_list是想要获得一个graph level的representation (based on the disentangled node representations.)
-            x_proj_pool_list.append(self.pool(x_proj, batch))
+            x_proj_pool_list.append(self.pool(x_proj))
         # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
         # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
         if self.if_proj_head:
@@ -263,14 +263,11 @@ class DisenEncoder(torch.nn.Module):
         return h_graph_multi, h_node_multi
     
     def get_embeddings(self, data):
-        ret = []
-        y = []
+        ret, y = [], []
         with torch.no_grad():
             data.to(device = self.device)
-            x, edge_index, batch = data.x, data.edge_index, data.batch
-            if x is None:
-                x = torch.ones((batch.shape[0], 1)).to(self.device)
-            x, _ = self.forward(x, edge_index, batch)
+            x, edge_index = data.x, data.edge_index
+            x, _ = self.forward(x, edge_index)
             B, K, d = x.size()
             x = x.view(B, K * d)
             ret.append(x.cpu().numpy())

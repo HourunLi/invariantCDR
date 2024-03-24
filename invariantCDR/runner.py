@@ -23,7 +23,7 @@ class Runner(object):
         self.model = model
         self.data = data
         self.data_aug = data_aug
-        self.DGCL = DGCL(args)
+        # self.DGCL = DGCL(args)
         self.device = args.device
         self.length = len(data["train"]["edge_list"]) # number of graphs
 
@@ -34,17 +34,38 @@ class Runner(object):
         optimizer = self.optimizer
         # for graph in data, data_aug
         for idx in range(self.length):
-            graph = data["edge_list"][idx] # get the idx grpah
-            graph_aug = data_aug["edge_list"][idx]
+            # graph = data["edge_list"][idx] # get the idx grpah
+            # graph_aug = data_aug["edge_list"][idx]
             optimizer.zero_grad() # 重置梯度
             node_num, _ = data.x.size()
             data = data.to(self.device)
             # 得到图和图节点的disentangled representation
             # 使用的是K个相同的DGCL encoder（里面包含contrastive learning）
-            graph_emb, node_emb = self.DGCL(data, idx)
-            graph_emb_aug, node_emb_aug = self.DGCL(data, idx)
-            # 然后把node_emb进行比较，找到invariant pattern
-        # embeddings 
+            graph_emb, node_emb = self.model.DGCL(data, idx)
+            # 得到data_aug的edge_idx
+            edge_idx = data_aug["edge_list"][idx].numpy()
+            _, edge_num = edge_idx.shape
+            # 在边中的实体的id
+            idx_not_missing = [n for n in range(node_num) if (n in edge_idx[0] or n in edge_idx[1])]
+            node_num_aug = len(idx_not_missing)
+            # 从data_aug.x和data_aug.batch筛选出有边连接的点
+            # 之前的data_aug.x应该是节点全包含的，所以要筛选出部分便于后续训练
+            data_aug.x = data_aug.x[idx_not_missing] #[xx,7]
+            # data_aug.batch = data.batch[idx_not_missing]
+            idx_dict = {idx_not_missing[n]: n for n in range(node_num_aug)}
+            # 去掉自旋边
+            edge_idx = [[idx_dict[edge_idx[0, n]], idx_dict[edge_idx[1, n]]] for n in range(edge_num) if
+                        not edge_idx[0, n] == edge_idx[1, n]]
+            # transpose [2, xx] to [xx, 2]
+            data_aug["edge_list"][idx]= torch.tensor(edge_idx).transpose_(0, 1)
+            data_aug = data_aug.to(self.device)
+            graph_emb_aug, node_emb_aug = self.model.DGCL(data_aug, idx)
+            # print(x.size(), x_aug.size())
+            # torch.Size([128, 3, 42])  torch.Size([128, 3, 42] [batchsize, k factor, dim]
+            loss = self.model.loss_cal(node_emb, node_emb_aug) # contrastive loss,计算原数据和增强后数据的嵌入向量相似度
+            loss_all += loss.item() * data.num_graphs
+            loss.backward()
+            optimizer.step()
         
         
     def run(self):
