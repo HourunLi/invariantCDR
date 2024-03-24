@@ -24,17 +24,26 @@ from sklearn.metrics import accuracy_score
 class invariantCDR(nn.Module):
     def __init__(self, args):
         super(invariantCDR, self).__init__()
-        self.model = DGCL(args)
+        self.DGCL = DGCL(args)
         self.args = args
-        self.user_embedding_list = []
-        self.item_embedding_lsit = []
+        self.device = args.device
+    
+    # def encode(self, x, edge_index):
+    #     # node Num
+    #     if x is None:
+    #         x = torch.ones(batch.shape[0]).to(self.device)
+    #     graph_emb, node_emb = self.DGCL.encoder(x, edge_index, batch)
+    #     return graph_emb, node_emb
+    
+        # self.user_embedding_list = []
+        # self.item_embedding_lsit = []
         
-        for i in range(self.args.num_domains):
-            self.user_embedding_list.append(nn.Embedding(args.user_max[i], args.latent_dim))
-            self.item_embedding_lsit.append(nn.Embedding(args.item_max[i] + 1, args.latent_dim, padding_idx=0))
+        # for i in range(self.args.num_domains):
+        #     self.user_embedding_list.append(nn.Embedding(args.user_max[i], args.latent_dim))
+        #     self.itelm_embedding_lsit.append(nn.Embedding(args.item_max[i] + 1, args.latent_dim, padding_idx=0))
         
-        self.user_embedding_list = nn.ModuleList(self.user_embedding_list)
-        self.item_embedding_lsit = nn.ModuleList(self.item_embedding_lsit)
+        # self.user_embedding_list = nn.ModuleList(self.user_embedding_list)
+        # self.item_embedding_lsit = nn.ModuleList(self.item_embedding_lsit)
         
 class DGCL(nn.Module):
     def __init__(self, args):
@@ -64,9 +73,11 @@ class DGCL(nn.Module):
                 if m.bias is not None:
                     m.bias.data.fill_(0.0)
 
-    def forward(self, edge_index):
-        graph_dis_emb, nod_dis_emb = self.encoder(edge_index)
-        return graph_dis_emb, nod_dis_emb
+    def forward(self, data, idx):
+        if data["x"][idx] is None:
+            raise RuntimeError('x is None')
+        graph_emb, node_emb = self.encoder(data["x"][idx], data["train"]["edge_list"][idx])
+        return graph_emb, node_emb
 
     def loss_cal(self, x, x_aug):
         T = self.T #  temperature parameter for scaling the similarity scores
@@ -181,9 +192,63 @@ class DisenEncoder(torch.nn.Module):
             nn = Sequential(Linear(self.d, self.d), ReLU(inplace=True), Linear(self.d, self.d))
             self.proj_heads.append(nn)
 
+    # This method applies standard graph convolutional layers to the input graph features x
+    def _normal_conv(self, x, edge_index):
+        xs = []
+        for i in range(self.gc_layers): # For each layer, it applies a graph convolution (self.convs[i]) followed by batch normalization (self.bns[i]).
+            # x是特征值，edge_index是边
+            # 先经历一次卷机进行message passing，然后过一次batch normalization
+            x = self.convs[i](x, edge_index)
+            x = self.bns[i](x)
+            # 如果是最后一层，那么直接输出，否则过一次激活函数。
+            if i == self.gc_layers - 1:
+                x = F.dropout(x, self.drop_ratio, training=self.training)
+            else:
+                x = F.dropout(F.relu(x), self.drop_ratio, training=self.training)
+            # 根据residual设置xs，说白了就是为后面jumping knwoledge 做准备，需要获取之前layer的信息知识
+            if self.residual and i > 0: # If residual connections are enabled (self.residual), the output of the current layer is added to the output of the previous layer.
+                x += xs[i - 1]
+            xs.append(x)
+        if self.JK == 'last':
+            return xs[-1]
+        elif self.JK == 'sum':
+            return self.JK_proj(torch.cat(xs, dim=-1))
+
+    def _disen_conv(self, x, edge_index, batch):
+        x_proj_list = []
+        x_proj_pool_list = []
+        for i in range(self.K):
+            x_proj = x
+            for j in range(self.head_layers):
+                # 因为所有k个factor对应的conv都放一个modulelist了，所以先计算index
+                tmp_index = i * self.head_layers + j
+                # 跟前面的处理方式是一样的
+                x_proj = self.disen_convs[tmp_index](x_proj, edge_index)
+                x_proj = self.disen_bns[tmp_index](x_proj)
+                # 这里没有dropout
+                if j != self.head_layers - 1:
+                    x_proj = F.relu(x_proj)
+            x_proj_list.append(x_proj)
+            # x_proj_pool_list是想要获得一个graph level的representation (based on the disentangled node representations.)
+            x_proj_pool_list.append(self.pool(x_proj, batch))
+        # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
+        # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
+        if self.if_proj_head:
+            x_proj_pool_list = self._proj_head(x_proj_pool_list)
+        # dim = 0是默认参数， 把x_proj_pool_list把第一位堆叠起来，其实等价于直接转换为tensor
+        x_graph_multi = torch.stack(x_proj_pool_list)
+        # print(f"the size of x_graph_multi is {x_graph_multi.size()}") 
+        # the size of x_graph_multi is torch.Size([3, 128, 42])
+        x_node_multi = torch.stack(x_proj_list)
+        # print(f"the size of x_node_multi is {x_node_multi.size()}") 
+        # the size of x_node_multi is torch.Size([3, 2298, 42])
+        # contiguous有利于后续连续访问性能
+        x_graph_multi = x_graph_multi.permute(1, 0, 2).contiguous()
+        x_node_multi = x_node_multi.permute(1, 0, 2).contiguous()
+        return x_graph_multi, x_node_multi
+
+
     def forward(self, x, edge_index):
-        if x is None:
-            x = torch.ones((batch.shape[0], 1)).to(self.device)
         h_node = self._normal_conv(x, edge_index)
         h_graph_multi, h_node_multi = self._disen_conv(h_node, edge_index)
         return h_graph_multi, h_node_multi

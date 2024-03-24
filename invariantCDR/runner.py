@@ -24,10 +24,11 @@ class Runner(object):
         self.data = data
         self.data_aug = data_aug
         self.DGCL = DGCL(args)
+        self.device = args.device
         self.length = len(data["train"]["edge_list"]) # number of graphs
 
     def train(self, epoch, data, data_aug):
-        # epoch_losses, train_auc_list, val_auc_list, test_auc_list 
+        # ret: epoch_losses, train_auc_list, val_auc_list, test_auc_list 
         args = self.args
         self.model.train()
         optimizer = self.optimizer
@@ -36,8 +37,13 @@ class Runner(object):
             graph = data["edge_list"][idx] # get the idx grpah
             graph_aug = data_aug["edge_list"][idx]
             optimizer.zero_grad() # 重置梯度
-            node_num, _ = data.x.size() 
-            data = data.to(device)
+            node_num, _ = data.x.size()
+            data = data.to(self.device)
+            # 得到图和图节点的disentangled representation
+            # 使用的是K个相同的DGCL encoder（里面包含contrastive learning）
+            graph_emb, node_emb = self.DGCL(data, idx)
+            graph_emb_aug, node_emb_aug = self.DGCL(data, idx)
+            # 然后把node_emb进行比较，找到invariant pattern
         # embeddings 
         
         
@@ -57,7 +63,7 @@ class Runner(object):
         with tqdm(range(1, args.epoch+1)) as bar:
             for epoch in bar:
                 epoch_start = time.time()
-                epoch_losses, train_auc_list, val_auc_list, test_auc_list = self.train(epoch, self.data["train"], self.data_aug)
+                epoch_losses, train_auc_list, val_auc_list, test_auc_list = self.train(epoch, self.data, self.data_aug)
                 average_epoch_loss = epoch_losses
                 average_train_auc = np.mean(train_auc_list)
                 average_val_auc = np.mean(val_auc_list)

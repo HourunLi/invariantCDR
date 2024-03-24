@@ -131,9 +131,10 @@ def augmentData(args, data):
             assert False
         data_aug["train"]["edge_lists"].append(edge_index_aug)
 
+# only for dual user inter now, need for branch if add new scnerios
 def loadFile(args, mode):
-    edge_list = []
-    args.user_max, args.item_max = [], []
+    x_list, edge_list = [], []
+    args.user_max, args.item_max, args.node_num = [], [], []
     for _, cur_domain in enumerate(args.domains):
         cur_src_data_dir = os.path.join("./datasets/"+str(args.task) + "/dataset/", cur_domain + f"/{mode}.txt")
         print(f'Loading {cur_domain}: {cur_src_data_dir}')
@@ -143,17 +144,24 @@ def loadFile(args, mode):
             for line in infile:
                 line = line.strip().split("\t")
                 user = int(line[0])
-                item = int(line[1]) + 1
+                item = int(line[1])
                 max_user = max(max_user, user)
                 max_item = max(max_item, item)
                 edges.append([user, item])
-        edges = torch.tensor(edges).to(args.device).transpose(0, 1)
-        edge_list.append(edges)
         args.user_max.append(max_user + 1)
         args.item_max.append(max_item + 1)
-    # for i in range(len(edge_list)):
-    #     print(edge_list[i].size())
-    return edge_list
+        args.node_num.append(max_user + max_item + 2)
+        # put item index after user
+        edges = [[user, item + max_user] for user, item in edges]
+        edges = torch.tensor(edges).to(args.device).transpose(0, 1)
+        x = torch.ones(args.node_num[-1]).to(args.device)
+        edge_list.append(edges)
+        x.append(x)
+
+    # user and item both start at 0
+    # iten uses index after user
+    # dual user inter 是不需要处理user和item的，只有大图需要处理。
+    return x, edge_list
 
 def load_data(args):
     data = defaultdict(dict)
@@ -166,10 +174,14 @@ def load_data(args):
         args.domains = args.domains.split('_')
         
     print("Loading domains:", args.domains)
-    data["train"]["edge_lists"] = loadFile(args, mode = "train")
+    data["x"], data["train"]["edge_lists"] = loadFile(args, mode = "train")
     # data["valid"]["edge_lists"] = loadFile(args, mode = "valid")
-    data["test"]["edge_lists"] = loadFile(args, mode = "test")
+    data["x"], data["test"]["edge_lists"] = loadFile(args, mode = "test")
     # set args
     args.num_domains = len(args.domains)
     data_aug = augmentData(args, data)
     return args, data, data_aug
+
+"""
+data = {"x":[num_domains, node_num, 1]], "train" : {"edge_lists":[edge_num, 2]}}
+"""
