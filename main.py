@@ -37,5 +37,5 @@ runner = Runner(args, data, data_aug, model)
 
 if args.mode == "train":
     results = runner.run()
-elif args.mode == "eval":
-    results = runner.eval()
+# elif args.mode == "eval":
+#     results = runner.eval()
