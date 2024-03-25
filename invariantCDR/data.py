@@ -170,7 +170,8 @@ def loadTrainFile(args, data):
         """
         edges = [[user, item + max_user] for user, item in edges]
         edges = torch.tensor(edges).to(args.device).transpose(0, 1)
-        x = torch.ones(args.node_num[-1]).to(args.device)
+        x = torch.ones((args.node_num[-1], 1)).to(args.device)
+        args.num_features = 1
         edge_list.append(edges)
         x_list.append(x)
 
@@ -191,20 +192,20 @@ def load_data(args):
 
     """
     data = {"x":[num_domains, node_num, 1]], "train" : {"edge_lists":[edge_num, 2]}, 
-        "user_max": [graph_num, 1], "item_max": [graph_num, 1], "node_num": [graph_num, 1], 
-        "domains": [graph_num, 1], "graph_num": int}
+        "user_max": [domain_num, 1], "item_max": [domain_num, 1], "node_num": [domain_num, 1], 
+        "domains": [domain_num, 1], "domain_num": int}
     """
     data = {}
     data["user_max"], data["item_max"], data["node_num"] = [], [], []
     data["train"], data["valid"], data["test"] = {}, {}, {}
     data["domains"] = [domain for domain in args.domains]
-    data["graph_num"], args.num_domains = len(args.domains), len(args.domains)
+    data["domain_num"], args.num_domains = len(args.domains), len(args.domains)
     
     loadTrainFile(args, data)
     
     data_aug = {}
     data_aug["train"] = {}
-    data_aug["x"], data_aug["domains"], data_aug["graph_num"] = deepcopy(data["x"]), deepcopy(data["domains"]), data["graph_num"]
+    data_aug["x"], data_aug["domains"], data_aug["domain_num"] = deepcopy(data["x"]), deepcopy(data["domains"]), data["domain_num"]
     augmentData(args, data, data_aug)
     return args, data, data_aug
 

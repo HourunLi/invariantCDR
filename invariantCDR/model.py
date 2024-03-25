@@ -137,14 +137,14 @@ class DisenEncoder(torch.nn.Module):
         self.num_layers = args.num_layers 
         self.head_layers = args.head_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
         self.gc_layers = self.num_layers - self.head_layers
-        self.if_proj_head = args.if_proj_head # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
+        self.projection = args.projection > 0 # A projection head is an additional neural network layer (or layers) applied to the embeddings, often used in contrastive learning to improve representation learning.
         self.drop_ratio = args.drop_ratio
-        self.graph_pooling = args.graph_pooling
-        if self.graph_pooling == "sum" or self.graph_pooling == 'add':
+        self.pool = args.pool
+        if self.pool == "sum" or self.pool == 'add':
             self.pool = global_add_pool
-        elif self.graph_pooling == "mean":
+        elif self.pool == "mean":
             self.pool = global_mean_pool
-        elif self.graph_pooling == "max":
+        elif self.pool == "max":
             self.pool = global_max_pool
         else:
             raise ValueError("Invalid graph pooling type.")
@@ -197,9 +197,8 @@ class DisenEncoder(torch.nn.Module):
     # This method applies standard graph convolutional layers to the input graph features x
     def _normal_conv(self, x, edge_index):
         xs = []
-        for i in range(self.gc_layers): # For each layer, it applies a graph convolution (self.convs[i]) followed by batch normalization (self.bns[i]).
-            # x是特征值，edge_index是边
-            # 先经历一次卷机进行message passing，然后过一次batch normalization
+        for i in range(self.gc_layers):
+            # message passing and then batch normalization
             x = self.convs[i](x, edge_index)
             x = self.bns[i](x)
             # 如果是最后一层，那么直接输出，否则过一次激活函数。
@@ -222,12 +221,9 @@ class DisenEncoder(torch.nn.Module):
         for i in range(self.K):
             x_proj = x
             for j in range(self.head_layers):
-                # 因为所有k个factor对应的conv都放一个modulelist了，所以先计算index
-                tmp_index = i * self.head_layers + j
-                # 跟前面的处理方式是一样的
-                x_proj = self.disen_convs[tmp_index](x_proj, edge_index)
-                x_proj = self.disen_bns[tmp_index](x_proj)
-                # 这里没有dropout
+                index = i * self.head_layers + j
+                x_proj = self.disen_convs[index](x_proj, edge_index)
+                x_proj = self.disen_bns[index](x_proj)
                 if j != self.head_layers - 1:
                     x_proj = F.relu(x_proj)
             x_proj_list.append(x_proj)
@@ -235,7 +231,8 @@ class DisenEncoder(torch.nn.Module):
             x_proj_pool_list.append(self.pool(x_proj))
         # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
         # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
-        if self.if_proj_head:
+        if self.projection:
+            x_proj_list = self._proj_head(x_proj_list)
             x_proj_pool_list = self._proj_head(x_proj_pool_list)
         # dim = 0是默认参数， 把x_proj_pool_list把第一位堆叠起来，其实等价于直接转换为tensor
         x_graph_multi = torch.stack(x_proj_pool_list)
@@ -249,11 +246,11 @@ class DisenEncoder(torch.nn.Module):
         x_node_multi = x_node_multi.permute(1, 0, 2).contiguous()
         return x_graph_multi, x_node_multi
 
-    def _proj_head(self, x_proj_pool_list):
+    def _proj_head(self, x_list):
         ret = []
         for k in range(self.K):
-            x_graph_proj = self.proj_heads[k](x_proj_pool_list[k])
-            ret.append(x_graph_proj)
+            x_proj = self.proj_heads[k](x_list[k])
+            ret.append(x_proj)
         return ret
     
 
