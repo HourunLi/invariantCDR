@@ -22,10 +22,10 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 
 class invariantCDR(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(invariantCDR, self).__init__()
         self.args = args
-        self.device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+        self.device = device
         self.DGCL = DGCL(args, self.device)
     
     # def encode(self, x, edge_index):
@@ -74,6 +74,9 @@ class DGCL(nn.Module):
                     m.bias.data.fill_(0.0)
 
     def forward(self, data, idx):
+        # print(f"move {idx} data to gpu")
+        data["x"][idx] = data["x"][idx].to(self.device)
+        data["train"]["edge_lists"][idx] = data["train"]["edge_lists"][idx].to(self.device)
         if data["x"][idx] is None:
             raise RuntimeError('x is None')
         graph_emb, node_emb = self.encoder(data["x"][idx], data["train"]["edge_lists"][idx])
@@ -200,6 +203,7 @@ class DisenEncoder(torch.nn.Module):
         xs = []
         for i in range(self.gc_layers):
             # message passing and then batch normalization
+            # print(x, edge_index)    
             x = self.convs[i](x, edge_index)
             x = self.bns[i](x)
             # 如果是最后一层，那么直接输出，否则过一次激活函数。
@@ -229,7 +233,7 @@ class DisenEncoder(torch.nn.Module):
                     x_proj = F.relu(x_proj)
             x_proj_list.append(x_proj)
             # x_proj_pool_list是想要获得一个graph level的representation (based on the disentangled node representations.)
-            x_proj_pool_list.append(self.pool(x_proj, torch.tensor([0]*x_proj.size()[0])))
+            x_proj_pool_list.append(self.pool(x_proj, torch.tensor([0]*x_proj.size()[0]).to(self.device)))
         # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
         # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
         if self.projection:
@@ -258,6 +262,8 @@ class DisenEncoder(torch.nn.Module):
     def forward(self, x, edge_index):
         h_node = self._normal_conv(x, edge_index)
         h_graph_multi, h_node_multi = self._disen_conv(h_node, edge_index)
+        # print("----------------------------------------------x, edge_index--------------------------------------------")
+        # print(h_graph_multi, h_node_multi)
         return h_graph_multi, h_node_multi
     
     def get_embeddings(self, data):

@@ -36,22 +36,9 @@ class Runner(object):
             node_num, _ = data["x"][idx].size()
             # move2GPU(data, device)
             graph_emb, node_emb = self.model.DGCL(data, idx)
-            
-            edge_idx_aug = data_aug["train"]["edge_lists"][idx].numpy()
-            _, edge_num = edge_idx_aug.shape
-            idx_not_missing = [n for n in range(node_num) if (n in edge_idx_aug[0] or n in edge_idx_aug[1])]
-            node_num_aug = len(idx_not_missing)
-            data_aug["x"][idx] = data_aug["x"][idx][idx_not_missing] #[xx,7]
-            idx_dict = {idx_not_missing[n]: n for n in range(node_num_aug)}
-            edge_idx_aug = [[idx_dict[edge_idx_aug[0, n]], idx_dict[edge_idx_aug[1, n]]] for n in range(edge_num) if
-                        not edge_idx_aug[0, n] == edge_idx_aug[1, n]]
-            data_aug["train"]["edge_lists"][idx]= torch.tensor(edge_idx_aug).transpose_(0, 1)
-            # move2GPU(data_aug, device)
+            # print(f"{idx} round")
+            # print(data_aug["train"]["edge_lists"][idx])
             graph_emb_aug, node_emb_aug = self.model.DGCL(data_aug, idx)
-
-            print("----------------------------------------------x, x_aug--------------------------------------------")
-            print(graph_emb, graph_emb_aug)
-        
             loss = self.model.DGCL.loss_cal(graph_emb, graph_emb_aug) # contrastive loss,计算原数据和增强后数据的嵌入向量相似度
             loss_all += loss.item()
             loss.backward()
@@ -69,12 +56,24 @@ class Runner(object):
         # emb, y = self.model.encoder.get_embeddings(
         #     [self.data["train"]["edge_lists"][ind].long().to(args.device) for ind in range(self.len)]
         # )
+        for idx in range(self.length):
+            node_num, _ = self.data["x"][idx].size()
+            edge_idx_aug = self.data_aug["train"]["edge_lists"][idx].numpy()
+            _, edge_num = edge_idx_aug.shape
+            idx_not_missing = [n for n in range(node_num) if (n in edge_idx_aug[0] or n in edge_idx_aug[1])]
+            node_num_aug = len(idx_not_missing)
+            self.data_aug["x"][idx] = self.data_aug["x"][idx][idx_not_missing] #[xx,7]
+            idx_dict = {idx_not_missing[n]: n for n in range(node_num_aug)}
+            edge_idx_aug = [[idx_dict[edge_idx_aug[0, n]], idx_dict[edge_idx_aug[1, n]]] for n in range(edge_num) if
+                        not edge_idx_aug[0, n] == edge_idx_aug[1, n]]
+            self.data_aug["train"]["edge_lists"][idx]= torch.tensor(edge_idx_aug).transpose_(0, 1)
+            
         max_auc, max_test_auc, max_train_auc = 0, 0, 0
         train_start = time.time()
         with tqdm(range(1, args.epoch+1)) as bar:
             for epoch in bar:
                 epoch_start = time.time()
-                avg_epoch_loss, train_auc_list, val_auc_list, test_auc_list = self.train(self.data, self.data_aug)
+                avg_epoch_loss = self.train(self.data, self.data_aug)
                 print('loss %.4f' % avg_epoch_loss)
         #         avg_epoch_loss = epoch_losses
         #         avg_train_auc = np.mean(train_auc_list)

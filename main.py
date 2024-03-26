@@ -30,9 +30,11 @@ import json
 
 
 args, data, data_aug= load_data(args)
+device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
 print(args)
 
-model = invariantCDR(args = args)
+
+model = invariantCDR(args = args, device = device).to(device)
 runner = Runner(args, model, data, data_aug)
 
 if args.mode == "train":
