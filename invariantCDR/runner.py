@@ -21,10 +21,11 @@ class Runner(object):
         seed_everything(args.seed)
         self.args = args
         self.model = model
-        self.data, self.data_aug= data, data_aug
+        self.data, self.data_aug = data, data_aug
         self.device = args.device
+        self.lr = args.lr
         self.length = data["domain_num"]# number of graphs
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = self.lr)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr = args.lr)
         self.max_patience = args.patience
 
     def train(self, data, data_aug):
@@ -35,10 +36,10 @@ class Runner(object):
         optimizer.zero_grad()
         for idx in range(self.length):
             node_num, _ = data["x"][idx].size()
-            data = data.to(device)
+            # move2GPU(data, device)
             graph_emb, node_emb = self.model.DGCL(data, idx)
             
-            edge_idx_aug = data_aug["train"]["edge_list"][idx].numpy()
+            edge_idx_aug = data_aug["train"]["edge_lists"][idx].numpy()
             _, edge_num = edge_idx_aug.shape
             idx_not_missing = [n for n in range(node_num) if (n in edge_idx_aug[0] or n in edge_idx_aug[1])]
             node_num_aug = len(idx_not_missing)
@@ -46,11 +47,14 @@ class Runner(object):
             idx_dict = {idx_not_missing[n]: n for n in range(node_num_aug)}
             edge_idx_aug = [[idx_dict[edge_idx_aug[0, n]], idx_dict[edge_idx_aug[1, n]]] for n in range(edge_num) if
                         not edge_idx_aug[0, n] == edge_idx_aug[1, n]]
-            data_aug["train"]["edge_list"][idx]= torch.tensor(edge_idx_aug).transpose_(0, 1)
-            data_aug = data_aug.to(device)
+            data_aug["train"]["edge_lists"][idx]= torch.tensor(edge_idx_aug).transpose_(0, 1)
+            # move2GPU(data_aug, device)
             graph_emb_aug, node_emb_aug = self.model.DGCL(data_aug, idx)
 
-            loss = self.model.loss_cal(node_emb, node_emb_aug) # contrastive loss,计算原数据和增强后数据的嵌入向量相似度
+            print("----------------------------------------------x, x_aug--------------------------------------------")
+            print(graph_emb, graph_emb_aug)
+        
+            loss = self.model.DGCL.loss_cal(graph_emb, graph_emb_aug) # contrastive loss,计算原数据和增强后数据的嵌入向量相似度
             loss_all += loss.item()
             loss.backward()
             optimizer.step()

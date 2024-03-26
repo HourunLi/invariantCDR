@@ -26,9 +26,10 @@ parser.add_argument('--node_feature', type=int, default=128, help='user or item 
 parser.add_argument('--latent_dim', type=int, default=128, help='latent dimensions')
 parser.add_argument('--aug', type=str, default='random4', help='augmentation methods')
 parser.add_argument('--JK', type=str, default='sum', choices=['last', 'sum'])
+parser.add_argument('--tau', type=float, default=0.2, help="temperature parameter for scaling the similarity scores")
 parser.add_argument('--residual', type=int, default=0, choices=[0, 1])
 parser.add_argument('--projection', type=int, default=1, choices=[0, 1])
-parser.add_argument('--drop_ratio', type=float, default=0.3, delp = "drop rtatio")
+parser.add_argument('--drop_ratio', type=float, default=0.3, help = "drop rtatio")
 parser.add_argument('--num_negative', type=int, default=10, help='num of negative samples during training')
 parser.add_argument('--maxlen', type=int, default=10, help='num of item sequence')
 parser.add_argument('--dropout', type=float, default=0.3, help='random drop out rate')
@@ -40,6 +41,7 @@ parser.add_argument('--static_sample', action='store_true', help='accelerate the
 
 # others
 parser.add_argument('--epoch', type=int, default=100, help='number of epoches')
+parser.add_argument("--patience", type=int, default=50, help="patience for early stop")
 parser.add_argument("--min_epoch", type=int, default=50, help="min epoch")
 parser.add_argument("--mode", type=str, default="train", help="train, eval")
 parser.add_argument('--cuda', action='store_true', help='use of cuda')

@@ -76,13 +76,13 @@ class DGCL(nn.Module):
     def forward(self, data, idx):
         if data["x"][idx] is None:
             raise RuntimeError('x is None')
-        graph_emb, node_emb = self.encoder(data["x"][idx], data["train"]["edge_list"][idx])
+        graph_emb, node_emb = self.encoder(data["x"][idx], data["train"]["edge_lists"][idx])
         return graph_emb, node_emb
 
     def loss_cal(self, x, x_aug):
         T = self.T #  temperature parameter for scaling the similarity scores
         T_c = 0.2 #  temperature parameter used for the softmax function in the calculation of cluster probabilities.
-        B, H, d = x.size() # batch, k factor, dimension
+        B, H, d = x.size() # node_num, k factor, dimension
         ck = F.normalize(self.center_v)
         # compute the similarity scores between the normalized embeddings x and the normalized cluster centers ck
         # 说白了就是dot product来计算相似度
@@ -93,6 +93,7 @@ class DGCL(nn.Module):
         # 计算dimension维度的二范数
         # x: torch.Size([128, 3, 42])
         # x_abs: torch.Size([128, 3])
+        # keepdim=False, p=2是默认选项
         x_abs = x.norm(dim=-1)
         # print(x.size())
         # print(x_abs.size())
@@ -131,7 +132,7 @@ class DisenEncoder(torch.nn.Module):
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
         self.device = args.device
-        self.num_features = args.num_features
+        self.node_feature = args.node_feature
         self.K = args.num_latent_factors # k latent factor (hyper parameter)
         self.d = args.latent_dim // self.K # dimension for each latent factor
         self.num_layers = args.num_layers 
@@ -228,7 +229,7 @@ class DisenEncoder(torch.nn.Module):
                     x_proj = F.relu(x_proj)
             x_proj_list.append(x_proj)
             # x_proj_pool_list是想要获得一个graph level的representation (based on the disentangled node representations.)
-            x_proj_pool_list.append(self.pool(x_proj))
+            x_proj_pool_list.append(self.pool(x_proj, torch.tensor([0]*x_proj.size()[0])))
         # print(f"the length of x_proj_pool_list is {len(x_proj_pool_list)} and {x_proj_pool_list[0].size()}")
         # the length of x_proj_pool_list is 3 and torch.Size([60, 42])
         if self.projection:

@@ -13,3 +13,10 @@ def seed_everything(seed: int):
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
+    
+    
+def move2GPU(data, device):
+    data["x"] = torch.tensor(data["x"]).to(device)
+    data["train"]["edge_list"] = torch.Tensor(data["train"]["edge_list"]).to(device)
+    return
+    
