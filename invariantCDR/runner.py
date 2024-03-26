@@ -22,7 +22,6 @@ class Runner(object):
         self.args = args
         self.model = model
         self.data, self.data_aug = data, data_aug
-        self.device = args.device
         self.lr = args.lr
         self.length = data["domain_num"]# number of graphs
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr = args.lr)
@@ -31,7 +30,6 @@ class Runner(object):
     def train(self, data, data_aug):
         loss_all = 0
         self.model.train()
-        device = self.device
         optimizer = self.optimizer
         optimizer.zero_grad()
         for idx in range(self.length):

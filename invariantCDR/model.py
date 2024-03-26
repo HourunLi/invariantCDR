@@ -24,9 +24,9 @@ from sklearn.metrics import accuracy_score
 class invariantCDR(nn.Module):
     def __init__(self, args):
         super(invariantCDR, self).__init__()
-        self.DGCL = DGCL(args)
         self.args = args
-        self.device = args.device
+        self.device = torch.device('cuda' if torch.cuda.is_available() and args.cuda else 'cpu')
+        self.DGCL = DGCL(args, self.device)
     
     # def encode(self, x, edge_index):
     #     # node Num
@@ -46,15 +46,15 @@ class invariantCDR(nn.Module):
         # self.item_embedding_lsit = nn.ModuleList(self.item_embedding_lsit)
         
 class DGCL(nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(DGCL, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, latent_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
-        self.device = args.device
-        self.encoder = DisenEncoder(args)
+        self.device = device
+        self.encoder = DisenEncoder(args, device)
         self.T = args.tau # The temperature parameter for contrastive learning, set to 0.2
         self.K = args.num_latent_factors # 3
         self.latent_dim = args.latent_dim
@@ -124,14 +124,14 @@ class DGCL(nn.Module):
 
 
 class DisenEncoder(torch.nn.Module):
-    def __init__(self, args):
+    def __init__(self, args, device):
         super(DisenEncoder, self).__init__()
         # print(args)
         # Namespace(DS='MUTAG', JK='sum', aug='random4', batch=128, debug=False, drop_ratio=0.3, 
         # epoch=30, fe=0, head_layers=1, latent_dim=126, log_dir='log', log_interval=5, lr=0.0001, 
         # num_gc_layers=4, num_latent_factors=3, num_workers=8, pool='mean', proj=1, residual=0, seed=32, tau=0.2)
         self.args = args
-        self.device = args.device
+        self.device = device
         self.node_feature = args.node_feature
         self.K = args.num_latent_factors # k latent factor (hyper parameter)
         self.d = args.latent_dim // self.K # dimension for each latent factor
