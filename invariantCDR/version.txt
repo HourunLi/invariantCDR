@@ -1,0 +1,49 @@
+bce rec loss + bce critic loss：
+source: 	 mrr: 0.024228	 ndcg_5: 0.0152	 ndcg_10: 0.0223	 hit@1:0.008689	 hit@5:0.0224	 hit@10: 0.0442
+target: 	 mrr: 0.030535	 ndcg_5: 0.0240	 ndcg_10: 0.0288	 hit@1:0.013937	 hit@5:0.0348	 hit@10: 0.0495
+epoch 95: train_loss = 2.821602, source_hit@10 = 0.0442, source_ndcg@10 = 0.0223, target_hit@10 = 0.0495, target_ndcg@10 = 0.0288
+
+2024-06-21 17:37:19.446706: step 58368/60800 (epoch 96/100), loss = 2.820506 (7.874 sec/epoch), lr: 0.000656
+2024-06-21 17:37:27.708737: step 58976/60800 (epoch 97/100), loss = 2.819620 (8.262 sec/epoch), lr: 0.000656
+2024-06-21 17:37:34.881445: step 59584/60800 (epoch 98/100), loss = 2.820284 (7.173 sec/epoch), lr: 0.000656
+2024-06-21 17:37:42.087534: step 60192/60800 (epoch 99/100), loss = 2.820134 (7.206 sec/epoch), lr: 0.000656
+2024-06-21 17:37:49.675433: step 60800/60800 (epoch 100/100), loss = 2.821082 (7.588 sec/epoch), lr: 0.000656
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.028532	 ndcg_5: 0.0220	 ndcg_10: 0.0283	 hit@1:0.008689	 hit@5:0.0362	 hit@10: 0.0558
+target: 	 mrr: 0.033400	 ndcg_5: 0.0277	 ndcg_10: 0.0348	 hit@1:0.012544	 hit@5:0.0432	 hit@10: 0.0655
+
+
+更改成bpr rec loss + bce critic loss：
+source: 	 mrr: 0.020594	 ndcg_5: 0.0132	 ndcg_10: 0.0163	 hit@1:0.005793	 hit@5:0.0210	 hit@10: 0.0304
+target: 	 mrr: 0.019848	 ndcg_5: 0.0138	 ndcg_10: 0.0173	 hit@1:0.006969	 hit@5:0.0209	 hit@10: 0.0321
+epoch 95: train_loss = 1.436657, source_hit@10 = 0.0304, source_ndcg@10 = 0.0163, target_hit@10 = 0.0321, target_ndcg@10 = 0.0173
+
+2024-06-21 17:51:06.669522: step 58368/60800 (epoch 96/100), loss = 1.436415 (6.793 sec/epoch), lr: 0.000590
+2024-06-21 17:51:13.440754: step 58976/60800 (epoch 97/100), loss = 1.434490 (6.771 sec/epoch), lr: 0.000590
+2024-06-21 17:51:20.359057: step 59584/60800 (epoch 98/100), loss = 1.434934 (6.918 sec/epoch), lr: 0.000590
+2024-06-21 17:51:27.067114: step 60192/60800 (epoch 99/100), loss = 1.435170 (6.708 sec/epoch), lr: 0.000590
+2024-06-21 17:51:33.756434: step 60800/60800 (epoch 100/100), loss = 1.435870 (6.689 sec/epoch), lr: 0.000590
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.033055	 ndcg_5: 0.0264	 ndcg_10: 0.0334	 hit@1:0.011586	 hit@5:0.0413	 hit@10: 0.0630
+target: 	 mrr: 0.038267	 ndcg_5: 0.0305	 ndcg_10: 0.0380	 hit@1:0.017422	 hit@5:0.0439	 hit@10: 0.0676
+
+
+
+
+更改成bpr rec loss + bpr critic loss：
+...........................
+source: 	 mrr: 0.028332	 ndcg_5: 0.0198	 ndcg_10: 0.0252	 hit@1:0.009413	 hit@5:0.0311	 hit@10: 0.0478
+target: 	 mrr: 0.028874	 ndcg_5: 0.0229	 ndcg_10: 0.0315	 hit@1:0.009756	 hit@5:0.0369	 hit@10: 0.0641
+epoch 90: train_loss = 1.410022, source_hit@10 = 0.0478, source_ndcg@10 = 0.0252, target_hit@10 = 0.0641, target_ndcg@10 = 0.0315
+
+2024-06-21 18:04:19.644756: step 55328/60800 (epoch 91/100), loss = 1.409025 (7.542 sec/epoch), lr: 0.000656
+2024-06-21 18:04:26.662611: step 55936/60800 (epoch 92/100), loss = 1.409004 (7.018 sec/epoch), lr: 0.000656
+2024-06-21 18:04:33.546651: step 56544/60800 (epoch 93/100), loss = 1.409940 (6.884 sec/epoch), lr: 0.000656
+2024-06-21 18:04:40.332713: step 57152/60800 (epoch 94/100), loss = 1.409047 (6.786 sec/epoch), lr: 0.000656
+2024-06-21 18:04:47.131750: step 57760/60800 (epoch 95/100), loss = 1.409016 (6.799 sec/epoch), lr: 0.000656
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.032794	 ndcg_5: 0.0238	 ndcg_10: 0.0314	 hit@1:0.010138	 hit@5:0.0377	 hit@10: 0.0615
+target: 	 mrr: 0.033468	 ndcg_5: 0.0285	 ndcg_10: 0.0358	 hit@1:0.011847	 hit@5:0.0460	 hit@10: 0.0690
