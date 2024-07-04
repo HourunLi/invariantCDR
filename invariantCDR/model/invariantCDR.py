@@ -12,8 +12,8 @@ from torch_geometric.utils import degree
 from torch.nn import Sequential, Linear, ReLU
 from torch.autograd import Variable
 from model.GCN import LightGCN
-from model.Encoder import VBGE
-from model.Encoder import disenEncoder
+from model.Encoder import VBGE, disenEncoder
+from model.transfer import FactorDomainTransformer
 from utils import torch_utils, helper
 
 class invariantCDR(nn.Module):
@@ -27,6 +27,7 @@ class invariantCDR(nn.Module):
         # self.target_LightGCN = LightGCN(args, args.target_user_num, args.target_item_num, args.target_adj)
         self.source_disenEncoder = disenEncoder(args)
         self.target_disenEncoder = disenEncoder(args)
+        
         self.discri_source = nn.Sequential(
             nn.Linear(args.feature_dim * 2, args.feature_dim),
             nn.LeakyReLU(args.leakey),
@@ -42,26 +43,8 @@ class invariantCDR(nn.Module):
             nn.Linear(100, 1),
         )
         
-        self.source2target =  nn.Sequential(
-            nn.Linear(args.feature_dim, args.feature_dim),
-            nn.LeakyReLU(args.leakey),
-            nn.Linear(args.feature_dim, args.feature_dim),
-        )
-        self.target2source =  nn.Sequential(
-            nn.Linear(args.feature_dim, args.feature_dim),
-            nn.LeakyReLU(args.leakey),
-            nn.Linear(args.feature_dim, args.feature_dim),
-        )
-        # self.source_GNN = VBGE(args)
-        # self.target_GNN = VBGE(args)
-        # self.discri = nn.Sequential(
-        #     nn.Linear(args.feature_dim * 2 * self.args.GNN, args.feature_dim),
-        #     nn.ReLU(),
-        #     nn.Linear(args.feature_dim, 100),
-        #     nn.ReLU(),
-        #     nn.Linear(100, 1),
-        # )
-        # The temperature parameter for contrastive learning, set to 0.2
+        self.s2t_transfer = FactorDomainTransformer(args)
+        self.t2s_transfer = FactorDomainTransformer(args)
         
         self.tau = args.tau 
         self.source_user_embedding = nn.Embedding(args.source_user_num, args.feature_dim).to(self.device)
@@ -75,11 +58,18 @@ class invariantCDR(nn.Module):
         self.target_item_index = torch.arange(0, self.args.target_item_num, 1).to(self.device)
         
         self.criterion = nn.BCEWithLogitsLoss().to(self.device)
+        self.transfer_criterion = nn.MSELoss()
         self.critic_loss = 0
         self.transfer_flag = 0
         self.K = args.num_latent_factors 
         self.d = args.feature_dim // self.K
-        # self.center_v = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        
+        self.center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        self.source_user_center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        self.source_item_center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        self.target_user_center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        self.target_item_center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
+        
         self.dropout = self.args.dropout
         self.__init_weight()
         
@@ -158,42 +148,65 @@ class invariantCDR(nn.Module):
     #                      target_neg_emb_ego.norm(2).pow(2))/float(len(target_user_specific))
         
     #     return source_reg_loss + target_reg_loss
-        
-    def cosine_similarity_matrix(self, embeddings):
+
+    def min_max_norm(self, embeddings):
+        min_vals = embeddings.min(dim=1, keepdim=True)[0]
+        max_vals = embeddings.max(dim=1, keepdim=True)[0]
+        embeddings = (embeddings - min_vals) / (max_vals - min_vals)
+        return embeddings
+    
+    def row_wise_norm(self, embeddings):
+        row_sums = embeddings.sum(dim=1, keepdim=True)
+        embeddings = embeddings / row_sums
+        return embeddings
+
+    def _cal_similarity_matrix(self, embeddings):
         norm_embeddings = F.normalize(embeddings, p=2, dim=1)
         similarity_matrix = torch.mm(norm_embeddings, norm_embeddings.t())
-        binary_similarity_matrix = (similarity_matrix > self.args.sim_threshold).float()
+        # binary_similarity_matrix = (similarity_matrix > self.args.sim_threshold).float()
+        # return similarity_matrix
+        # print("-----------source_sim_matrices------------")
+        # print(binary_similarity_matrix)
         exp_sim = torch.exp(similarity_matrix / self.tau)
-        softmax_similarity_matrix = F.softmax(exp_sim, dim=1)
-        softmax_similarity_matrix = softmax_similarity_matrix.detach()
-        return softmax_similarity_matrix
+        exp_sim = self.min_max_norm(exp_sim)
+        exp_sim = self.row_wise_norm(exp_sim)
+        exp_sim[exp_sim < 0.2] = 0
+        return exp_sim
 
-    def calculate_sim(self, source_learn_user, target_learn_user):
-        source_shared_user = self.my_index_select(source_learn_user, torch.arange(0, self.args.shared_user).to(self.device))
-        target_shared_user = self.my_index_select(target_learn_user, torch.arange(0, self.args.shared_user).to(self.device))
-        sim_s = self.cosine_similarity_matrix(source_shared_user)
-        sim_t = self.cosine_similarity_matrix(target_shared_user)
-        return sim_s, sim_t
+    def cal_similarity_matrices(self, source_learn_user, target_learn_user):
+        source_sim_matrices = []
+        target_sim_matrices = []
+        source_shared_user = source_learn_user[:self.args.test_user].to(self.device)
+        target_shared_user = target_learn_user[:self.args.test_user].to(self.device)
+
+        for i in range(self.K):
+            source_factor_embedding = source_shared_user[:, i, :]
+            target_factor_embedding = target_shared_user[:, i, :]
+            source_sim = self._cal_similarity_matrix(source_factor_embedding).detach()
+            target_sim = self._cal_similarity_matrix(target_factor_embedding).detach()
+            source_sim_matrices.append(source_sim)
+            target_sim_matrices.append(target_sim)
+            # print(sim_source.size())
+            # print(sim_target.size())
+        # print("-----------source_sim_matrices------------")
+        # print(source_sim_matrices[0])
+        # print(source_sim_matrices[1])
+        
+        # print("-----------target_sim_matrices------------")
+        # print(target_sim_matrices)
+        return source_sim_matrices, target_sim_matrices
     
-    def _transfer_sim(self, embedding, similarity):
-        norm_embeddings = F.normalize(embedding, p=2, dim=1)
-        # print(embedding)
-        sim = torch.mm(norm_embeddings, norm_embeddings.t()) / self.tau
-        exp_sim = torch.exp(sim)
-        sum_exp_sim = torch.sum(exp_sim, dim=1, keepdim=True)
-        exp_sim_positive = exp_sim * similarity
-        sum_exp_sim_positive = torch.sum(exp_sim_positive, dim=1).clamp(min=1e-9)
-        # print("sum_exp_sim_positive: {}".format(sum_exp_sim_positive.size()))
-        # print(sum_exp_sim_positive)
-        # print("sum_exp_sim: {}".format(sum_exp_sim.size()))
-        # print(sum_exp_sim)
-        sim_loss = -torch.log(sum_exp_sim_positive / sum_exp_sim)
-        return sim_loss.mean()
+    def _cal_transfer_loss(self, embeddings, similarity):
+        transfer_sim = self._cal_similarity_matrix(embeddings)
+        loss = self.transfer_criterion(transfer_sim, similarity)
+        return loss
     
-    def transfer_sim(self, source_learn_user_transfer, target_learn_user_transfer, source_similarity_batch, target_similarity_batch):
-        source_sim_loss = self._transfer_sim(source_learn_user_transfer, source_similarity_batch)
-        target_sim_loss = self._transfer_sim(target_learn_user_transfer, target_similarity_batch)
-        # print(source_sim_loss, target_sim_loss)
+    def cal_transfer_loss(self, source_learn_user_transfer, target_learn_user_transfer, source_similarity_batch, target_similarity_batch):
+        source_sim_loss = 0
+        target_sim_loss = 0
+        for i in range(self.K):
+            source_sim_loss += self._cal_transfer_loss(source_learn_user_transfer[:, i, :], source_similarity_batch[i])
+            target_sim_loss += self._cal_transfer_loss(target_learn_user_transfer[:, i, :], target_similarity_batch[i])
         return source_sim_loss + target_sim_loss
     
     def forward(self, source_UV, source_VU, target_UV, target_VU):
@@ -207,56 +220,41 @@ class invariantCDR(nn.Module):
         
         source_learn_user, source_learn_item = self.source_disenEncoder(source_user, source_item, source_UV, source_VU)
         target_learn_user, target_learn_item = self.target_disenEncoder(target_user, target_item, target_UV, target_VU)
-    
+        source_learn_user_concat, target_learn_user_concat = None, None
+        
+        if self.transfer_flag == 0:
+            # shape: (B, K, D)
+            source_learn_user_concat =  source_learn_user
+            target_learn_user_concat =  target_learn_user
+            self.critic_loss = 0
+            return source_learn_user_concat, source_learn_item, target_learn_user_concat, target_learn_item
+        
         if self.training:
-            if self.transfer_flag == 0:
-                # warm up 不做transfer，首先学好每个领域自己内部的知识
-                source_learn_user_ret = source_learn_user
-                target_learn_user_ret = target_learn_user
-                self.critic_loss = 0
-            else:
-                if self.sim_s is None or self.sim_t is None:
-                    self.sim_s, self.sim_t = self.calculate_sim(source_learn_user, target_learn_user)
-                    # print(self.sim_s)
-                    # print(self.sim_t)
-                
-                per_stable = torch.randperm(self.args.shared_user)[:self.args.user_batch_size].to(self.device)
-                source_learn_user_stable = self.my_index_select(source_learn_user, per_stable)
-                target_learn_user_stable = self.my_index_select(target_learn_user, per_stable)
-                source_learn_user_transfer = self.target2source(target_learn_user_stable)
-                target_learn_user_transfer = self.source2target(source_learn_user_stable)
-                # pos_1 = self.dis(target_learn_user_transfer, target_learn_user_stable).view(-1)
-                # pos_2 = self.dis(source_learn_user_stable, source_learn_user_transfer).view(-1)
-                
-                # per = torch.randperm(self.args.target_user_num)[:self.args.user_batch_size].to(self.device)
-                # neg_1 = self.dis(target_learn_user_transfer, self.my_index_select(target_learn_user, per)).view(-1)
-                
-                # per = torch.randperm(self.args.source_user_num)[:self.args.user_batch_size].to(self.device)
-                # neg_2 = self.dis(self.my_index_select(source_learn_user, per), source_learn_user_transfer).view(-1)
-                # pos_label, neg_label = torch.ones(pos_1.size()).to(self.device), torch.zeros(neg_1.size()).to(self.device)
-                
-                
-                # per = torch.randperm(self.args.target_user_num)[:self.args.user_batch_size].to(self.device)
-                # neg_1 = self.dis(self.source2target(source_learn_user_stable), self.my_index_select(target_learn_user, per)).view(-1)
-                
-                # per = torch.randperm(self.args.source_user_num)[:self.args.user_batch_size].to(self.device)
-                # neg_2 = self.dis(self.my_index_select(source_learn_user, per), self.target2source(target_learn_user_stable)).view(-1)
-                
-                # neg_label = torch.zeros(neg_1.size()).to(self.device)
-                # self.critic_loss = source_sim_loss.mean() + target_sim_loss.mean() + self.criterion(neg_1, neg_label) + self.criterion(neg_2, neg_label)
-                source_similarity_matrix = self.sim_s[per_stable, :][:, per_stable]
-                target_similarity_matrix = self.sim_t[per_stable, :][:, per_stable]
-                transfer_loss = self.transfer_sim(source_learn_user_transfer, target_learn_user_transfer, source_similarity_matrix, target_similarity_matrix)
-          
-                # self.critic_loss = self.args.lambda_loss * transfer_loss + (1-self.args.lambda_loss)*(self.criterion(pos_1, pos_label) + self.criterion(pos_2, pos_label) + self.criterion(neg_1, neg_label) + self.criterion(neg_2, neg_label))
-                self.critic_loss = transfer_loss
-                source_learn_user_ret = torch.cat((self.target2source(target_learn_user[:self.args.shared_user]), source_learn_user[self.args.shared_user:]),dim=0)
-                target_learn_user_ret = torch.cat((self.source2target(source_learn_user[:self.args.shared_user]), target_learn_user[self.args.shared_user:]),dim=0)
+            # 根据第一阶段的相似度，用于transfer guideline
+            if self.sim_s is None or self.sim_t is None:
+                self.sim_s, self.sim_t = self.cal_similarity_matrices(source_learn_user, target_learn_user)
+            
+            # calculate critic loss
+            per_stable = torch.randperm(self.args.shared_user)[:self.args.user_batch_size].to(self.device)
+            source_learn_user_stable = source_learn_user[per_stable]
+            target_learn_user_stable = target_learn_user[per_stable]
+            source_learn_user_transfer = self.t2s_transfer.forward_user(target_learn_user_stable)
+            target_learn_user_transfer = self.s2t_transfer.forward_user(source_learn_user_stable)
+            source_similarity_matrix = [self.sim_s[i][per_stable, :][:, per_stable] for i in range(self.K)]
+            target_similarity_matrix = [self.sim_t[i][per_stable, :][:, per_stable] for i in range(self.K)]
+            critic_loss = self.cal_transfer_loss(source_learn_user_transfer, target_learn_user_transfer, source_similarity_matrix, target_similarity_matrix)
+            self.critic_loss = critic_loss
+            
+            # calculate transfer embeddings
+            transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.shared_user], self.sim_t, source_learn_item, source_UV)
+            transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.shared_user], self.sim_s, target_learn_item, target_UV)
+            source_learn_user_concat = torch.cat((transfer_source_user_embedding, source_learn_user[self.args.shared_user:]),dim=0)
+            target_learn_user_concat = torch.cat((transfer_target_user_embedding, target_learn_user[self.args.shared_user:]),dim=0)
         else :
-            source_learn_user_ret = torch.cat((self.target2source(target_learn_user[:self.args.source_shared_user]), source_learn_user[self.args.source_shared_user:]), dim=0)
-            target_learn_user_ret = torch.cat((self.source2target(source_learn_user[:self.args.target_shared_user]), target_learn_user[self.args.target_shared_user:]), dim=0)
+            transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.source_shared_user], self.sim_t, source_learn_item, source_UV)
+            transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.target_shared_user], self.sim_s, target_learn_item, target_UV)
+            source_learn_user_concat = torch.cat((transfer_source_user_embedding, source_learn_user[self.args.source_shared_user:]), dim=0)
+            target_learn_user_concat = torch.cat((transfer_target_user_embedding, target_learn_user[self.args.target_shared_user:]), dim=0)
 
-        return source_learn_user_ret, source_learn_item, target_learn_user_ret, target_learn_item
-    
-    
+        return source_learn_user_concat, source_learn_item, target_learn_user_concat, target_learn_item
     

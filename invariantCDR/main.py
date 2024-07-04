@@ -43,7 +43,7 @@ print(device)
 print(args)
 
 args.feature_dim = int(args.feature_dim // args.num_latent_factors) * args.num_latent_factors
-args, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch = load_data(args)
+args, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, source_dev_batch, target_dev_batch = load_data(args)
 recmodel = invariantCDR(args, device)
 optimizer = torch_utils.get_optimizer(args.optim, recmodel.parameters(), args.lr, args.weight_decay)
 start_epoch = 1
@@ -56,7 +56,7 @@ if args.load:
     # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
     print("Loading model from {}".format(model_path))
-runner = Runner(args, recmodel, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, start_epoch = start_epoch)
+runner = Runner(args, recmodel, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, source_dev_batch, target_dev_batch, start_epoch = start_epoch)
 
 torch.set_printoptions(threshold=np.inf)
 if args.mode == "train":

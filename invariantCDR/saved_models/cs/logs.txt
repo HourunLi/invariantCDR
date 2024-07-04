@@ -1,0 +1,4 @@
+# epoch	train_loss	dev_loss	dev_score	best_dev_score
+42	1.314456	0.0307	0.0307
+45	1.275082	0.0454	0.0454
+48	1.251003	0.0402	0.0454
