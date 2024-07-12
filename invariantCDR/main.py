@@ -27,11 +27,17 @@ from runner import *
 from config import args
 import json
 
-# random.seed(0)
-# torch.manual_seed(42)
-# if torch.cuda.is_available():
-#     torch.cuda.manual_seed_all(42)
 
+def seed_everything(seed=1111):
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+seed_everything(args.seed)
 if int(args.device_id) >= 0 and torch.cuda.is_available():
     args.device = torch.device("cuda:{}".format(args.device_id))
     print("using gpu:{} to train the model".format(args.device_id))

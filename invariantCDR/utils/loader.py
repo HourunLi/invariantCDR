@@ -15,8 +15,8 @@ class DataLoader(object):
         self.args = args
         self.eval = evaluation
         
-        source_ease_dense = args.source_G.ease.to_dense()
-        target_ease_dense = args.target_G.ease.to_dense()
+        # source_ease_dense = args.source_G.ease.to_dense()
+        # target_ease_dense = args.target_G.ease.to_dense()
         
         # ************* source data *****************
         source_data_path = filenames[0] + "_" + filenames[1]
@@ -43,14 +43,14 @@ class DataLoader(object):
             args.target_item_num = max(self.target_item_set) + 1
 
         if evaluation == 1:
-            self.test_data = self.read_test_data(source_test_data, self.source_item_set, source_ease_dense)
+            self.test_data = self.read_test_data(source_test_data, self.source_item_set)
         elif evaluation == 2:
-            self.test_data = self.read_test_data(target_test_data, self.target_item_set, target_ease_dense)
+            self.test_data = self.read_test_data(target_test_data, self.target_item_set)
 
         if evaluation == 3:
-            self.test_data = self.read_test_data(source_valid_data, self.source_item_set, source_ease_dense)
+            self.test_data = self.read_test_data(source_valid_data, self.source_item_set)
         elif evaluation == 4:
-            self.test_data = self.read_test_data(target_valid_data, self.target_item_set, target_ease_dense)
+            self.test_data = self.read_test_data(target_valid_data, self.target_item_set)
             
         if evaluation == 5:
             self.test_data = self.read_dev_data(source_dev_data, self.source_item_set)
@@ -101,7 +101,7 @@ class DataLoader(object):
                 item_set.add(item)
         return ma, ma_list, train_data, user_set, item_set
 
-    def read_test_data(self, test_file, item_set, ease_dense):
+    def read_test_data(self, test_file, item_set):
         user_item_set = {}
         self.MIN_USER = 10000000
         self.MAX_USER = 0
@@ -131,8 +131,8 @@ class DataLoader(object):
                             rand = item_list[random.randint(0, len(item_set) - 1)]
                             if rand in user_item_set[user] or rand in ret:
                                 continue
-                            if ease_dense[user][rand] > 0.6:
-                                continue
+                            # if ease_dense[user][rand] > 0.5:
+                            #     continue
                             ret.append(rand)
                             break
                     test_data.append([user, ret])

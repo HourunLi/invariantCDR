@@ -129,20 +129,13 @@ class Runner(object):
         target_item_loss = self.contrastive_loss_cal(self.target_item, self.aug_target_item, self.recmodel.target_item_center, torch.randperm(self.args.target_item_num)[:self.args.user_batch_size].to(self.device))
         return source_user_loss + source_item_loss + target_user_loss + target_item_loss
     
-    # def loss_cal(self.source_user[]):
     def reconstruct_graph(self, batch, source_UV, source_VU, target_UV, target_VU, aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU):
         self.recmodel.train()
         self.optimizer.zero_grad()
 
         source_user, source_pos_item, source_neg_item, target_user, target_pos_item, target_neg_item = self.unpack_batch(batch)
-
-        # self.source_user, self.source_item, self.target_user, self.target_item = self.recmodel(aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU)
         self.source_user, self.source_item, self.target_user, self.target_item = self.recmodel(source_UV, source_VU, target_UV, target_VU)
-        self.aug_source_user, self.aug_source_item, self.aug_target_user, self.aug_target_item = self.recmodel(aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU)
-        # disentangle fine grain
-        # contrastive_loss = 0
-        contrastive_loss = self.loss_cal()
-        # contrastive_loss = self.contrastive_loss_cal(self.source_user[:self.args.shared_user], self.target_user[:self.args.shared_user], self.recmodel.center)
+        
         source_user_feature = self.my_index_select(self.source_user, source_user)
         source_item_pos_feature = self.my_index_select(self.source_item, source_pos_item)
         source_item_neg_feature = self.my_index_select(self.source_item, source_neg_item)
@@ -156,15 +149,20 @@ class Runner(object):
         pos_target_score = self.recmodel.target_predict_dot(target_user_feature, target_item_pos_feature)
         neg_target_score = self.recmodel.target_predict_dot(target_user_feature, target_item_neg_feature)
 
-        source_pos_labels, source_neg_labels = torch.ones(pos_source_score.size()).to(self.device), torch.zeros(pos_source_score.size()).to(self.device)
-        target_pos_labels, target_neg_labels = torch.ones(pos_target_score.size()).to(self.device), torch.zeros(pos_target_score.size()).to(self.device)
+        source_pos_labels, source_neg_labels = torch.ones(pos_source_score.size()).to(self.device), torch.zeros(neg_source_score.size()).to(self.device)
+        target_pos_labels, target_neg_labels = torch.ones(pos_target_score.size()).to(self.device), torch.zeros(neg_target_score.size()).to(self.device)
 
         recommendation_loss = self.criterion(pos_source_score, source_pos_labels) + self.criterion(neg_source_score, source_neg_labels) + \
             self.criterion(pos_target_score, target_pos_labels) + self.criterion(neg_target_score, target_neg_labels)
-            
-        loss = self.args.lambda_constra * contrastive_loss + self.args.lambda_critic * self.recmodel.critic_loss + \
-            (1 -self.args.lambda_critic - self.args.lambda_constra) * recommendation_loss
-
+        
+        if self.recmodel.transfer_flag == 0:
+            self.aug_source_user, self.aug_source_item, self.aug_target_user, self.aug_target_item = self.recmodel(aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU)
+            contrastive_loss = self.loss_cal()
+            loss = self.args.lambda_constra * contrastive_loss + (1 - self.args.lambda_constra) * recommendation_loss
+        else:
+            critic_loss = self.recmodel.critic_loss
+            loss = self.args.lambda_critic * critic_loss + (1 - self.args.lambda_critic) * recommendation_loss
+                
         loss.backward()
         self.optimizer.step()
         return loss.item()

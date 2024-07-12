@@ -215,9 +215,6 @@ class invariantCDR(nn.Module):
         source_item = self.source_item_embedding(self.source_item_index)
         target_item = self.target_item_embedding(self.target_item_index)
 
-        # source_learn_user, source_learn_item = self.source_GNN(source_user, source_item, source_UV, source_VU)
-        # target_learn_user, target_learn_item = self.target_GNN(target_user, target_item, target_UV, target_VU)        
-        
         source_learn_user, source_learn_item = self.source_disenEncoder(source_user, source_item, source_UV, source_VU)
         target_learn_user, target_learn_item = self.target_disenEncoder(target_user, target_item, target_UV, target_VU)
         source_learn_user_concat, target_learn_user_concat = None, None
@@ -242,17 +239,22 @@ class invariantCDR(nn.Module):
             target_learn_user_transfer = self.s2t_transfer.forward_user(source_learn_user_stable)
             source_similarity_matrix = [self.sim_s[i][per_stable, :][:, per_stable] for i in range(self.K)]
             target_similarity_matrix = [self.sim_t[i][per_stable, :][:, per_stable] for i in range(self.K)]
+            
             critic_loss = self.cal_transfer_loss(source_learn_user_transfer, target_learn_user_transfer, source_similarity_matrix, target_similarity_matrix)
             self.critic_loss = critic_loss
             
             # calculate transfer embeddings
-            transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.shared_user], self.sim_t, source_learn_item, source_UV)
-            transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.shared_user], self.sim_s, target_learn_item, target_UV)
+            # transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.shared_user], self.sim_t, source_learn_item, source_UV)
+            # transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.shared_user], self.sim_s, target_learn_item, target_UV)
+            transfer_source_user_embedding = self.t2s_transfer.forward_user(target_learn_user[:self.args.shared_user])
+            transfer_target_user_embedding = self.s2t_transfer.forward_user(source_learn_user[:self.args.shared_user])
             source_learn_user_concat = torch.cat((transfer_source_user_embedding, source_learn_user[self.args.shared_user:]),dim=0)
             target_learn_user_concat = torch.cat((transfer_target_user_embedding, target_learn_user[self.args.shared_user:]),dim=0)
         else :
-            transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.source_shared_user], self.sim_t, source_learn_item, source_UV)
-            transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.target_shared_user], self.sim_s, target_learn_item, target_UV)
+            # transfer_source_user_embedding = self.t2s_transfer(target_learn_user[:self.args.source_shared_user], self.sim_t, source_learn_item, source_UV)
+            # transfer_target_user_embedding = self.s2t_transfer(source_learn_user[:self.args.target_shared_user], self.sim_s, target_learn_item, target_UV)
+            transfer_source_user_embedding = self.t2s_transfer.forward_user(target_learn_user[:self.args.source_shared_user])
+            transfer_target_user_embedding = self.s2t_transfer.forward_user(source_learn_user[:self.args.target_shared_user])
             source_learn_user_concat = torch.cat((transfer_source_user_embedding, source_learn_user[self.args.source_shared_user:]), dim=0)
             target_learn_user_concat = torch.cat((transfer_target_user_embedding, target_learn_user[self.args.target_shared_user:]), dim=0)
 
