@@ -1,0 +1,42 @@
+nohup: ignoring input
+using gpu:0 to train the model
+using gpu:0 to train the model
+cuda:0
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, batch_size=1024, beta=1.5, conv_layers=3, cuda=True, decay_epoch=5, device=device(type='cuda', index=0), device_id='0', domains='cloth_sport', dropout=0.2, epoch=70, feature_dim=126, hidden_dim=126, keep_prob=0.6, lambda_constra=0.15, lambda_critic=0.35, lambda_ease=50, leakey=0.01, load=False, log='logs.txt', log_epoch=5, lr=0.0005, lr_decay=0.95, lr_transfer=0.0005, mask_rate=0.1, min_epoch=50, mode='train', model_file=None, model_name='cs', num_latent_factors=3, num_negative=10, optim='adam', patience=50, proj_layers=1, projection=1, residual=1, save=True, save_dir='./saved_models', seed=32, sim_threshold=0.9, tau=0.4, test_sample_number=999, transfer_epoch=60, user_batch_size=256, weight_decay=0.0002)
+number_user 41829
+number_item 17943
+732772292
+49873
+/home/hourun/invariantCDR_v2/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+Original edge number: 187880; Augmentation edge number: 192213; adding 4333 edges
+augmentation graph loaded!
+number_user 27328
+number_item 12655
+333408046
+80379
+real graph loaded!
+Original edge number: 163291; Augmentation edge number: 175271; adding 11980 edges
+augmentation graph loaded!
+graph loaded!
+Loading data from cloth_sport with batch size 1024...
+unseen test: 0
+test length: 3156
+unseen test: 0
+test length: 3085
+unseen test: 0
+test length: 3589
+unseen test: 0
+test length: 3546
+source_user_num 41829
+target_user_num 27328
+source_item_num 17943
+target_item_num 12655
+shared users id: 7857
+test users 990, 982
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 187880, target train data: 163291, source test data : 3085, target test data : 3546, source dev data : 1000, target dev data : 1000

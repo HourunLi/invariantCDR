@@ -1,0 +1,72 @@
+nohup: ignoring input
+using gpu:0 to train the model
+using gpu:0 to train the model
+cuda:0
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, batch_size=1024, beta=1.5, conv_layers=3, cuda=True, decay_epoch=5, device=device(type='cuda', index=0), device_id='0', domains='cloth_sport', dropout=0.2, epoch=200, feature_dim=126, hidden_dim=126, keep_prob=0.6, lambda_constra=0.15, lambda_critic=0.35, lambda_ease=50, leakey=0.01, load=True, log='logs.txt', log_epoch=5, lr=0.0005, lr_decay=0.95, lr_transfer=0.0005, mask_rate=0.1, min_epoch=50, mode='train', model_file='checkpoint_epoch_40.pt', model_name='cs', num_latent_factors=3, num_negative=10, optim='adam', patience=50, proj_layers=1, projection=1, residual=1, save=True, save_dir='./saved_models', seed=32, sim_threshold=0.9, tau=0.4, test_sample_number=499, transfer_epoch=40, user_batch_size=256, weight_decay=0.0002)
+number_user 41829
+number_item 17943
+732772292
+49873
+/home/hourun/invariantCDR_v2/invariantCDR/utils/GraphMaker.py:47: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+Original edge number: 187880; Augmentation edge number: 192213; adding 4333 edges
+augmentation graph loaded!
+number_user 27328
+number_item 12655
+333408046
+80379
+real graph loaded!
+Original edge number: 163291; Augmentation edge number: 175271; adding 11980 edges
+augmentation graph loaded!
+graph loaded!
+Loading data from cloth_sport with batch size 1024...
+unseen test: 0
+test length: 3156
+unseen test: 0
+test length: 3085
+unseen test: 0
+test length: 3589
+unseen test: 0
+test length: 3546
+source_user_num 41829
+target_user_num 27328
+source_item_num 17943
+target_item_num 12655
+shared users id: 7857
+test users 990, 982
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 187880, target train data: 163291, source test data : 3085, target test data : 3546, source dev data : 1000, target dev data : 1000
+Loading model from ./saved_models/cs/checkpoint_epoch_40.pt
+2024-07-03 10:46:23.695956: step 343/68600 (epoch 40/200), loss = 1.450448 (195.620 sec/epoch), lr: 0.000500
+Evaluating on dev set...
+....................
+source: 	 mrr: 0.289141	 ndcg_5: 0.2929	 ndcg_10: 0.3412	 hit@1:0.159000	 hit@5:0.4200	 hit@10: 0.5690
+target: 	 mrr: 0.310333	 ndcg_5: 0.3174	 ndcg_10: 0.3729	 hit@1:0.167000	 hit@5:0.4600	 hit@10: 0.6310
+new best model saved.
+
+2024-07-03 10:49:39.790656: step 686/68600 (epoch 41/200), loss = 1.380833 (195.569 sec/epoch), lr: 0.000500
+2024-07-03 10:52:55.300184: step 1029/68600 (epoch 42/200), loss = 1.351656 (195.509 sec/epoch), lr: 0.000500
+2024-07-03 10:56:10.615986: step 1372/68600 (epoch 43/200), loss = 1.329195 (195.316 sec/epoch), lr: 0.000500
+2024-07-03 10:59:26.109232: step 1715/68600 (epoch 44/200), loss = 1.308211 (195.493 sec/epoch), lr: 0.000500
+2024-07-03 11:02:41.468810: step 2058/68600 (epoch 45/200), loss = 1.292413 (195.360 sec/epoch), lr: 0.000500
+Evaluating on dev set...
+..................................................................
+source: 	 mrr: 0.072675	 ndcg_5: 0.0613	 ndcg_10: 0.0807	 hit@1:0.028834	 hit@5:0.0954	 hit@10: 0.1559
+target: 	 mrr: 0.076971	 ndcg_5: 0.0667	 ndcg_10: 0.0829	 hit@1:0.034550	 hit@5:0.0975	 hit@10: 0.1482
+epoch 45: train_loss = 1.292413, source_hit@10 = 0.1559, source_ndcg@10 = 0.0807, target_hit@10 = 0.1482, target_ndcg@10 = 0.0829
+
+2024-07-03 11:05:57.671539: step 2401/68600 (epoch 46/200), loss = 1.276766 (195.454 sec/epoch), lr: 0.000475
+2024-07-03 11:09:13.245835: step 2744/68600 (epoch 47/200), loss = 1.266849 (195.574 sec/epoch), lr: 0.000475
+2024-07-03 11:12:29.105073: step 3087/68600 (epoch 48/200), loss = 1.253913 (195.859 sec/epoch), lr: 0.000475
+2024-07-03 11:15:45.222299: step 3430/68600 (epoch 49/200), loss = 1.252888 (196.117 sec/epoch), lr: 0.000475
+2024-07-03 11:19:01.294197: step 3773/68600 (epoch 50/200), loss = 1.241571 (196.072 sec/epoch), lr: 0.000475
+Evaluating on dev set...
+..................................................................
+source: 	 mrr: 0.078971	 ndcg_5: 0.0656	 ndcg_10: 0.0876	 hit@1:0.034221	 hit@5:0.0970	 hit@10: 0.1651
+target: 	 mrr: 0.065859	 ndcg_5: 0.0561	 ndcg_10: 0.0728	 hit@1:0.022848	 hit@5:0.0883	 hit@10: 0.1402
+epoch 50: train_loss = 1.241571, source_hit@10 = 0.1651, source_ndcg@10 = 0.0876, target_hit@10 = 0.1402, target_ndcg@10 = 0.0728
+
