@@ -26,11 +26,6 @@ from sklearn import preprocessing
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
-# random.seed(0)
-# torch.manual_seed(42)
-# if torch.cuda.is_available():
-#     torch.cuda.manual_seed_all(42)
-
 
 class Runner(object):
     def __init__(self, args, recmodel, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, source_dev_batch, target_dev_batch, start_epoch=1, writer=None, **kwargs):
@@ -96,45 +91,17 @@ class Runner(object):
         ans = ans.view(tmp)
         return ans
     
-    def contrastive_loss_cal(self, x_, x_aug_, center_v, per):
-        x = x_[per]
-        x_aug = x_aug_[per]
-        T_c = 0.2
-        B, H, d = x.size()
-        ck = F.normalize(center_v)
-        p_k_x_ = torch.einsum('bkd,kd->bk', F.normalize(x, dim=-1), ck)
-        p_k_x = F.softmax(p_k_x_ / T_c, dim=-1)
-        x_abs = x.norm(dim=-1)
-        x_aug_abs = x_aug.norm(dim=-1)
-        x = torch.reshape(x, (B * H, d))
-        x_aug = torch.reshape(x_aug, (B * H, d))
-        x_abs = torch.squeeze(torch.reshape(x_abs, (B * H, 1)), 1)
-        x_aug_abs = torch.squeeze(torch.reshape(x_aug_abs, (B * H, 1)), 1)
-        sim_matrix = torch.einsum('ik,jk->ij', x, x_aug) / (1e-8 + torch.einsum('i,j->ij', x_abs, x_aug_abs))
-        sim_matrix = torch.exp(sim_matrix / self.args.tau)
-        pos_sim = sim_matrix[range(B * H), range(B * H)]
-        score = pos_sim / (sim_matrix.sum(dim=-1) - pos_sim)
-        p_y_xk = score.view(B, H)
-        q_k = torch.einsum('bk,bk->bk', p_k_x, p_y_xk)
-        q_k = F.normalize(q_k, dim=-1)
-        elbo = q_k * (torch.log(p_k_x) + torch.log(p_y_xk) - torch.log(q_k))
-        loss = - elbo.view(-1).mean()
-        return loss
-    
-    
-    def loss_cal(self):
-        source_user_loss = self.contrastive_loss_cal(self.source_user, self.aug_source_user, self.recmodel.source_user_center, torch.randperm(self.args.source_user_num)[:self.args.user_batch_size].to(self.device))
-        source_item_loss = self.contrastive_loss_cal(self.source_item, self.aug_source_item, self.recmodel.source_item_center, torch.randperm(self.args.source_item_num)[:self.args.user_batch_size].to(self.device))
-        target_user_loss = self.contrastive_loss_cal(self.target_user, self.aug_target_user, self.recmodel.target_user_center, torch.randperm(self.args.target_user_num)[:self.args.user_batch_size].to(self.device))
-        target_item_loss = self.contrastive_loss_cal(self.target_item, self.aug_target_item, self.recmodel.target_item_center, torch.randperm(self.args.target_item_num)[:self.args.user_batch_size].to(self.device))
-        return source_user_loss + source_item_loss + target_user_loss + target_item_loss
-    
-    def reconstruct_graph(self, batch, source_UV, source_VU, target_UV, target_VU, aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU):
+    def reconstruct_graph(self, batch, source_UV, source_VU, target_UV, target_VU):
         self.recmodel.train()
         self.optimizer.zero_grad()
 
         source_user, source_pos_item, source_neg_item, target_user, target_pos_item, target_neg_item = self.unpack_batch(batch)
         self.source_user, self.source_item, self.target_user, self.target_item = self.recmodel(source_UV, source_VU, target_UV, target_VU)
+        
+        # print(self.source_user[0:2])
+        # print(self.source_item[0:2])
+        # print(self.target_user[0:2])
+        # print(self.target_item[0:2])
         
         source_user_feature = self.my_index_select(self.source_user, source_user)
         source_item_pos_feature = self.my_index_select(self.source_item, source_pos_item)
@@ -155,14 +122,7 @@ class Runner(object):
         recommendation_loss = self.criterion(pos_source_score, source_pos_labels) + self.criterion(neg_source_score, source_neg_labels) + \
             self.criterion(pos_target_score, target_pos_labels) + self.criterion(neg_target_score, target_neg_labels)
         
-        if self.recmodel.transfer_flag == 0:
-            self.aug_source_user, self.aug_source_item, self.aug_target_user, self.aug_target_item = self.recmodel(aug_source_UV, aug_source_VU, aug_target_UV, aug_target_VU)
-            contrastive_loss = self.loss_cal()
-            loss = self.args.lambda_constra * contrastive_loss + (1 - self.args.lambda_constra) * recommendation_loss
-        else:
-            critic_loss = self.recmodel.critic_loss
-            loss = self.args.lambda_critic * critic_loss + (1 - self.args.lambda_critic) * recommendation_loss
-                
+        loss = self.args.lambda_critic * self.recmodel.critic_loss + (1 - self.args.lambda_critic) * recommendation_loss
         loss.backward()
         self.optimizer.step()
         return loss.item()
@@ -244,7 +204,7 @@ class Runner(object):
         current_lr = self.lr
         if self.start_epoch >= self.args.transfer_epoch:
             self.recmodel.transfer_flag = 1
-            current_lr = self.args.lr_transfer
+            # current_lr = self.args.lr_transfer
             
         global_step = 0
         global_start_time = time.time()
@@ -263,8 +223,7 @@ class Runner(object):
             for i, batch in enumerate(self.train_batch):
                 # print(global_step)
                 global_step += 1
-                loss = self.reconstruct_graph(batch, self.args.source_UV, self.args.source_VU, self.args.target_UV, self.args.target_VU,
-                                              self.args.aug_source_UV, self.args.aug_source_VU, self.args.aug_target_UV, self.args.aug_target_VU)
+                loss = self.reconstruct_graph(batch, self.args.source_UV, self.args.source_VU, self.args.target_UV, self.args.target_VU)
                 train_loss += loss
 
             duration = time.time() - start_time
@@ -277,12 +236,8 @@ class Runner(object):
             print("Evaluating on dev set...")
             self.recmodel.eval()
             self.evaluate_embedding(self.args.source_UV, self.args.source_VU, self.args.target_UV, self.args.target_VU)
-            if epoch <= self.args.transfer_epoch:
-                s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_dev_batch, 1)
-                t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_dev_batch, 0)
-            else:
-                s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_valid_batch, 1)
-                t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_valid_batch, 0)
+            s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_valid_batch, 1)
+            t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_valid_batch, 0)
 
             print("\nsource: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10))
             print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
@@ -290,24 +245,23 @@ class Runner(object):
             s_dev_score = s_mrr
             t_dev_score = t_mrr
 
-            if epoch > self.args.transfer_epoch:
-                if s_dev_score > max(s_dev_score_history):
-                    print("source best!")
-                    s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_test_batch, 1)
-                    print("\nsource: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10))
+            if s_dev_score > max(s_dev_score_history):
+                print("source best!")
+                s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_test_batch, 1)
+                print("\nsource: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10))
 
-                if t_dev_score > max(t_dev_score_history):
-                    print("target best!")
-                    t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_test_batch, 0)
-                    print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
+            if t_dev_score > max(t_dev_score_history):
+                print("target best!")
+                t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_test_batch, 0)
+                print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
 
-                self.file_logger.log(
-                    "{}\t{:.6f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, max([s_dev_score] + s_dev_score_history)))
+            self.file_logger.log(
+                "{}\t{:.6f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, max([s_dev_score] + s_dev_score_history)))
 
-                print(
-                    "epoch {}: train_loss = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
-                            epoch, \
-                        train_loss, s_hr_10, s_ndcg_10, t_hr_10, t_ndcg_10))
+            print(
+                "epoch {}: train_loss = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
+                        epoch, \
+                    train_loss, s_hr_10, s_ndcg_10, t_hr_10, t_ndcg_10))
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)
@@ -328,12 +282,12 @@ class Runner(object):
             if epoch >= self.args.transfer_epoch and self.recmodel.transfer_flag == 0:
                 self.recmodel.transfer_flag = 1
                 print("shift to transfer learning mode")
-                model_file = self.model_save_dir + '/similarity.pt'.format(epoch)
-                torch.save({
-                    'epoch':epoch,
-                    'model_state_dict': self.recmodel.state_dict(),
-                }, model_file)
-                current_lr = self.args.lr_transfer
+                # model_file = self.model_save_dir + '/similarity.pt'.format(epoch)
+                # torch.save({
+                #     'epoch':epoch,
+                #     'model_state_dict': self.recmodel.state_dict(),
+                # }, model_file)
+                # current_lr = self.args.lr_transfer
                 
             # lr schedule
             if epoch > self.args.decay_epoch and s_dev_score + t_dev_score < s_dev_score_history[-1] + t_dev_score_history[-1] and self.args.optim in ['sgd', 'adagrad', 'adadelta', 'adam']:

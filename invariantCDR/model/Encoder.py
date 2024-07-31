@@ -67,29 +67,28 @@ class disenEncoder(nn.Module):
         self.conv_layers  = args.conv_layers
         self.proj_layers  = args.proj_layers # The number of head layers in the encoder, used for further processing or transformation of the embeddings after the graph convolutional layers.
         
-        # if self.JK == 'sum':
         self.JK_proj_user = Linear(self.conv_layers * args.feature_dim, args.feature_dim)
         self.JK_proj_item = Linear(self.conv_layers * args.feature_dim, args.feature_dim)
-        # elif self.JK != 'last':
-        #     raise NotImplementedError
 
         # convolution
         self.convolution_list    = torch.nn.ModuleList()
         self.user_batchNorm_list = torch.nn.ModuleList()
         self.item_batchNorm_list = torch.nn.ModuleList()
+        # self.batchNorm_list = torch.nn.ModuleList()
         for i in range(self.conv_layers):
             self.convolution_list.append(DGCNLayer(args, args.feature_dim, args.hidden_dim))
             self.user_batchNorm_list.append(torch.nn.BatchNorm1d(args.feature_dim))
             self.item_batchNorm_list.append(torch.nn.BatchNorm1d(args.feature_dim))
+            # self.batchNorm_list.append(torch.nn.BatchNorm1d(args.feature_dim))
         
         # disentangled
-        self.disen_convolution    = LastLayer(args, args.feature_dim, args.hidden_dim)
-        self.disen_user_batchNorm = torch.nn.BatchNorm1d(args.feature_dim)
-        self.disen_item_batchNorm = torch.nn.BatchNorm1d(args.feature_dim)
-            
+        # self.disen_convolution    = LastLayer(args, args.feature_dim, args.hidden_dim)
+        # self.disen_user_batchNorm = torch.nn.BatchNorm1d(args.feature_dim)
+        # self.disen_item_batchNorm = torch.nn.BatchNorm1d(args.feature_dim)
         self.disen_convolution_list = torch.nn.ModuleList()
         self.disen_user_batchNorm_list = torch.nn.ModuleList()
         self.disen_item_batchNorm_list = torch.nn.ModuleList()
+        # self.disen_batchNorm_list = torch.nn.ModuleList()
         for i in range(self.K):
             for j in range(self.proj_layers):
                 if j:
@@ -98,6 +97,7 @@ class disenEncoder(nn.Module):
                     self.disen_convolution_list.append(LastLayer(args, args.feature_dim, self.d))
                 self.disen_user_batchNorm_list.append(torch.nn.BatchNorm1d(self.d))
                 self.disen_item_batchNorm_list.append(torch.nn.BatchNorm1d(self.d))
+                # self.disen_batchNorm_list.append(torch.nn.BatchNorm1d(self.d))
         
         # projection
         self.user_proj_heads = torch.nn.ModuleList()
@@ -106,7 +106,7 @@ class disenEncoder(nn.Module):
             self.user_proj_heads.append(Sequential(Linear(self.d, self.d), ReLU(), Linear(self.d, self.d)))
             self.item_proj_heads.append(Sequential(Linear(self.d, self.d), ReLU(), Linear(self.d, self.d)))
             
-        self._init_emb()
+        # self._init_emb()
 
     def _init_emb(self):
         for m in self.modules():
@@ -124,6 +124,8 @@ class disenEncoder(nn.Module):
             learn_user, learn_item = self.convolution_list[i](learn_user, learn_item, UV_adj, VU_adj)
             learn_user = self.user_batchNorm_list[i](learn_user)
             learn_item = self.item_batchNorm_list[i](learn_item)
+            # learn_user = self.batchNorm_list[i](learn_user)
+            # learn_item = self.batchNorm_list[i](learn_item)
             if self.residual and i > 0:
                 learn_user += learn_users[i - 1]
                 learn_item += learn_items[i - 1]
@@ -137,11 +139,11 @@ class disenEncoder(nn.Module):
         else:
             raise NotImplementedError
 
-    def _last_conv(self, ufea, vfea, UV_adj, VU_adj):
-        learn_user, learn_item = self.disen_convolution(ufea, vfea, UV_adj, VU_adj)
-        learn_user = self.disen_user_batchNorm(learn_user)
-        learn_item = self.disen_item_batchNorm(learn_item)
-        return learn_user, learn_item
+    # def _last_conv(self, ufea, vfea, UV_adj, VU_adj):
+    #     learn_user, learn_item = self.disen_convolution(ufea, vfea, UV_adj, VU_adj)
+    #     learn_user = self.disen_user_batchNorm(learn_user)
+    #     learn_item = self.disen_item_batchNorm(learn_item)
+    #     return learn_user, learn_item
     
     def _disen_conv(self, ufea, vfea, UV_adj, VU_adj):
         user_proj_list, item_proj_list = [], []
@@ -151,6 +153,8 @@ class disenEncoder(nn.Module):
                 learn_user, learn_item = self.disen_convolution_list[i * self.proj_layers + j](learn_user, learn_item, UV_adj, VU_adj)
                 learn_user = self.disen_user_batchNorm_list[i](learn_user)
                 learn_item = self.disen_item_batchNorm_list[i](learn_item)
+                # learn_user = self.disen_batchNorm_list[i](learn_user)
+                # learn_item = self.disen_batchNorm_list[i](learn_item)
             user_proj_list.append(learn_user)
             item_proj_list.append(learn_item)
         if self.projection:
@@ -158,9 +162,7 @@ class disenEncoder(nn.Module):
             item_proj_list = self._item_proj_head(item_proj_list)
             
         user_node_multi = torch.stack(user_proj_list).permute(1, 0, 2).contiguous()
-        item_node_multi = torch.stack(item_proj_list).permute(1, 0, 2).contiguous()        
-        # user_node_multi = torch.stack(user_proj_list).contiguous()
-        # item_node_multi = torch.stack(item_proj_list).contiguous()
+        item_node_multi = torch.stack(item_proj_list).permute(1, 0, 2).contiguous()
         return user_node_multi, item_node_multi
 
     def _user_proj_head(self, x_list):
@@ -181,6 +183,8 @@ class disenEncoder(nn.Module):
         learn_user, learn_item = self._normal_conv(ufea, vfea, UV_adj, VU_adj)
         learn_user, learn_item = self._disen_conv(learn_user, learn_item, UV_adj, VU_adj)
         # learn_user, learn_item = self._last_conv(learn_user, learn_item, UV_adj, VU_adj)
+        learn_user = F.normalize(learn_user, p=2, dim=-1)
+        learn_item = F.normalize(learn_item, p=2, dim=-1)
         return learn_user, learn_item
 
 class DGCNLayer(nn.Module):

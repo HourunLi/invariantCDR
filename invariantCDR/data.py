@@ -13,10 +13,8 @@ import json
 import pandas as pd
 import numpy as np
 import torch.nn as nn
-from utils.utils import get_item_idx, get_user_idx
 from utils.GraphMaker import GraphMaker
 from utils.loader import DataLoader
-
 
 def generate_train_dev(train_batch, source_shared_user, target_shared_user, filenames):
     filter_source_data = [item for item in train_batch.source_train_data if item[0] >= source_shared_user]
@@ -44,9 +42,6 @@ def load_data(args):
     args.source_UV = source_G.UV
     args.source_VU = source_G.VU
     args.source_adj = source_G.adj
-    args.aug_source_UV = source_G.aug_UV
-    args.aug_source_VU = source_G.aug_VU
-    args.aug_source_adj = source_G.aug_adj
     
     target_train_data = "../dataset/" + filenames[1] + "_" + filenames[0] + "/train.txt"
     target_G = GraphMaker(args, target_train_data)
@@ -54,9 +49,6 @@ def load_data(args):
     args.target_UV = target_G.UV
     args.target_VU = target_G.VU
     args.target_adj = target_G.adj
-    args.aug_target_UV = target_G.aug_UV
-    args.aug_target_VU = target_G.aug_VU
-    args.aug_target_adj = target_G.aug_adj
     print("graph loaded!")
     
     print("Loading data from {} with batch size {}...".format(args.domains, args.batch_size))

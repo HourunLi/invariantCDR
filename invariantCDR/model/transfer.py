@@ -9,9 +9,9 @@ class FactorDomainTransformer(nn.Module):
         self.shared_user = args.shared_user
         self.transformers = nn.ModuleList([
             nn.Sequential(
-                nn.Linear(self.d, self.d),
+                nn.Linear(self.d, self.d * 4),
                 nn.LeakyReLU(args.leakey),
-                nn.Linear(self.d, self.d),
+                nn.Linear(self.d * 4, self.d),
             )
             for _ in range(args.num_latent_factors)
         ])
@@ -47,5 +47,4 @@ class FactorDomainTransformer(nn.Module):
             transformed_embeddings.append(transformed_embedding.unsqueeze(1))
             
         transformed_embeddings = torch.cat(transformed_embeddings, dim=1)
-        # print("transformed_embeddings size: {}".format(transformed_embeddings.size()))
         return transformed_embeddings

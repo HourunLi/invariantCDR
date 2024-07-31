@@ -31,15 +31,22 @@ import json
 def seed_everything(seed=1111):
     random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed)
+        torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8" 
     torch.backends.cudnn.deterministic = True
+    torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
+    
 
 seed_everything(args.seed)
+
 if int(args.device_id) >= 0 and torch.cuda.is_available():
     args.device = torch.device("cuda:{}".format(args.device_id))
+    torch.cuda.manual_seed(args.seed)
     print("using gpu:{} to train the model".format(args.device_id))
 else:
     args.device = torch.device("cpu")
@@ -59,7 +66,6 @@ if args.load:
     model_path = args.model_save_dir + '/' + args.model_file
     checkpoint = torch.load(model_path)
     recmodel.load_state_dict(checkpoint['model_state_dict'])
-    # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
     start_epoch = checkpoint['epoch']
     print("Loading model from {}".format(model_path))
 runner = Runner(args, recmodel, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, source_dev_batch, target_dev_batch, start_epoch = start_epoch)

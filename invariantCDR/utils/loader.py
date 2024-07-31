@@ -131,8 +131,6 @@ class DataLoader(object):
                             rand = item_list[random.randint(0, len(item_set) - 1)]
                             if rand in user_item_set[user] or rand in ret:
                                 continue
-                            # if ease_dense[user][rand] > 0.5:
-                            #     continue
                             ret.append(rand)
                             break
                     test_data.append([user, ret])
@@ -193,15 +191,6 @@ class DataLoader(object):
             processed.append([-1] + d) # -1 u i
         return processed
     
-    # def preprocess(self):
-    #     """ Preprocess the data and convert to ids. """
-    #     source_train_processed, target_train_proceessed = [], []
-    #     for d in self.source_train_data:
-    #         source_train_processed.append(copy.deepcopy(d)) 
-    #     for d in self.target_train_data:
-    #         target_train_proceessed.append(copy.deepcopy(d))
-    #     return source_train_processed, target_train_proceessed
-
     def find_pos(self,ma_list, user):
         rand = random.randint(0, 1000000)
         rand %= len(ma_list[user])

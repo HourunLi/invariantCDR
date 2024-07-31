@@ -1,7 +1,0 @@
-nohup: ignoring input
-using gpu:1 to train the model
-using gpu:1 to train the model
-cuda:1
-Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, batch_size=1024, beta=1.5, conv_layers=3, cuda=True, decay_epoch=5, device=device(type='cuda', index=1), device_id='1', domains='electronic_cell', dropout=0.2, epoch=70, feature_dim=126, hidden_dim=126, keep_prob=0.6, lambda_constra=0.15, lambda_critic=0.35, lambda_ease=50, leakey=0.01, load=False, log='logs.txt', log_epoch=5, lr=0.0005, lr_decay=0.95, lr_transfer=0.0005, mask_rate=0.1, min_epoch=50, mode='train', model_file=None, model_name='ec', num_latent_factors=3, num_negative=10, optim='adam', patience=50, proj_layers=1, projection=1, residual=1, save=True, save_dir='./saved_models', seed=32, sim_threshold=0.9, tau=0.4, test_sample_number=999, transfer_epoch=60, user_batch_size=256, weight_decay=0.0002)
-number_user 107984
-number_item 40460
