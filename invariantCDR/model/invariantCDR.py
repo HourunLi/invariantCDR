@@ -167,7 +167,7 @@ class invariantCDR(nn.Module):
         G = torch.matrix_power(G, step)
         # print(G[:1])
         alpha = 0.5
-        G = torch.eye(B).to(self.device) * alpha + G * (1 - alpha)
+        G = torch.eye(B).to(self.device) * self.args.alpha + G * (1 - self.args.alpha)
         return G
 
     def cal_similarity_matrix(self, source_learn_user, target_learn_user):
@@ -293,7 +293,7 @@ class invariantCDR(nn.Module):
             #            self.inter_cl(self.t2s_transfer.forward_user(target_learn_user_online[per_stable]), source_learn_user_goal[per_stable], self.source_user_center)) / 2
             # l_intra = (self.intra_cl(source_learn_user_online[per_random_source], source_learn_user_goal[per_random_source]) + 
             #            self.intra_cl(target_learn_user_online[per_random_target], target_learn_user_goal[per_random_target])) / 2
-            self.critic_loss = 0.4 * l_inter + 0.6 * l_intra
+            self.critic_loss = self.args.beta_inter * l_inter + (1-self.args.beta_inter) * l_intra
             
             source_learn_user_concat = torch.cat((self.t2s_transfer.forward_user(target_learn_user_online[:self.args.shared_user]), source_learn_user_online[self.args.shared_user:]),dim=0)
             target_learn_user_concat = torch.cat((self.s2t_transfer.forward_user(source_learn_user_online[:self.args.shared_user]), target_learn_user_online[self.args.shared_user:]),dim=0)
