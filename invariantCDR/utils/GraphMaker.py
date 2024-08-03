@@ -7,7 +7,6 @@ import codecs
 import json
 import copy
 from tqdm import tqdm
-import cupy as cp
 
 def convert_sp_mat_to_sp_tensor(X):
     coo = X.tocoo().astype(np.float32)
