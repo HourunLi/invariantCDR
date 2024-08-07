@@ -95,3 +95,38 @@ target best!
 epoch 6: train_loss = 1.131212, source_hit@10 = 0.0681, source_ndcg@10 = 0.0334, target_hit@10 = 0.0885, target_ndcg@10 = 0.0476
 new best model saved.
 
+2024-08-07 15:36:03.837449: step 2128/24320 (epoch 7/80), loss = 1.130120 (174.348 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.030893	 ndcg_5: 0.0217	 ndcg_10: 0.0310	 hit@1:0.006517	 hit@5:0.0369	 hit@10: 0.0659
+target: 	 mrr: 0.042574	 ndcg_5: 0.0337	 ndcg_10: 0.0437	 hit@1:0.015331	 hit@5:0.0530	 hit@10: 0.0843
+epoch 7: train_loss = 1.130120, source_hit@10 = 0.0659, source_ndcg@10 = 0.0310, target_hit@10 = 0.0843, target_ndcg@10 = 0.0437
+
+2024-08-07 15:39:37.032612: step 2432/24320 (epoch 8/80), loss = 1.126498 (212.464 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.027042	 ndcg_5: 0.0168	 ndcg_10: 0.0239	 hit@1:0.006517	 hit@5:0.0275	 hit@10: 0.0500
+target: 	 mrr: 0.044263	 ndcg_5: 0.0341	 ndcg_10: 0.0475	 hit@1:0.016028	 hit@5:0.0537	 hit@10: 0.0962
+epoch 8: train_loss = 1.126498, source_hit@10 = 0.0500, source_ndcg@10 = 0.0239, target_hit@10 = 0.0962, target_ndcg@10 = 0.0475
+
+2024-08-07 15:43:08.067330: step 2736/24320 (epoch 9/80), loss = 1.118015 (208.289 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035790	 ndcg_5: 0.0274	 ndcg_10: 0.0357	 hit@1:0.010862	 hit@5:0.0449	 hit@10: 0.0702
+target: 	 mrr: 0.043440	 ndcg_5: 0.0321	 ndcg_10: 0.0443	 hit@1:0.013937	 hit@5:0.0495	 hit@10: 0.0871
+source best!
+.............
+source: 	 mrr: 0.036590	 ndcg_5: 0.0273	 ndcg_10: 0.0359	 hit@1:0.012270	 hit@5:0.0422	 hit@10: 0.0683
+epoch 9: train_loss = 1.118015, source_hit@10 = 0.0683, source_ndcg@10 = 0.0359, target_hit@10 = 0.0871, target_ndcg@10 = 0.0443
+new best model saved.
+
+2024-08-07 15:46:09.853266: step 3040/24320 (epoch 10/80), loss = 1.108572 (180.390 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035187	 ndcg_5: 0.0241	 ndcg_10: 0.0357	 hit@1:0.008689	 hit@5:0.0384	 hit@10: 0.0746
+target: 	 mrr: 0.046747	 ndcg_5: 0.0379	 ndcg_10: 0.0498	 hit@1:0.016028	 hit@5:0.0606	 hit@10: 0.0983
+target best!
+..............target: 	 mrr: 0.046142	 ndcg_5: 0.0370	 ndcg_10: 0.0506	 hit@1:0.014403	 hit@5:0.0617	 hit@10: 0.1043
+epoch 10: train_loss = 1.108572, source_hit@10 = 0.0746, source_ndcg@10 = 0.0357, target_hit@10 = 0.1043, target_ndcg@10 = 0.0506
+new best model saved.
+
