@@ -218,60 +218,64 @@ class invariantCDR(nn.Module):
  
     def intra_cl(self, x_q, x_k, sim=None):
         # uniformed intra contrastive
-        B, K, d = x_q.size()
-        if sim is None:
-            sim = torch.eye(B).to(self.device)
-        mask_pos = sim.unsqueeze(0)
-        x_q_abs = x_q.norm(dim=-1)
-        x_k_abs = x_k.norm(dim=-1)
-        
-        x_q = torch.reshape(x_q, (B * K, d))
-        x_k = torch.reshape(x_k, (B * K, d))
-        x_q_abs = torch.squeeze(torch.reshape(x_q_abs, (B * K, 1)), 1)
-        x_k_abs = torch.squeeze(torch.reshape(x_k_abs, (B * K, 1)), 1)
-        
-        #(B*K, B*K)
-        sim_matrix = torch.einsum('ik,jk->ij', x_q, x_k) / (1e-8 + torch.einsum('i,j->ij', x_q_abs, x_k_abs))
-        sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
-        # (K, B, B)
-        result = torch.zeros((K, B, B)).to(self.device)
-        for i in range(K):
-            result[i] = sim_matrix[range(i, B * K, K), range(i, B * K, K)]
-        
-        nll_loss = -torch.log(result) * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
-        loss = nll_loss.mean()
-        return loss
-
-        # bi-contrastive
         # B, K, d = x_q.size()
         # if sim is None:
         #     sim = torch.eye(B).to(self.device)
         # mask_pos = sim.unsqueeze(0)
-        
         # x_q_abs = x_q.norm(dim=-1)
         # x_k_abs = x_k.norm(dim=-1)
         
-        # # part 1
-        # x_q_1 = torch.reshape(x_q, (B, K, d))
-        # x_k_1 = torch.reshape(x_k, (B, K, d))
-        # x_q_1_abs = torch.squeeze(torch.reshape(x_q_abs, (B, K, 1)), 2)
-        # x_k_1_abs = torch.squeeze(torch.reshape(x_k_abs, (B, K, 1)), 2)
-        # sim_matrix = torch.einsum('bki,bkj->bkk', x_q_1, x_k_1) / (1e-8 + torch.einsum('bk,bk->bkk', x_q_1_abs, x_k_1_abs))
+        # x_q = torch.reshape(x_q, (B * K, d))
+        # x_k = torch.reshape(x_k, (B * K, d))
+        # x_q_abs = torch.squeeze(torch.reshape(x_q_abs, (B * K, 1)), 1)
+        # x_k_abs = torch.squeeze(torch.reshape(x_k_abs, (B * K, 1)), 1)
+        
+        # #(B*K, B*K)
+        # sim_matrix = torch.einsum('ik,jk->ij', x_q, x_k) / (1e-8 + torch.einsum('i,j->ij', x_q_abs, x_k_abs))
+        # sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
+        # # (K, B, B)
+        # result = torch.zeros((K, B, B)).to(self.device)
+        # for i in range(K):
+        #     result[i] = sim_matrix[range(i, B * K, K), range(i, B * K, K)]
+        
+        # nll_loss = -torch.log(result) * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
+        # loss = nll_loss.mean()
+        # return loss
+
+        # bi-contrastive
+        B, K, d = x_q.size()
+        if sim is None:
+            sim = torch.eye(B).to(self.device)
+        mask_pos = sim.unsqueeze(0)
+        
+        x_q_abs = x_q.norm(dim=-1)
+        x_k_abs = x_k.norm(dim=-1)
+        
+        # part 1
+        x_q_1 = torch.reshape(x_q, (B, K, d))
+        x_k_1 = torch.reshape(x_k, (B, K, d))
+        x_q_1_abs = torch.squeeze(torch.reshape(x_q_abs, (B, K, 1)), 2)
+        x_k_1_abs = torch.squeeze(torch.reshape(x_k_abs, (B, K, 1)), 2)
+        sim_matrix = torch.einsum('bki,bkj->bkk', x_q_1, x_k_1) / (1e-8 + torch.einsum('bk,bk->bkk', x_q_1_abs, x_k_1_abs))
+        sim_matrix = F.softmax(sim_matrix / self.inter_tau, dim=-1) 
+        score = sim_matrix[:, range(K), range(K)]
+        score = score.shape(B, K)
+        loss_1 = -torch.log(score).mean()
         # sim_matrix = torch.exp(sim_matrix / self.intra_tau)
         # pos_sim = sim_matrix[:, range(K), range(K)]
         # score = pos_sim / (sim_matrix.sum(dim=-1) - pos_sim) 
         # loss_1 = -torch.log(score).mean()
         
-        # # part 2
-        # # (K, B, B)
-        # x_q_2 = torch.reshape(x_q, (K, B, d))
-        # x_k_2 = torch.reshape(x_k, (K, B, d))
-        # x_q_2_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
-        # x_k_2_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
-        # sim_matrix = torch.einsum('kbd,kbd->kbb', x_q_2, x_k_2) / (1e-8 + torch.einsum('kb,kb->kbb', x_q_2_abs, x_k_2_abs))
-        # sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
-        # loss_2 = (-torch.log(sim_matrix) * mask_pos).mean()
-        # return loss_1 + loss_2
+        # part 2
+        # (K, B, B)
+        x_q_2 = torch.reshape(x_q, (K, B, d))
+        x_k_2 = torch.reshape(x_k, (K, B, d))
+        x_q_2_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
+        x_k_2_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
+        sim_matrix = torch.einsum('kbd,kbd->kbb', x_q_2, x_k_2) / (1e-8 + torch.einsum('kb,kb->kbb', x_q_2_abs, x_k_2_abs))
+        sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
+        loss_2 = (-torch.log(sim_matrix) * mask_pos).mean()
+        return loss_1 + loss_2
     
     def forward(self, source_UV, source_VU, target_UV, target_VU):
         self._update_target_branch(self.momentum)
@@ -302,10 +306,6 @@ class invariantCDR(nn.Module):
                        self.inter_cl(self.t2s_transfer.forward_user(target_learn_user_online[per_stable]), source_learn_user_goal[per_stable], self.source_user_center, mp[2])) / 2
             l_intra = (self.intra_cl(source_learn_user_online[per_random_source], source_learn_user_goal[per_random_source], mp[0]) + 
                        self.intra_cl(target_learn_user_online[per_random_target], target_learn_user_goal[per_random_target], mp[1])) / 2            
-            # l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_learn_user_online[per_stable]), target_learn_user_goal[per_stable], self.target_user_center) + 
-            #            self.inter_cl(self.t2s_transfer.forward_user(target_learn_user_online[per_stable]), source_learn_user_goal[per_stable], self.source_user_center)) / 2
-            # l_intra = (self.intra_cl(source_learn_user_online[per_random_source], source_learn_user_goal[per_random_source]) + 
-            #            self.intra_cl(target_learn_user_online[per_random_target], target_learn_user_goal[per_random_target])) / 2
             self.critic_loss = self.args.beta_inter * l_inter + (1-self.args.beta_inter) * l_intra
             
             source_learn_user_concat = torch.cat((self.t2s_transfer.forward_user(target_learn_user_online[:self.args.shared_user]), source_learn_user_online[self.args.shared_user:]),dim=0)
