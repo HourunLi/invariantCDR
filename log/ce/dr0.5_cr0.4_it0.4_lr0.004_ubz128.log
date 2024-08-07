@@ -1,0 +1,15 @@
+nohup: ignoring input
+using gpu:5 to train the model
+using gpu:5 to train the model
+cuda:5
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.5, batch_size=1024, beta_inter=0.4, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=5), device_id='5', domains='cell_electronic', dropout=0.5, epoch=80, feature_dim=126, hidden_dim=126, inter_tau=0.2, intra_tau=1, lambda_critic=0.4, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='ce', momentum=0.9, num_latent_factors=3, num_negative=100, optim='adam', patience=30, proj_layers=1, projection=1, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, test_sample_number=999, transfer_epoch=40, user_batch_size=128, weight_decay=0.0002)
+number_user 27519
+number_item 9481
+/home/disk2/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:45: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+number_user 107984
+number_item 40460
+real graph loaded!
+graph loaded!
+Loading data from cell_electronic with batch size 1024...
