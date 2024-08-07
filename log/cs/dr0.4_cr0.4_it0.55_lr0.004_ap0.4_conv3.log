@@ -1,0 +1,70 @@
+nohup: ignoring input
+using gpu:2 to train the model
+using gpu:2 to train the model
+cuda:2
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.4, batch_size=1024, beta_inter=0.55, conv_layers=3, cuda=True, decay_epoch=10, device=device(type='cuda', index=2), device_id='2', domains='cloth_sport', dropout=0.4, epoch=80, feature_dim=126, hidden_dim=126, inter_tau=0.2, intra_tau=1, lambda_critic=0.4, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='cs', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=30, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 41829
+number_item 17943
+/home/disk2/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+number_user 27328
+number_item 12655
+real graph loaded!
+graph loaded!
+Loading data from cloth_sport with batch size 1024...
+unseen test: 0
+test length: 3156
+unseen test: 0
+test length: 3085
+unseen test: 0
+test length: 3589
+unseen test: 0
+test length: 3546
+source_user_num 41829
+target_user_num 27328
+source_item_num 17943
+target_item_num 12655
+shared users id: 7857
+test users 990, 982
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 187880, target train data: 163291, source test data : 3085, target test data : 3546, source dev data : 1000, target dev data : 1000
+2024-08-07 07:30:27.285546: step 343/27440 (epoch 1/80), loss = 1.422477 (88.489 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+..................................................................
+source: 	 mrr: 0.038360	 ndcg_5: 0.0289	 ndcg_10: 0.0396	 hit@1:0.012991	 hit@5:0.0453	 hit@10: 0.0786
+target: 	 mrr: 0.029553	 ndcg_5: 0.0201	 ndcg_10: 0.0280	 hit@1:0.009195	 hit@5:0.0306	 hit@10: 0.0554
+source best!
+..............................
+source: 	 mrr: 0.035783	 ndcg_5: 0.0272	 ndcg_10: 0.0378	 hit@1:0.011345	 hit@5:0.0441	 hit@10: 0.0768
+target best!
+...................................target: 	 mrr: 0.030497	 ndcg_5: 0.0228	 ndcg_10: 0.0303	 hit@1:0.008178	 hit@5:0.0375	 hit@10: 0.0612
+epoch 1: train_loss = 1.422477, source_hit@10 = 0.0768, source_ndcg@10 = 0.0378, target_hit@10 = 0.0612, target_ndcg@10 = 0.0303
+
+2024-08-07 07:31:59.887690: step 686/27440 (epoch 2/80), loss = 1.285765 (90.143 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+..................................................................
+source: 	 mrr: 0.043115	 ndcg_5: 0.0345	 ndcg_10: 0.0469	 hit@1:0.013942	 hit@5:0.0561	 hit@10: 0.0944
+target: 	 mrr: 0.031959	 ndcg_5: 0.0244	 ndcg_10: 0.0326	 hit@1:0.009195	 hit@5:0.0401	 hit@10: 0.0655
+source best!
+..............................
+source: 	 mrr: 0.041117	 ndcg_5: 0.0336	 ndcg_10: 0.0433	 hit@1:0.013614	 hit@5:0.0545	 hit@10: 0.0843
+target best!
+...................................target: 	 mrr: 0.030638	 ndcg_5: 0.0229	 ndcg_10: 0.0300	 hit@1:0.008460	 hit@5:0.0375	 hit@10: 0.0595
+epoch 2: train_loss = 1.285765, source_hit@10 = 0.0843, source_ndcg@10 = 0.0433, target_hit@10 = 0.0595, target_ndcg@10 = 0.0300
+new best model saved.
+
+2024-08-07 07:33:31.639625: step 1029/27440 (epoch 3/80), loss = 1.271458 (89.057 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+..................................................................
+source: 	 mrr: 0.043455	 ndcg_5: 0.0353	 ndcg_10: 0.0465	 hit@1:0.012991	 hit@5:0.0580	 hit@10: 0.0928
+target: 	 mrr: 0.030849	 ndcg_5: 0.0235	 ndcg_10: 0.0323	 hit@1:0.007244	 hit@5:0.0396	 hit@10: 0.0674
+source best!
+..............................
+source: 	 mrr: 0.041545	 ndcg_5: 0.0323	 ndcg_10: 0.0427	 hit@1:0.014911	 hit@5:0.0499	 hit@10: 0.0820
+epoch 3: train_loss = 1.271458, source_hit@10 = 0.0820, source_ndcg@10 = 0.0427, target_hit@10 = 0.0674, target_ndcg@10 = 0.0323
+new best model saved.
+

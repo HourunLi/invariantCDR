@@ -1,0 +1,97 @@
+nohup: ignoring input
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:54: UserWarning: An issue occurred while importing 'pyg-lib'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'pyg-lib'. "
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:110: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'torch-sparse'. "
+using gpu:2 to train the model
+using gpu:2 to train the model
+cuda:2
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.4, batch_size=1024, beta_inter=0.55, conv_layers=3, cuda=True, decay_epoch=10, device=device(type='cuda', index=2), device_id='2', domains='game_video', dropout=0.4, epoch=80, feature_dim=126, hidden_dim=126, inter_tau=0.2, intra_tau=1, lambda_critic=0.4, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='gv', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=30, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 25025
+number_item 12319
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:72: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at /opt/conda/conda-bld/pytorch_1711403590347/work/torch/csrc/utils/tensor_new.cpp:618.)
+  return torch.sparse.FloatTensor(indices, values, shape)
+real graph loaded!
+number_user 19457
+number_item 8751
+real graph loaded!
+graph loaded!
+Loading data from game_video with batch size 1024...
+unseen test: 0
+test length: 1381
+unseen test: 0
+test length: 1304
+unseen test: 0
+test length: 1435
+unseen test: 0
+test length: 1458
+source_user_num 25025
+target_user_num 19457
+source_item_num 12319
+target_item_num 8751
+shared users id: 1737
+test users 226, 217
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 155036, target train data: 156091, source test data : 1304, target test data : 1458, source dev data : 1000, target dev data : 1000
+2024-08-07 15:15:53.192182: step 304/24320 (epoch 1/80), loss = 1.364422 (158.176 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.028650	 ndcg_5: 0.0182	 ndcg_10: 0.0266	 hit@1:0.005793	 hit@5:0.0311	 hit@10: 0.0572
+target: 	 mrr: 0.039706	 ndcg_5: 0.0307	 ndcg_10: 0.0387	 hit@1:0.016028	 hit@5:0.0453	 hit@10: 0.0704
+source best!
+.............
+source: 	 mrr: 0.029356	 ndcg_5: 0.0203	 ndcg_10: 0.0277	 hit@1:0.004601	 hit@5:0.0368	 hit@10: 0.0598
+target best!
+..............target: 	 mrr: 0.033206	 ndcg_5: 0.0245	 ndcg_10: 0.0309	 hit@1:0.010288	 hit@5:0.0391	 hit@10: 0.0597
+epoch 1: train_loss = 1.364422, source_hit@10 = 0.0598, source_ndcg@10 = 0.0277, target_hit@10 = 0.0597, target_ndcg@10 = 0.0309
+
+2024-08-07 15:20:00.890832: step 608/24320 (epoch 2/80), loss = 1.199242 (242.435 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.027546	 ndcg_5: 0.0189	 ndcg_10: 0.0224	 hit@1:0.010862	 hit@5:0.0268	 hit@10: 0.0377
+target: 	 mrr: 0.036434	 ndcg_5: 0.0272	 ndcg_10: 0.0358	 hit@1:0.011847	 hit@5:0.0418	 hit@10: 0.0683
+epoch 2: train_loss = 1.199242, source_hit@10 = 0.0377, source_ndcg@10 = 0.0224, target_hit@10 = 0.0683, target_ndcg@10 = 0.0358
+
+2024-08-07 15:22:28.451426: step 912/24320 (epoch 3/80), loss = 1.160651 (145.895 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035669	 ndcg_5: 0.0249	 ndcg_10: 0.0328	 hit@1:0.011586	 hit@5:0.0377	 hit@10: 0.0623
+target: 	 mrr: 0.030347	 ndcg_5: 0.0201	 ndcg_10: 0.0278	 hit@1:0.008362	 hit@5:0.0321	 hit@10: 0.0564
+source best!
+.............
+source: 	 mrr: 0.034054	 ndcg_5: 0.0202	 ndcg_10: 0.0336	 hit@1:0.012270	 hit@5:0.0291	 hit@10: 0.0713
+epoch 3: train_loss = 1.160651, source_hit@10 = 0.0713, source_ndcg@10 = 0.0336, target_hit@10 = 0.0564, target_ndcg@10 = 0.0278
+new best model saved.
+
+2024-08-07 15:26:33.988887: step 1216/24320 (epoch 4/80), loss = 1.144845 (241.135 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.032239	 ndcg_5: 0.0215	 ndcg_10: 0.0316	 hit@1:0.005793	 hit@5:0.0391	 hit@10: 0.0710
+target: 	 mrr: 0.039587	 ndcg_5: 0.0303	 ndcg_10: 0.0413	 hit@1:0.013240	 hit@5:0.0488	 hit@10: 0.0829
+epoch 4: train_loss = 1.144845, source_hit@10 = 0.0710, source_ndcg@10 = 0.0316, target_hit@10 = 0.0829, target_ndcg@10 = 0.0413
+
+2024-08-07 15:28:58.760016: step 1520/24320 (epoch 5/80), loss = 1.139180 (141.998 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.030899	 ndcg_5: 0.0184	 ndcg_10: 0.0296	 hit@1:0.006517	 hit@5:0.0304	 hit@10: 0.0652
+target: 	 mrr: 0.046107	 ndcg_5: 0.0365	 ndcg_10: 0.0501	 hit@1:0.017422	 hit@5:0.0578	 hit@10: 0.0990
+target best!
+..............target: 	 mrr: 0.044679	 ndcg_5: 0.0346	 ndcg_10: 0.0470	 hit@1:0.014403	 hit@5:0.0535	 hit@10: 0.0919
+epoch 5: train_loss = 1.139180, source_hit@10 = 0.0652, source_ndcg@10 = 0.0296, target_hit@10 = 0.0919, target_ndcg@10 = 0.0470
+new best model saved.
+
+2024-08-07 15:33:05.822095: step 1824/24320 (epoch 6/80), loss = 1.131212 (243.357 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035513	 ndcg_5: 0.0232	 ndcg_10: 0.0334	 hit@1:0.010862	 hit@5:0.0362	 hit@10: 0.0681
+target: 	 mrr: 0.046380	 ndcg_5: 0.0378	 ndcg_10: 0.0482	 hit@1:0.016028	 hit@5:0.0585	 hit@10: 0.0913
+target best!
+..............target: 	 mrr: 0.046801	 ndcg_5: 0.0373	 ndcg_10: 0.0476	 hit@1:0.016461	 hit@5:0.0562	 hit@10: 0.0885
+epoch 6: train_loss = 1.131212, source_hit@10 = 0.0681, source_ndcg@10 = 0.0334, target_hit@10 = 0.0885, target_ndcg@10 = 0.0476
+new best model saved.
+
