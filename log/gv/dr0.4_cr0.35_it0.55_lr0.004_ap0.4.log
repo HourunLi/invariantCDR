@@ -572,3 +572,10 @@ source: 	 mrr: 0.033082	 ndcg_5: 0.0224	 ndcg_10: 0.0324	 hit@1:0.008689	 hit@5:
 target: 	 mrr: 0.055733	 ndcg_5: 0.0476	 ndcg_10: 0.0609	 hit@1:0.021603	 hit@5:0.0746	 hit@10: 0.1157
 epoch 69: train_loss = 1.047610, source_hit@10 = 0.0681, source_ndcg@10 = 0.0324, target_hit@10 = 0.1157, target_ndcg@10 = 0.0609
 
+2024-08-07 17:46:48.902096: step 21280/24320 (epoch 70/80), loss = 1.047976 (91.555 sec/epoch), lr: 0.001054
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.024670	 ndcg_5: 0.0141	 ndcg_10: 0.0201	 hit@1:0.005069	 hit@5:0.0224	 hit@10: 0.0413
+target: 	 mrr: 0.057584	 ndcg_5: 0.0490	 ndcg_10: 0.0618	 hit@1:0.026481	 hit@5:0.0732	 hit@10: 0.1129
+epoch 70: train_loss = 1.047976, source_hit@10 = 0.0413, source_ndcg@10 = 0.0201, target_hit@10 = 0.1129, target_ndcg@10 = 0.0618
+
