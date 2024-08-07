@@ -1,0 +1,52 @@
+nohup: ignoring input
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:54: UserWarning: An issue occurred while importing 'pyg-lib'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'pyg-lib'. "
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:110: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'torch-sparse'. "
+using gpu:6 to train the model
+using gpu:6 to train the model
+cuda:6
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.6, batch_size=1024, beta_inter=0.55, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=6), device_id='6', domains='game_video', dropout=0.4, epoch=80, feature_dim=126, hidden_dim=126, inter_tau=0.2, intra_tau=1, lambda_critic=0.4, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='gv', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=30, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 25025
+number_item 12319
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:72: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at /opt/conda/conda-bld/pytorch_1711403590347/work/torch/csrc/utils/tensor_new.cpp:618.)
+  return torch.sparse.FloatTensor(indices, values, shape)
+real graph loaded!
+number_user 19457
+number_item 8751
+real graph loaded!
+graph loaded!
+Loading data from game_video with batch size 1024...
+unseen test: 0
+test length: 1381
+unseen test: 0
+test length: 1304
+unseen test: 0
+test length: 1435
+unseen test: 0
+test length: 1458
+source_user_num 25025
+target_user_num 19457
+source_item_num 12319
+target_item_num 8751
+shared users id: 1737
+test users 226, 217
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 155036, target train data: 156091, source test data : 1304, target test data : 1458, source dev data : 1000, target dev data : 1000
+2024-08-07 09:47:32.770695: step 304/24320 (epoch 1/80), loss = 1.365203 (87.299 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.019734	 ndcg_5: 0.0105	 ndcg_10: 0.0165	 hit@1:0.003621	 hit@5:0.0181	 hit@10: 0.0369
+target: 	 mrr: 0.027612	 ndcg_5: 0.0197	 ndcg_10: 0.0255	 hit@1:0.008362	 hit@5:0.0307	 hit@10: 0.0488
+source best!
+.............
+source: 	 mrr: 0.021055	 ndcg_5: 0.0101	 ndcg_10: 0.0189	 hit@1:0.005368	 hit@5:0.0161	 hit@10: 0.0437
+target best!
+..............target: 	 mrr: 0.025906	 ndcg_5: 0.0171	 ndcg_10: 0.0254	 hit@1:0.005487	 hit@5:0.0288	 hit@10: 0.0542
+epoch 1: train_loss = 1.365203, source_hit@10 = 0.0437, source_ndcg@10 = 0.0189, target_hit@10 = 0.0542, target_ndcg@10 = 0.0254
+
