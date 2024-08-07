@@ -202,8 +202,8 @@ class Runner(object):
         t_dev_score_history = [0]
 
         current_lr = self.lr
-        if self.start_epoch >= self.args.transfer_epoch:
-            self.recmodel.transfer_flag = 1
+        if self.start_epoch >= self.args.rectify_epoch:
+            self.recmodel.rectify_flag = 1
             # current_lr = self.args.lr_transfer
             
         global_step = 0
@@ -265,7 +265,7 @@ class Runner(object):
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)
-            if epoch > 1 and s_dev_score+t_dev_score > max(s_dev_score_history) + max(t_dev_score_history):
+            if epoch > 1 and (s_dev_score > max(s_dev_score_history) or t_dev_score > max(t_dev_score_history)):
                 patience = 0
                 torch.save({
                     'epoch':epoch,
@@ -279,8 +279,8 @@ class Runner(object):
                     print("early termination of training")
                     return
                 
-            if epoch >= self.args.transfer_epoch and self.recmodel.transfer_flag == 0:
-                self.recmodel.transfer_flag = 1
+            if epoch >= self.args.rectify_epoch and self.recmodel.rectify_flag == 0:
+                self.recmodel.rectify_flag = 1
                 print("shift to transfer learning mode")
                 # model_file = self.model_save_dir + '/similarity.pt'.format(epoch)
                 # torch.save({

@@ -5,7 +5,7 @@ import os
 parser = argparse.ArgumentParser(description='invariantCDR Arguments.')
 
 # model
-parser.add_argument('--domains', type=str, default="sport_cloth || electronic_cell, sport_cloth || game_video, uk_de_fr_ca_us", help='specify none ("none") or a few source markets ("-" seperated) to augment the data for training')
+parser.add_argument('--domains', type=str, default="sport_cloth || electronic_cell, sport_cloth || game_video", help='specify none ("none") or a few source markets ("-" seperated) to augment the data for training')
 parser.add_argument('--feature_dim', type=int, default=126, help='Initialize network embedding dimension.')
 parser.add_argument('--hidden_dim', type=int, default=126, help='hidden dimensions')
 parser.add_argument("--num_latent_factors", type=int, default=3, help="latent factors")
@@ -23,15 +23,15 @@ parser.add_argument('--test_sample_number', type=int, default=999)
 # train
 parser.add_argument('--epoch', type=int, default=80, help='number of epoches')
 parser.add_argument("--min_epoch", type=int, default=50, help="min epoch")
-parser.add_argument('--transfer_epoch', type=int, default=40, help='transfer learning after this epoch.')
+parser.add_argument('--rectify_epoch', type=int, default=30, help='transfer learning after this epoch.')
 parser.add_argument('--log_epoch', type=int, default=5, help='log every log_epoch')
-parser.add_argument("--patience", type=int, default=30, help="patience for early stop")
+parser.add_argument("--patience", type=int, default=20, help="patience for early stop")
 parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
 parser.add_argument('--user_batch_size', type=int, default=256, help='Training user batch size.')
 parser.add_argument('--optim', choices=['sgd', 'adagrad', 'adam', 'adamax'], default='adam',help='Optimizer: sgd, adagrad, adam or adamax.')
 parser.add_argument('--lr', type=float, default=4e-3, help='learning rate')
 parser.add_argument('--lr_decay', type=float, default=0.95, help='Learning rate decay rate.')
-parser.add_argument('--momentum', type=float, default=0.9, help='exponential moving average momentum')
+parser.add_argument('--momentum', type=float, default=0.98, help='exponential moving average momentum')
 
 # config
 parser.add_argument("--mode", type=str, default="train", help="train, eval")

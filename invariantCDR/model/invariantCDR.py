@@ -38,23 +38,6 @@ class invariantCDR(nn.Module):
             param_k.data.copy_(param_q.data) 
             param_k.requires_grad = False
               
-        # self.predict_source = nn.Sequential(
-        #     nn.Linear(args.feature_dim * 2, args.feature_dim),
-        #     nn.LeakyReLU(args.leakey),
-        #     nn.Linear(args.feature_dim, 100),
-        #     nn.LeakyReLU(args.leakey),
-        #     nn.Linear(100, 1),
-        #     nn.Sigmoid(),
-        # )
-        # self.predict_target = nn.Sequential(
-        #     nn.Linear(args.feature_dim * 2, args.feature_dim),
-        #     nn.LeakyReLU(args.leakey),
-        #     nn.Linear(args.feature_dim, 100),
-        #     nn.LeakyReLU(args.leakey),
-        #     nn.Linear(100, 1),
-        #     nn.Sigmoid(),
-        # )
-        
         self.s2t_transfer = FactorDomainTransformer(args)
         self.t2s_transfer = FactorDomainTransformer(args)
         
@@ -72,9 +55,8 @@ class invariantCDR(nn.Module):
         self.target_item_index = torch.arange(0, self.args.target_item_num, 1).to(self.device)
         
         self.criterion = nn.BCEWithLogitsLoss().to(self.device)
-        # self.transfer_criterion = nn.MSELoss()
         self.critic_loss = 0
-        self.transfer_flag = 0
+        self.rectify_flag = 0
         self.K = args.num_latent_factors 
         self.d = args.feature_dim // self.K
         
@@ -158,15 +140,13 @@ class invariantCDR(nn.Module):
 
     def _cal_kernel_affinity(self, norm_embeddings, step: int = 5):
         # norm_embeddings = F.normalize(embeddings, p=2, dim=-1)
-        B, H, d = norm_embeddings.size()
-        norm_embeddings = torch.reshape(norm_embeddings, (B, H*d))
-        G = (2 * H - 2 * (norm_embeddings @ norm_embeddings.t())).clamp(min=0.)
-        G = torch.exp(-G / (self.similarity_tau * H))
+        B, K, d = norm_embeddings.size()
+        norm_embeddings = torch.reshape(norm_embeddings, (B, K*d))
+        G = (2 * K - 2 * (norm_embeddings @ norm_embeddings.t())).clamp(min=0.)
+        G = torch.exp(-G / (self.similarity_tau * K))
         G = G / G.sum(dim=1, keepdim=True)
-        # print(G[:1])
         G = torch.matrix_power(G, step)
-        # print(G[:1])
-        alpha = 0.5
+        # print(G[:2])
         G = torch.eye(B).to(self.device) * self.args.alpha + G * (1 - self.args.alpha)
         return G
 
@@ -177,23 +157,56 @@ class invariantCDR(nn.Module):
         target_sim = self._cal_kernel_affinity(target_test_user).detach()
         return source_sim, target_sim
     
-    def inter_cl(self, x_1, x_2, center_v, mask_pos=None):
-        # B, H, d = x_1.size()
+    def inter_cl(self, x_1, x_2, center_v, sim=None):
+        B, K, d = x_1.size()
+        if sim is None:
+            sim = torch.eye(B).to(self.device)
+        # (1, B, B)
+        mask_pos = sim.unsqueeze(0)
+        ck = F.normalize(center_v, dim=-1)
+        p_k_x_ = torch.einsum('bkd,kd->bk', F.normalize(x_1, dim=-1), ck)
+        
+        # (B,K)
+        p_k_x = F.softmax(p_k_x_ / self.inter_tau, dim=-1) # equation 4
+        p_k_x = torch.reshape(p_k_x, (K, B))
+        #（K, B, B）
+        p_k_x = p_k_x.unsqueeze(-1)
+        p_k_x = p_k_x.expand(-1, -1, B)
+        
+        x_1_abs = x_1.norm(dim=-1)
+        x_2_abs = x_2.norm(dim=-1)
+        x_1 = torch.reshape(x_1, (K, B, d))
+        x_2 = torch.reshape(x_2, (K, B, d))
+        x_1_abs = torch.squeeze(torch.reshape(x_1_abs, (K, B, 1)), 2)
+        x_2_abs = torch.squeeze(torch.reshape(x_2_abs, (K, B, 1)), 2)
+        sim_matrix = torch.einsum('kid,kjd->kij', x_1, x_2) / (1e-8 + torch.einsum('ki,kj->kij', x_1_abs, x_2_abs))
+        # (K, B, B)
+        p_y_xk = F.softmax(sim_matrix / self.inter_tau, dim=-1) # equation 8 in paper
+
+        # (K, B, B)
+        q_k = p_k_x * p_y_xk
+        q_k = F.normalize(q_k, dim=-1, p=1) # equation 9
+        elbo = q_k * (torch.log(p_k_x) + torch.log(p_y_xk) - torch.log(q_k))
+        elbo = elbo * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
+        loss = - elbo.view(-1).mean()
+        return loss
+    
+        # B, K, d = x_1.size()
         # ck = F.normalize(center_v)
         # p_k_x_ = torch.einsum('bkd,kd->bk', F.normalize(x_1, dim=-1), ck)
         # p_k_x = F.softmax(p_k_x_ / self.inter_tau, dim=-1) # equation 4        
         
         # x_1_abs = x_1.norm(dim=-1)
         # x_2_abs = x_2.norm(dim=-1)
-        # x_1 = torch.reshape(x_1, (B * H, d))
-        # x_2 = torch.reshape(x_2, (B * H, d))
-        # x_1_abs = torch.squeeze(torch.reshape(x_1_abs, (B * H, 1)), 1)
-        # x_2_abs = torch.squeeze(torch.reshape(x_2_abs, (B * H, 1)), 1)
+        # x_1 = torch.reshape(x_1, (B * K, d))
+        # x_2 = torch.reshape(x_2, (B * K, d))
+        # x_1_abs = torch.squeeze(torch.reshape(x_1_abs, (B * K, 1)), 1)
+        # x_2_abs = torch.squeeze(torch.reshape(x_2_abs, (B * K, 1)), 1)
         # sim_matrix = torch.einsum('ik,jk->ij', x_1, x_2) / (1e-8 + torch.einsum('i,j->ij', x_1_abs, x_2_abs))
         # sim_matrix = torch.exp(sim_matrix / self.inter_tau)
-        # pos_sim = sim_matrix[range(B * H), range(B * H)]
+        # pos_sim = sim_matrix[range(B * K), range(B * K)]
         # score = pos_sim / (sim_matrix.sum(dim=-1) - pos_sim) 
-        # p_y_xk = score.view(B, H)# equation 8 in paper
+        # p_y_xk = score.view(B, K)# equation 8 in paper
         
         # q_k = torch.einsum('bk,bk->bk', p_k_x, p_y_xk)
         # q_k = F.normalize(q_k, dim=-1)
@@ -202,63 +215,63 @@ class invariantCDR(nn.Module):
         # return loss
 
 
-        B, H, d = x_1.size()
-        if mask_pos is None:
-            mask_pos = torch.eye(B).to(self.device)
-            mask_pos = mask_pos.unsqueeze(0)
-        ck = F.normalize(center_v, dim=-1)
-        p_k_x_ = torch.einsum('bkd,kd->bk', F.normalize(x_1, dim=-1), ck)
-        # (B,K)
-        p_k_x = F.softmax(p_k_x_ / self.inter_tau, dim=-1) # equation 4
-        p_k_x = torch.reshape(p_k_x, (H, B))
-        #（K, 1, B）
-        p_k_x = p_k_x.unsqueeze(1)
-        
-        x_1_abs = x_1.norm(dim=-1)
-        x_2_abs = x_2.norm(dim=-1)
-        x_1 = torch.reshape(x_1, (H, B, d))
-        x_2 = torch.reshape(x_2, (H, B, d))
-        x_1_abs = torch.squeeze(torch.reshape(x_1_abs, (H, B, 1)), 2)
-        x_2_abs = torch.squeeze(torch.reshape(x_2_abs, (H, B, 1)), 2)
-        sim_matrix = torch.einsum('kid,kjd->kij', x_1, x_2) / (1e-8 + torch.einsum('ki,kj->kij', x_1_abs, x_2_abs))
-        # (K, B, B)
-        p_y_xk = F.softmax(sim_matrix / self.inter_tau, dim=-1) # equation 8 in paper
-
-        # (K, B, B)
-        q_k = p_k_x * p_y_xk
-        q_k = F.normalize(q_k, dim=-1) # equation 9
-        elbo = q_k * (torch.log(p_k_x) + torch.log(p_y_xk) - torch.log(q_k))
-        elbo = elbo * mask_pos
-        loss = - elbo.view(-1).mean()
-        return loss
-    
+ 
     def intra_cl(self, x_q, x_k, sim=None):
-        B, H, d = x_q.size()
+        # uniformed intra contrastive
+        B, K, d = x_q.size()
         if sim is None:
             sim = torch.eye(B).to(self.device)
+        mask_pos = sim.unsqueeze(0)
         x_q_abs = x_q.norm(dim=-1)
         x_k_abs = x_k.norm(dim=-1)
         
-        x_q = torch.reshape(x_q, (B * H, d))
-        x_k = torch.reshape(x_k, (B * H, d))
-        x_q_abs = torch.squeeze(torch.reshape(x_q_abs, (B * H, 1)), 1)
-        x_k_abs = torch.squeeze(torch.reshape(x_k_abs, (B * H, 1)), 1)
+        x_q = torch.reshape(x_q, (B * K, d))
+        x_k = torch.reshape(x_k, (B * K, d))
+        x_q_abs = torch.squeeze(torch.reshape(x_q_abs, (B * K, 1)), 1)
+        x_k_abs = torch.squeeze(torch.reshape(x_k_abs, (B * K, 1)), 1)
         
+        #(B*K, B*K)
         sim_matrix = torch.einsum('ik,jk->ij', x_q, x_k) / (1e-8 + torch.einsum('i,j->ij', x_q_abs, x_k_abs))
-        sim_matrix = torch.exp(sim_matrix / self.intra_tau)
-        pos_sim = sim_matrix[range(B * H), range(B * H)]
-        score = pos_sim / (sim_matrix.sum(dim=-1) - pos_sim) 
-        # p_y_xk = score.view(B, H)# equation 8 in paper
+        sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
+        # (K, B, B)
+        result = torch.zeros((K, B, B)).to(self.device)
+        for i in range(K):
+            result[i] = sim_matrix[range(i, B * K, K), range(i, B * K, K)]
         
-        # # (B*H, B*H)
-        # similarity = torch.div(torch.matmul(x_q, x_k.T), (self.intra_tau))
-        # similarity = -torch.log(torch.softmax(similarity, dim=1))
-        
-        # # (B, B) = (B, B) * (B, B)
-        # nll_loss = similarity * sim / sim.sum(dim=1, keepdim=True)
-        # loss = nll_loss.mean()
-        return score.mean()
+        nll_loss = -torch.log(result) * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
+        loss = nll_loss.mean()
         return loss
+
+        # bi-contrastive
+        # B, K, d = x_q.size()
+        # if sim is None:
+        #     sim = torch.eye(B).to(self.device)
+        # mask_pos = sim.unsqueeze(0)
+        
+        # x_q_abs = x_q.norm(dim=-1)
+        # x_k_abs = x_k.norm(dim=-1)
+        
+        # # part 1
+        # x_q_1 = torch.reshape(x_q, (B, K, d))
+        # x_k_1 = torch.reshape(x_k, (B, K, d))
+        # x_q_1_abs = torch.squeeze(torch.reshape(x_q_abs, (B, K, 1)), 2)
+        # x_k_1_abs = torch.squeeze(torch.reshape(x_k_abs, (B, K, 1)), 2)
+        # sim_matrix = torch.einsum('bki,bkj->bkk', x_q_1, x_k_1) / (1e-8 + torch.einsum('bk,bk->bkk', x_q_1_abs, x_k_1_abs))
+        # sim_matrix = torch.exp(sim_matrix / self.intra_tau)
+        # pos_sim = sim_matrix[:, range(K), range(K)]
+        # score = pos_sim / (sim_matrix.sum(dim=-1) - pos_sim) 
+        # loss_1 = -torch.log(score).mean()
+        
+        # # part 2
+        # # (K, B, B)
+        # x_q_2 = torch.reshape(x_q, (K, B, d))
+        # x_k_2 = torch.reshape(x_k, (K, B, d))
+        # x_q_2_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
+        # x_k_2_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
+        # sim_matrix = torch.einsum('kbd,kbd->kbb', x_q_2, x_k_2) / (1e-8 + torch.einsum('kb,kb->kbb', x_q_2_abs, x_k_2_abs))
+        # sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim = -1)
+        # loss_2 = (-torch.log(sim_matrix) * mask_pos).mean()
+        # return loss_1 + loss_2
     
     def forward(self, source_UV, source_VU, target_UV, target_VU):
         self._update_target_branch(self.momentum)
@@ -277,7 +290,7 @@ class invariantCDR(nn.Module):
             per_stable = torch.randperm(self.args.shared_user)[:self.args.user_batch_size].to(self.device)
             per_random_source = torch.randperm(self.args.source_user_num)[:self.args.user_batch_size].to(self.device)
             per_random_target = torch.randperm(self.args.target_user_num)[:self.args.user_batch_size].to(self.device)
-            if self.transfer_flag == 0:
+            if self.rectify_flag == 0:
                 I = torch.eye(self.args.user_batch_size).to(self.device)
                 mp = [I, I, I, I]
             else:

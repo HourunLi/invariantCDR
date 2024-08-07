@@ -36,16 +36,20 @@ class GraphMaker(object):
         print("number_item", self.number_item)
         
         self.raw_data = np.array(data)
-        # self.UV, self.VU, self.adj, self.ease = self.preprocess(data)
         self.UV, self.VU, self.adj = self.preprocess(data)
 
     def _normalize(self, mx):
+        # print(f"mx shape is {mx.shape}")
         """Row-normalize sparse matrix"""
         rowsum = np.array(mx.sum(1))
+        # print(f"row sum shape is {rowsum.shape}")
         r_inv = np.power(rowsum, -1).flatten()
         r_inv[np.isinf(r_inv)] = 0.
+        # print(f"r_inv shape is {r_inv.shape}")
         r_mat_inv = sp.diags(r_inv)
+        # print(f"r_mat_inv shape is {r_mat_inv.shape}")
         mx = r_mat_inv.dot(mx)
+        # print(f"return shape is {mx.shape}")
         return mx
 
     def _normalize_lightgcn(self, mx):
