@@ -119,11 +119,17 @@ class disenEncoder(nn.Module):
         learn_user, learn_item = ufea, vfea
         learn_users, learn_items = [], []
         for i in range(self.conv_layers):
-            learn_user = F.dropout(learn_user, self.dropout, training=self.training)
-            learn_item = F.dropout(learn_item, self.dropout, training=self.training)
+            # learn_user = F.dropout(learn_user, self.dropout, training=self.training)
+            # learn_item = F.dropout(learn_item, self.dropout, training=self.training)
             learn_user, learn_item = self.convolution_list[i](learn_user, learn_item, UV_adj, VU_adj)
             learn_user = self.user_batchNorm_list[i](learn_user)
             learn_item = self.item_batchNorm_list[i](learn_item)
+            if i == self.conv_layers - 1:
+                learn_user = F.dropout(learn_user, self.dropout, training=self.training)
+                learn_item = F.dropout(learn_item, self.dropout, training=self.training)
+            else:
+                learn_user = F.dropout(F.relu(learn_user), self.dropout, training=self.training)
+                learn_item = F.dropout(F.relu(learn_item), self.dropout, training=self.training)
             # learn_user = self.batchNorm_list[i](learn_user)
             # learn_item = self.batchNorm_list[i](learn_item)
             if self.residual and i > 0:
@@ -153,8 +159,9 @@ class disenEncoder(nn.Module):
                 learn_user, learn_item = self.disen_convolution_list[i * self.proj_layers + j](learn_user, learn_item, UV_adj, VU_adj)
                 learn_user = self.disen_user_batchNorm_list[i](learn_user)
                 learn_item = self.disen_item_batchNorm_list[i](learn_item)
-                # learn_user = self.disen_batchNorm_list[i](learn_user)
-                # learn_item = self.disen_batchNorm_list[i](learn_item)
+                if j != self.proj_layers - 1:
+                    learn_user = F.relu(learn_user)
+                    learn_item = F.relu(learn_item)
             user_proj_list.append(learn_user)
             item_proj_list.append(learn_item)
         if self.projection:
@@ -180,12 +187,9 @@ class disenEncoder(nn.Module):
         return ret
     
     def forward(self, ufea, vfea, UV_adj, VU_adj):
-        learn_user, learn_item = self._normal_conv(ufea, vfea, UV_adj, VU_adj)
-        learn_user, learn_item = self._disen_conv(learn_user, learn_item, UV_adj, VU_adj)
-        # learn_user, learn_item = self._last_conv(learn_user, learn_item, UV_adj, VU_adj)
-        learn_user = F.normalize(learn_user, p=2, dim=-1)
-        learn_item = F.normalize(learn_item, p=2, dim=-1)
-        return learn_user, learn_item
+        learn_user_origin, learn_item_origin = self._normal_conv(ufea, vfea, UV_adj, VU_adj)
+        learn_user_disen, learn_item_disen = self._disen_conv(learn_user_origin, learn_item_origin, UV_adj, VU_adj)
+        return learn_user_origin, learn_item_origin, learn_user_disen, learn_item_disen
 
 class DGCNLayer(nn.Module):
     def __init__(self, args, feature_dim, hidden_dim):
