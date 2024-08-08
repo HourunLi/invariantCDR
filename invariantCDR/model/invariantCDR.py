@@ -192,10 +192,11 @@ class invariantCDR(nn.Module):
         
         # (B,K)
         p_k_x = F.softmax(p_k_x_ / self.k_tau, dim=-1) # equation 4
-        p_k_x = torch.reshape(p_k_x, (K, B))
-        #（K, B, B）
+        # p_k_x = torch.reshape(p_k_x, (K, B))
+        
+        #（B, K, 1）
         p_k_x = p_k_x.unsqueeze(-1)
-        p_k_x = p_k_x.expand(-1, -1, B)
+        # p_k_x = p_k_x.expand(-1, -1, B)
         
         x_q_abs = x_q.norm(dim=-1)
         x_k_abs = x_k.norm(dim=-1)
@@ -203,18 +204,25 @@ class invariantCDR(nn.Module):
         x_k = torch.reshape(x_k, (K, B, d))
         x_q_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
         x_k_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
-        sim_matrix = torch.einsum('kid,kjd->kij', x_q, x_k) / (1e-8 + torch.einsum('ki,kj->kij', x_q_abs, x_k_abs))
         # (K, B, B)
+        sim_matrix = torch.einsum('kid,kjd->kij', x_q, x_k) / (1e-8 + torch.einsum('ki,kj->kij', x_q_abs, x_k_abs))
+        # (B ,K, B)
+        sim_matrix = torch.reshape(sim_matrix, (B, K, B))
         p_y_xk = F.softmax(sim_matrix / self.batch_tau, dim=-1) # equation 8 in paper
 
-        # (K, B, B)
+        # (B, K, B)
         q_k = p_k_x * p_y_xk
-        q_k = F.normalize(q_k, dim=-1, p=1) # equation 9
-        elbo = q_k * (torch.log(p_k_x) + torch.log(p_y_xk) - torch.log(q_k))
+        # (B, B, K)
+        q_k = torch.reshape(q_k, (B, B, K))
+        # (B, B, K)
+        q_k_xy = F.normalize(q_k, dim=-1, p=1) # equation 9
+        elbo = q_k_xy * torch.log(q_k / q_k_xy)
+        elbo = elbo.sum(dim = -1)
+        # elbo = q_k * (torch.log(p_k_x) + torch.log(p_y_xk) - torch.log(q_k))
         # elbo = elbo.mean(dim = 0)
         # print(f"elbo is {- elbo.mean()}")
         nll_loss = elbo * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
-        loss = -nll_loss.sum() / (B * K)
+        loss = -nll_loss.sum() / B
         return loss
     
         # B, K, d = x_q.size()
@@ -327,18 +335,24 @@ class invariantCDR(nn.Module):
                 sim_shared_s, sim_shared_t = self.cal_similarity_matrix(source_user_origin_goal[per_stable], target_user_origin_goal[per_stable])
             mp = [sim_random_s, sim_random_t, sim_shared_s, sim_shared_t]
             
-            l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
-                       self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2
+            # l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
+            #            self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2            
+            l_inter = (self.inter_cl(source_user_disen_online[per_stable], target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
+                       self.inter_cl(target_user_disen_online[per_stable], source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2
             l_intra = (self.intra_cl(source_user_disen_online[per_random_source], source_user_disen_goal[per_random_source], mp[0]) + 
                        self.intra_cl(target_user_disen_online[per_random_target], target_user_disen_goal[per_random_target], mp[1])) / 2            
             self.critic_loss = self.args.beta_inter * l_inter + (1-self.args.beta_inter) * l_intra
             
             print(f"inter loss {l_inter}, intra loss: {l_intra}, critic loss: {self.critic_loss}")
-            source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.shared_user]), source_user_disen_online[self.args.shared_user:]),dim=0)
-            target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.shared_user]), target_user_disen_online[self.args.shared_user:]),dim=0)
+            # source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.shared_user]), source_user_disen_online[self.args.shared_user:]),dim=0)
+            # target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.shared_user]), target_user_disen_online[self.args.shared_user:]),dim=0)
+            source_user_concat = torch.cat((target_user_disen_online[:self.args.shared_user], source_user_disen_online[self.args.shared_user:]),dim=0)
+            target_user_concat = torch.cat((source_user_disen_online[:self.args.shared_user], target_user_disen_online[self.args.shared_user:]),dim=0)
         else:
-            source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.source_shared_user]), source_user_disen_online[self.args.source_shared_user:]), dim=0)
-            target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.target_shared_user]), target_user_disen_online[self.args.target_shared_user:]), dim=0)
+            # source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.source_shared_user]), source_user_disen_online[self.args.source_shared_user:]), dim=0)
+            # target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.target_shared_user]), target_user_disen_online[self.args.target_shared_user:]), dim=0)
+            source_user_concat = torch.cat((target_user_disen_online[:self.args.source_shared_user], source_user_disen_online[self.args.source_shared_user:]), dim=0)
+            target_user_concat = torch.cat((source_user_disen_online[:self.args.target_shared_user], target_user_disen_online[self.args.target_shared_user:]), dim=0)
 
         return source_user_concat, source_item_disen_online, target_user_concat, target_item_disen_online
     

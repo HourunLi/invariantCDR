@@ -54,7 +54,7 @@ parser.add_argument('--alpha', type=float, default=0.5, help='the weight of I in
 parser.add_argument('--lambda_critic', type=float, default=0.4, help='the parameter of critic loss function')
 parser.add_argument('--beta_inter', type=float, default=0.4)
 parser.add_argument('--dropout', type=float, default=0.5, help='random drop out rate')
-parser.add_argument('--k_tau', type=float, default=0.2, help="temperature parameter for scaling the factor similarity scores")
+parser.add_argument('--k_tau', type=float, default=0.5, help="temperature parameter for scaling the factor similarity scores")
 parser.add_argument('--batch_tau', type=float, default=0.2, help="temperature parameter for scaling the batch similarity scores")
 parser.add_argument('--similarity_tau', type=float, default=0.1, help="temperature parameter for scaling the intra similarity scores")
 args = parser.parse_args()
