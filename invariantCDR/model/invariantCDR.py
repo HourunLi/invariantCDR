@@ -308,7 +308,7 @@ class invariantCDR(nn.Module):
         sim_matrix = F.softmax(sim_matrix / self.batch_tau, dim = -1)
         nll_loss = torch.log(sim_matrix) * mask_pos / mask_pos.sum(dim=-1, keepdim=True)
         loss_2 = - nll_loss.sum()/(B * K)
-        print(f"intra loss: loss_1: {loss_1}, loss_2: {loss_2}")
+        # print(f"intra loss: loss_1: {loss_1}, loss_2: {loss_2}")
         return (loss_1 + loss_2)/2
     
     def forward(self, source_UV, source_VU, target_UV, target_VU):
@@ -335,24 +335,24 @@ class invariantCDR(nn.Module):
                 sim_shared_s, sim_shared_t = self.cal_similarity_matrix(source_user_origin_goal[per_stable], target_user_origin_goal[per_stable])
             mp = [sim_random_s, sim_random_t, sim_shared_s, sim_shared_t]
             
-            # l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
-            #            self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2            
-            l_inter = (self.inter_cl(source_user_disen_online[per_stable], target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
-                       self.inter_cl(target_user_disen_online[per_stable], source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2
+            l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
+                       self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2            
+            # l_inter = (self.inter_cl(source_user_disen_online[per_stable], target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
+            #            self.inter_cl(target_user_disen_online[per_stable], source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2
             l_intra = (self.intra_cl(source_user_disen_online[per_random_source], source_user_disen_goal[per_random_source], mp[0]) + 
                        self.intra_cl(target_user_disen_online[per_random_target], target_user_disen_goal[per_random_target], mp[1])) / 2            
             self.critic_loss = self.args.beta_inter * l_inter + (1-self.args.beta_inter) * l_intra
             
-            print(f"inter loss {l_inter}, intra loss: {l_intra}, critic loss: {self.critic_loss}")
-            # source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.shared_user]), source_user_disen_online[self.args.shared_user:]),dim=0)
-            # target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.shared_user]), target_user_disen_online[self.args.shared_user:]),dim=0)
-            source_user_concat = torch.cat((target_user_disen_online[:self.args.shared_user], source_user_disen_online[self.args.shared_user:]),dim=0)
-            target_user_concat = torch.cat((source_user_disen_online[:self.args.shared_user], target_user_disen_online[self.args.shared_user:]),dim=0)
+            # print(f"inter loss {l_inter}, intra loss: {l_intra}, critic loss: {self.critic_loss}")
+            source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.shared_user]), source_user_disen_online[self.args.shared_user:]),dim=0)
+            target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.shared_user]), target_user_disen_online[self.args.shared_user:]),dim=0)
+            # source_user_concat = torch.cat((target_user_disen_online[:self.args.shared_user], source_user_disen_online[self.args.shared_user:]),dim=0)
+            # target_user_concat = torch.cat((source_user_disen_online[:self.args.shared_user], target_user_disen_online[self.args.shared_user:]),dim=0)
         else:
-            # source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.source_shared_user]), source_user_disen_online[self.args.source_shared_user:]), dim=0)
-            # target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.target_shared_user]), target_user_disen_online[self.args.target_shared_user:]), dim=0)
-            source_user_concat = torch.cat((target_user_disen_online[:self.args.source_shared_user], source_user_disen_online[self.args.source_shared_user:]), dim=0)
-            target_user_concat = torch.cat((source_user_disen_online[:self.args.target_shared_user], target_user_disen_online[self.args.target_shared_user:]), dim=0)
+            source_user_concat = torch.cat((self.t2s_transfer.forward_user(target_user_disen_online[:self.args.source_shared_user]), source_user_disen_online[self.args.source_shared_user:]), dim=0)
+            target_user_concat = torch.cat((self.s2t_transfer.forward_user(source_user_disen_online[:self.args.target_shared_user]), target_user_disen_online[self.args.target_shared_user:]), dim=0)
+            # source_user_concat = torch.cat((target_user_disen_online[:self.args.source_shared_user], source_user_disen_online[self.args.source_shared_user:]), dim=0)
+            # target_user_concat = torch.cat((source_user_disen_online[:self.args.target_shared_user], target_user_disen_online[self.args.target_shared_user:]), dim=0)
 
         return source_user_concat, source_item_disen_online, target_user_concat, target_item_disen_online
     
