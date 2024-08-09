@@ -277,8 +277,8 @@ class invariantCDR(nn.Module):
         x_q_1_abs = x_q_abs
         x_k_1_abs = x_k_abs
         k_sim = torch.einsum('bid,bjd->bij', x_q_1, x_k_1) / (1e-8 + torch.einsum('bi,bj->bij', x_q_1_abs, x_k_1_abs))
-        # k_sim = F.softmax(k_sim / self.k_tau, dim=-1) 
-        k_sim = F.softmax(k_sim, dim=-1) 
+        k_sim = F.softmax(k_sim / self.k_tau, dim=-1) 
+        # k_sim = F.softmax(k_sim, dim=-1) 
         score = k_sim[:, range(K), range(K)]
         score = score.view(B, K)
         loss_1 = -torch.log(score).mean()
@@ -296,8 +296,8 @@ class invariantCDR(nn.Module):
         # x_q_2_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
         # x_k_2_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
         b_sim = torch.einsum('kid,kjd->kij', x_q_2, x_k_2) / (1e-8 + torch.einsum('ki,kj->kij', x_q_2_abs, x_k_2_abs))
-        # b_sim = F.softmax(b_sim / self.batch_tau, dim = -1)
-        b_sim = F.softmax(b_sim, dim = -1)
+        b_sim = F.softmax(b_sim / self.batch_tau, dim = -1)
+        # b_sim = F.softmax(b_sim, dim = -1)
         nll_loss = torch.log(b_sim) * mask_pos
         loss_2 = - nll_loss.sum() / (B * K)
         # print(f"intra loss: loss_1: {loss_1}, loss_2: {loss_2}")
