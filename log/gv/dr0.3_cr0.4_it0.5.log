@@ -1,0 +1,34 @@
+nohup: ignoring input
+using gpu:2 to train the model
+using gpu:2 to train the model
+cuda:2
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.5, batch_size=1024, batch_tau=0.2, beta_inter=0.5, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=2), device_id='2', domains='game_video', dropout=0.3, epoch=80, feature_dim=126, hidden_dim=126, k_tau=0.5, lambda_critic=0.4, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='gv', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=30, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 25025
+number_item 12319
+/home/disk2/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+number_user 19457
+number_item 8751
+real graph loaded!
+graph loaded!
+Loading data from game_video with batch size 1024...
+unseen test: 0
+test length: 1381
+unseen test: 0
+test length: 1304
+unseen test: 0
+test length: 1435
+unseen test: 0
+test length: 1458
+source_user_num 25025
+target_user_num 19457
+source_item_num 12319
+target_item_num 8751
+shared users id: 1737
+test users 226, 217
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 155036, target train data: 156091, source test data : 1304, target test data : 1458, source dev data : 1000, target dev data : 1000
