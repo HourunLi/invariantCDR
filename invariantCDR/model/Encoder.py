@@ -189,6 +189,8 @@ class disenEncoder(nn.Module):
     def forward(self, ufea, vfea, UV_adj, VU_adj):
         learn_user_origin, learn_item_origin = self._normal_conv(ufea, vfea, UV_adj, VU_adj)
         learn_user_disen, learn_item_disen = self._disen_conv(learn_user_origin, learn_item_origin, UV_adj, VU_adj)
+        F.normalize(learn_user_disen, p=2, dim=-1)
+        F.normalize(learn_item_disen, p=2, dim=-1)
         return learn_user_origin, learn_item_origin, learn_user_disen, learn_item_disen
 
 class DGCNLayer(nn.Module):

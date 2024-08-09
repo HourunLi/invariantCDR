@@ -167,10 +167,10 @@ class invariantCDR(nn.Module):
         G = torch.matrix_power(G, step)
         identity_matrix = torch.eye(B).to(self.device).unsqueeze(0) if flag else torch.eye(B).to(self.device)
         G = identity_matrix * self.args.alpha + G * (1 - self.args.alpha)
-        if flag:
-            print(G[:, 0, :5])
-        else:
-            print(G[0, :5])
+        # if flag:
+        #     print(G[:, 0, :5])
+        # else:
+        #     print(G[0, :5])
         return G
     
     def cal_similarity_matrix(self, source_user, target_user):
