@@ -64,13 +64,13 @@ class invariantCDR(nn.Module):
         self.target_user_center = torch.rand((self.K, self.d), requires_grad=True).to(self.device)
         
         self.dropout = self.args.dropout
-        self.__init_weight()
+    #     self.__init_weight()
         
-    def __init_weight(self):
-        nn.init.normal_(self.source_user_embedding.weight, std = 0.1)
-        nn.init.normal_(self.target_user_embedding.weight, std = 0.1)     
-        nn.init.normal_(self.source_item_embedding.weight, std = 0.1)
-        nn.init.normal_(self.target_item_embedding.weight, std = 0.1)
+    # def __init_weight(self):
+    #     nn.init.normal_(self.source_user_embedding.weight, std = 0.1)
+    #     nn.init.normal_(self.target_user_embedding.weight, std = 0.1)     
+    #     nn.init.normal_(self.source_item_embedding.weight, std = 0.1)
+    #     nn.init.normal_(self.target_item_embedding.weight, std = 0.1)
 
     @torch.no_grad()
     def _update_target_branch(self, momentum):
@@ -83,18 +83,10 @@ class invariantCDR(nn.Module):
    
     def source_predict_nn(self, user_embedding, item_embedding):
         fea = torch.cat((user_embedding, item_embedding), dim=-1)
-        # out = self.source_predict_1(fea)
-        # out = F.relu(out)
-        # out = self.source_predict_2(out)
-        # out = torch.sigmoid(out)
         return self.predict_source(fea)
 
     def target_predict_nn(self, user_embedding, item_embedding):
         fea = torch.cat((user_embedding, item_embedding), dim=-1)
-        # out = self.target_predict_1(fea)
-        # out = F.relu(out)
-        # out = self.target_predict_2(out)
-        # out = torch.sigmoid(out)
         return self.predict_target(fea)
 
     def source_predict_dot(self, user_embedding, item_embedding):
@@ -127,16 +119,16 @@ class invariantCDR(nn.Module):
             gamma = gamma.cuda()
         return F.relu(gamma - pos + neg).mean()
 
-    def min_max_norm(self, embeddings):
-        min_vals = embeddings.min(dim=1, keepdim=True)[0]
-        max_vals = embeddings.max(dim=1, keepdim=True)[0]
-        embeddings = (embeddings - min_vals) / (max_vals - min_vals)
-        return embeddings
+    # def min_max_norm(self, embeddings):
+    #     min_vals = embeddings.min(dim=1, keepdim=True)[0]
+    #     max_vals = embeddings.max(dim=1, keepdim=True)[0]
+    #     embeddings = (embeddings - min_vals) / (max_vals - min_vals)
+    #     return embeddings
     
-    def row_wise_norm(self, embeddings):
-        row_sums = embeddings.sum(dim=1, keepdim=True)
-        embeddings = embeddings / row_sums
-        return embeddings
+    # def row_wise_norm(self, embeddings):
+    #     row_sums = embeddings.sum(dim=1, keepdim=True)
+    #     embeddings = embeddings / row_sums
+    #     return embeddings
 
     # def _cal_kernel_affinity(self, embeddings, step: int = 5):
     #     norm_embeddings = F.normalize(embeddings, p=2, dim=-1)
@@ -168,13 +160,11 @@ class invariantCDR(nn.Module):
         G = torch.matrix_power(G, step)
         identity_matrix = torch.eye(B).to(self.device).unsqueeze(0) if flag else torch.eye(B).to(self.device)
         G = identity_matrix * self.args.alpha + G * (1 - self.args.alpha)
-        return G.detach()
+        return G
     
     def cal_similarity_matrix(self, source_user, target_user):
-        source_test_user = source_user[:self.args.test_user].to(self.device)
-        target_test_user = target_user[:self.args.test_user].to(self.device)
-        source_sim = self._cal_kernel_affinity(source_test_user).detach()
-        target_sim = self._cal_kernel_affinity(target_test_user).detach()
+        source_sim = self._cal_kernel_affinity(source_user).detach()
+        target_sim = self._cal_kernel_affinity(target_user).detach()
         return source_sim, target_sim
     
     def inter_cl(self, x_q, x_k, center_v, mask_pos=None):
@@ -287,7 +277,8 @@ class invariantCDR(nn.Module):
         x_q_1_abs = x_q_abs
         x_k_1_abs = x_k_abs
         k_sim = torch.einsum('bid,bjd->bij', x_q_1, x_k_1) / (1e-8 + torch.einsum('bi,bj->bij', x_q_1_abs, x_k_1_abs))
-        k_sim = F.softmax(k_sim / self.k_tau, dim=-1) 
+        # k_sim = F.softmax(k_sim / self.k_tau, dim=-1) 
+        k_sim = F.softmax(k_sim, dim=-1) 
         score = k_sim[:, range(K), range(K)]
         score = score.view(B, K)
         loss_1 = -torch.log(score).mean()
@@ -305,7 +296,8 @@ class invariantCDR(nn.Module):
         # x_q_2_abs = torch.squeeze(torch.reshape(x_q_abs, (K, B, 1)), 2)
         # x_k_2_abs = torch.squeeze(torch.reshape(x_k_abs, (K, B, 1)), 2)
         b_sim = torch.einsum('kid,kjd->kij', x_q_2, x_k_2) / (1e-8 + torch.einsum('ki,kj->kij', x_q_2_abs, x_k_2_abs))
-        b_sim = F.softmax(b_sim / self.batch_tau, dim = -1)
+        # b_sim = F.softmax(b_sim / self.batch_tau, dim = -1)
+        b_sim = F.softmax(b_sim, dim = -1)
         nll_loss = torch.log(b_sim) * mask_pos
         loss_2 = - nll_loss.sum() / (B * K)
         # print(f"intra loss: loss_1: {loss_1}, loss_2: {loss_2}")
@@ -370,14 +362,16 @@ class invariantCDR(nn.Module):
             
             sim_random_s, sim_random_t, sim_shared_s, sim_shared_t = None, None, None, None
             if self.rectify_flag:
+                # for intra
                 sim_random_s, sim_random_t = self.cal_similarity_matrix(source_user_disen_goal[per_random_source], target_user_disen_goal[per_random_target])
+                # for inter
                 sim_shared_s, sim_shared_t = self.cal_similarity_matrix(source_user_origin_goal[per_stable], target_user_origin_goal[per_stable])
             mp = [sim_random_s, sim_random_t, sim_shared_s, sim_shared_t]
             
-            l_inter = (self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3]) + 
-                       self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2])) / 2            
             l_intra = (self.intra_cl(source_user_disen_online[per_random_source], source_user_disen_goal[per_random_source], mp[0]) + 
-                       self.intra_cl(target_user_disen_online[per_random_target], target_user_disen_goal[per_random_target], mp[1])) / 2            
+                       self.intra_cl(target_user_disen_online[per_random_target], target_user_disen_goal[per_random_target], mp[1])) / 2       
+            l_inter = (self.inter_cl(self.t2s_transfer.forward_user(target_user_disen_online[per_stable]), source_user_disen_goal[per_stable], self.source_user_center, mp[2]) +
+                       self.inter_cl(self.s2t_transfer.forward_user(source_user_disen_online[per_stable]), target_user_disen_goal[per_stable], self.target_user_center, mp[3])) / 2            
             self.critic_loss = self.args.beta_inter * l_inter + (1-self.args.beta_inter) * l_intra
             
             # print(f"inter loss {l_inter}, intra loss: {l_intra}, critic loss: {self.critic_loss}")
