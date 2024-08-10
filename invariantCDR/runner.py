@@ -121,7 +121,7 @@ class Runner(object):
 
         recommendation_loss = self.criterion(pos_source_score, source_pos_labels) + self.criterion(neg_source_score, source_neg_labels) + \
             self.criterion(pos_target_score, target_pos_labels) + self.criterion(neg_target_score, target_neg_labels)
-        
+        # print(f"recommendation_loss: {recommendation_loss}, critic_loss: {self.recmodel.critic_loss}")
         loss = self.args.lambda_critic * self.recmodel.critic_loss + (1 - self.args.lambda_critic) * recommendation_loss
         loss.backward()
         self.optimizer.step()
