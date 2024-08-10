@@ -730,7 +730,7 @@ class invariantCDR(nn.Module):
         nll_loss = torch.log(sim_matrix) * mask_pos
         loss_2 = -(nll_loss).sum() / (B * K)
         # print(f"intra loss: loss_1: {loss_1}, loss_2: {loss_2}")
-        return 0.1 * loss_1 + 0.9 * loss_2
+        return self.args.gamma_intra * loss_1 + (1-self.args.gamma_intra) * loss_2
     
     def forward(self, source_UV, source_VU, target_UV, target_VU):
         self._update_target_branch(self.momentum)
