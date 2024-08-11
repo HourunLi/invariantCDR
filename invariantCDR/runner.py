@@ -49,7 +49,6 @@ class Runner(object):
         helper.ensure_dir(self.model_save_dir, verbose=True)
         # helper.save_config(vars(args), self.model_save_dir + '/config.json', verbose=True)
         # helper.print_config(vars(args))
-        self.file_logger = helper.FileLogger(self.model_save_dir + '/' + args.log, header="epoch\ttrain_loss\tsource_dev_score\ttarget_dev_score\tbest_source_score\tbest_target_score")
         self.criterion = nn.BCEWithLogitsLoss().to(args.device)
         self.max_patience = args.patience
 
@@ -198,6 +197,8 @@ class Runner(object):
         s_dev_score_history = [0]
         t_dev_score_history = [0]
 
+        best_s_mrr, best_t_mrr = 0, 0
+        best_s_hit, best_s_ndcg, best_t_hit, best_t_ndcg = 0, 0, 0, 0
         current_lr = self.lr
         if self.start_epoch >= self.args.rectify_epoch:
             self.recmodel.rectify_flag = 1
@@ -206,11 +207,6 @@ class Runner(object):
         global_start_time = time.time()
         format_str = '{}: step {}/{} (epoch {}/{}), loss = {:.6f} ({:.3f} sec/epoch), lr: {:.6f}'
         max_steps = len(self.train_batch) * self.epoch
-
-        best_s_hit = -1
-        best_s_ndcg = -1
-        best_t_hit = -1
-        best_t_ndcg = -1
 
         # start training
         for epoch in range(self.start_epoch, self.epoch + 1):
@@ -233,7 +229,12 @@ class Runner(object):
             self.evaluate_embedding(self.args.source_UV, self.args.source_VU, self.args.target_UV, self.args.target_VU)
             s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10 = self.predict(self.source_valid_batch, 1)
             t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_valid_batch, 0)
-
+            
+            if best_s_hit < s_hr_10:
+                best_s_mrr, best_s_hit, best_s_ndcg = s_mrr, s_hr_10, s_ndcg_10
+            if best_t_hit < t_hr_10:
+                best_t_mrr, best_t_hit, best_t_ndcg = t_mrr, t_hr_10, t_ndcg_10
+                
             print("\nsource: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(s_mrr, s_ndcg_5, s_ndcg_10, s_hr_1, s_hr_5, s_hr_10))
             print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
 
@@ -249,9 +250,6 @@ class Runner(object):
                 print("target best!")
                 t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10 = self.predict(self.target_test_batch, 0)
                 print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
-
-            self.file_logger.log(
-                "{}\t{:.6f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, t_dev_score, max([s_dev_score] + s_dev_score_history), max([t_dev_score] + t_dev_score_history)))
 
             print(
                 "epoch {}: train_loss = {:.6f}, source_mrr = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
@@ -273,6 +271,8 @@ class Runner(object):
                 patience += 1
                 if epoch > self.args.min_epoch and patience > self.max_patience:
                     print("early termination of training")
+                    print("source best:  source_mrr = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}".format(best_s_mrr, best_s_hit, best_s_ndcg))
+                    print("target best:  target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(best_t_mrr, best_t_hit, best_t_ndcg))
                     return
                 
             if epoch >= self.args.rectify_epoch and self.recmodel.rectify_flag == 0:
@@ -293,7 +293,9 @@ class Runner(object):
             s_dev_score_history += [s_dev_score]
             t_dev_score_history += [t_dev_score]
             print("")   
-
+            
+        print("source best:  source_mrr = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}".format(best_s_mrr, best_s_hit, best_s_ndcg))
+        print("target best:  target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(best_t_mrr, best_t_hit, best_t_ndcg))
         return
     
     def eval(self, epoch, data, dev_score_history):
