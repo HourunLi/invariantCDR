@@ -265,7 +265,7 @@ class Runner(object):
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)
-            if epoch > 1 and (s_dev_score > max(s_dev_score_history) or t_dev_score > max(t_dev_score_history)):
+            if epoch > 1 and (s_dev_score > max(s_dev_score_history) or t_dev_score > max(t_dev_score_history)) and self.args.save:
                 patience = 0
                 torch.save({
                     'epoch':epoch,
