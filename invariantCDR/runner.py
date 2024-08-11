@@ -265,14 +265,15 @@ class Runner(object):
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)
-            if epoch > 1 and (s_dev_score > max(s_dev_score_history) or t_dev_score > max(t_dev_score_history)) and self.args.save:
+            if epoch > 1 and (s_dev_score > max(s_dev_score_history) or t_dev_score > max(t_dev_score_history)):
                 patience = 0
-                torch.save({
-                    'epoch':epoch,
-                    'model_state_dict': self.recmodel.state_dict(),
-                }, model_file)
-                copyfile(model_file, self.model_save_dir + '/best_model.pt')
-                print("new best model saved.")
+                if self.args.save:
+                    torch.save({
+                        'epoch':epoch,
+                        'model_state_dict': self.recmodel.state_dict(),
+                    }, model_file)
+                    copyfile(model_file, self.model_save_dir + '/best_model.pt')
+                    print("new best model saved.")
             else:
                 patience += 1
                 if epoch > self.args.min_epoch and patience > self.max_patience:
