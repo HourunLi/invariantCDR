@@ -168,11 +168,8 @@ class Runner(object):
                 predictions = self.source_predict(batch)
             else:
                 predictions = self.target_predict(batch)
-            # print(predictions)
             for pred in predictions:
                 rank = (-pred).argsort().argsort()[0].item()
-                # sorted_pred, _ = torch.sort(pred, descending=True)
-                # print(sorted_pred[:20])
                 valid_entity += 1
                 MRR += 1 / (rank + 1)
                 if rank < 1:
@@ -204,7 +201,6 @@ class Runner(object):
         current_lr = self.lr
         if self.start_epoch >= self.args.rectify_epoch:
             self.recmodel.rectify_flag = 1
-            # current_lr = self.args.lr_transfer
             
         global_step = 0
         global_start_time = time.time()
@@ -221,7 +217,6 @@ class Runner(object):
             train_loss = 0
             start_time = time.time()
             for i, batch in enumerate(self.train_batch):
-                # print(global_step)
                 global_step += 1
                 loss = self.reconstruct_graph(batch, self.args.source_UV, self.args.source_VU, self.args.target_UV, self.args.target_VU)
                 train_loss += loss
@@ -259,7 +254,7 @@ class Runner(object):
                 "{}\t{:.6f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, t_dev_score, max([s_dev_score] + s_dev_score_history), max([t_dev_score] + t_dev_score_history)))
 
             print(
-                "epoch {}: source_mrr = {:.6f}, train_loss = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
+                "epoch {}: train_loss = {:.6f}, source_mrr = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
                         epoch, \
                     train_loss, s_mrr, s_hr_10, s_ndcg_10, t_mrr, t_hr_10, t_ndcg_10))
 
