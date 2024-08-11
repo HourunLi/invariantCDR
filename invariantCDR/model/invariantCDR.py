@@ -566,10 +566,8 @@ class invariantCDR(nn.Module):
         return G
 
     def cal_similarity_matrix(self, source_learn_user, target_learn_user):
-        source_test_user = source_learn_user[:self.args.test_user].to(self.device)
-        target_test_user = target_learn_user[:self.args.test_user].to(self.device)
-        source_sim = self._cal_kernel_affinity(source_test_user).detach()
-        target_sim = self._cal_kernel_affinity(target_test_user).detach()
+        source_sim = self._cal_kernel_affinity(source_learn_user).detach()
+        target_sim = self._cal_kernel_affinity(target_learn_user).detach()
         return source_sim, target_sim
     
     def inter_cl(self, x_q, x_k, center_v, mask_pos=None):
@@ -619,6 +617,7 @@ class invariantCDR(nn.Module):
         loss = -nll_loss.sum() / B
         # loss = -nll_loss.mean()
         return loss
+    
         B, K, d = x_1.size()
         if sim is None:
             sim = torch.eye(B).to(self.device)

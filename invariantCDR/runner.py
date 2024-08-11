@@ -49,7 +49,7 @@ class Runner(object):
         helper.ensure_dir(self.model_save_dir, verbose=True)
         # helper.save_config(vars(args), self.model_save_dir + '/config.json', verbose=True)
         # helper.print_config(vars(args))
-        self.file_logger = helper.FileLogger(self.model_save_dir + '/' + args.log, header="# epoch\ttrain_loss\tdev_loss\tdev_score\tbest_dev_score")
+        self.file_logger = helper.FileLogger(self.model_save_dir + '/' + args.log, header="epoch\ttrain_loss\tsource_dev_score\ttarget_dev_score\tbest_source_score\tbest_target_score")
         self.criterion = nn.BCEWithLogitsLoss().to(args.device)
         self.max_patience = args.patience
 
@@ -256,12 +256,12 @@ class Runner(object):
                 print("target: \t mrr: {:.6f}\t ndcg_5: {:.4f}\t ndcg_10: {:.4f}\t hit@1:{:.6f}\t hit@5:{:.4f}\t hit@10: {:.4f}".format(t_mrr, t_ndcg_5, t_ndcg_10, t_hr_1, t_hr_5, t_hr_10))
 
             self.file_logger.log(
-                "{}\t{:.6f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, max([s_dev_score] + s_dev_score_history)))
+                "{}\t{:.6f}\t{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}".format(epoch, train_loss, s_dev_score, t_dev_score, max([s_dev_score] + s_dev_score_history), max([t_dev_score] + t_dev_score_history)))
 
             print(
-                "epoch {}: train_loss = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
+                "epoch {}: source_mrr = {:.6f}, train_loss = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
                         epoch, \
-                    train_loss, s_hr_10, s_ndcg_10, t_hr_10, t_ndcg_10))
+                    train_loss, s_mrr, s_hr_10, s_ndcg_10, t_mrr, t_hr_10, t_ndcg_10))
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)
