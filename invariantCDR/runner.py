@@ -322,7 +322,6 @@ class Runner(object):
             else:
                 decay_switch += 1
             dev_score_history[idx].append(metrics["NDCG_10"])
-            
         print("valid time:  ", (time.time() - valid_start), "(s)")
         return decay_switch
         

@@ -40,8 +40,6 @@ def seed_everything(seed=1111):
     torch.backends.cudnn.deterministic = True
     torch.use_deterministic_algorithms(True)
     torch.backends.cudnn.benchmark = False
-    
-
 seed_everything(args.seed)
 
 if int(args.device_id) >= 0 and torch.cuda.is_available():
