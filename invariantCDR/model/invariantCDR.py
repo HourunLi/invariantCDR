@@ -553,14 +553,14 @@ class invariantCDR(nn.Module):
         embeddings = embeddings / row_sums
         return embeddings
 
-    def _cal_kernel_affinity(self, norm_embeddings, step: int = 5):
+    def _cal_kernel_affinity(self, norm_embeddings):
         # norm_embeddings = F.normalize(embeddings, p=2, dim=-1)
         B, K, d = norm_embeddings.size()
         norm_embeddings = torch.reshape(norm_embeddings, (B, K*d))
         G = (2 * K - 2 * (norm_embeddings @ norm_embeddings.t())).clamp(min=0.)
         G = torch.exp(-G / (self.similarity_tau * K))
         G = G / G.sum(dim=1, keepdim=True)
-        G = torch.matrix_power(G, step)
+        G = torch.matrix_power(G, self.args.step)
         # print(G[:2])
         G = torch.eye(B).to(self.device) * self.args.alpha + G * (1 - self.args.alpha)
         return G

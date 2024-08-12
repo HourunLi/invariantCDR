@@ -127,6 +127,7 @@ parser.add_argument('--dropout', type=float, default=0.5, help='random drop out 
 parser.add_argument('--inter_tau', type=float, default=0.2, help="temperature parameter for scaling the inter similarity scores")
 parser.add_argument('--intra_tau', type=float, default=1, help="temperature parameter for scaling the intra similarity scores")
 parser.add_argument('--similarity_tau', type=float, default=0.1, help="temperature parameter for scaling the intra similarity scores")
+parser.add_argument('--step', type=int, default=5, help="temperature parameter for scaling the intra similarity scores")
 args = parser.parse_args()
 
 # set the running device
