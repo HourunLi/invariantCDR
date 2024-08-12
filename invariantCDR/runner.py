@@ -253,8 +253,7 @@ class Runner(object):
 
             print(
                 "epoch {}: train_loss = {:.6f}, source_mrr = {:.6f}, source_hit@10 = {:.4f}, source_ndcg@10 = {:.4f}, target_mrr = {:.6f}, target_hit@10 = {:.4f}, target_ndcg@10 = {:.4f}".format(
-                        epoch, \
-                    train_loss, s_mrr, s_hr_10, s_ndcg_10, t_mrr, t_hr_10, t_ndcg_10))
+                        epoch, train_loss, s_mrr, s_hr_10, s_ndcg_10, t_mrr, t_hr_10, t_ndcg_10))
 
             # save
             model_file = self.model_save_dir + '/checkpoint_epoch_{}.pt'.format(epoch)

@@ -1,0 +1,53 @@
+nohup: ignoring input
+using gpu:1 to train the model
+using gpu:1 to train the model
+cuda:1
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.5, batch_size=1024, beta_inter=0.2, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=1), device_id='1', domains='cell_electronic', dropout=0.4, epoch=80, feature_dim=126, gamma_intra=0.8, hidden_dim=126, inter_tau=0.2, intra_tau=1.2, lambda_critic=0.1, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=50, mode='train', model_file=None, model_name='ce', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=30, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, step=5, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 27519
+number_item 9481
+/home/hourun/invariantCDR_v2/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+number_user 107984
+number_item 40460
+real graph loaded!
+graph loaded!
+Loading data from cell_electronic with batch size 1024...
+unseen test: 0
+test length: 6417
+unseen test: 0
+test length: 6322
+unseen test: 0
+test length: 15199
+unseen test: 0
+test length: 15053
+source_user_num 27519
+target_user_num 107984
+source_item_num 9481
+target_item_num 40460
+shared users id: 16337
+test users 2049, 2042
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 148271, target train data: 821301, source test data : 6322, target test data : 15053, source dev data : 1000, target dev data : 1000
+2024-08-12 10:43:27.108334: step 947/75760 (epoch 1/80), loss = 2.176879 (251.820 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+.......................................................................................................................................................................................................................
+source: 	 mrr: 0.062643	 ndcg_5: 0.0529	 ndcg_10: 0.0710	 hit@1:0.023999	 hit@5:0.0829	 hit@10: 0.1388
+target: 	 mrr: 0.064470	 ndcg_5: 0.0545	 ndcg_10: 0.0753	 hit@1:0.020067	 hit@5:0.0899	 hit@10: 0.1545
+source best!
+...............................................................
+source: 	 mrr: 0.065029	 ndcg_5: 0.0562	 ndcg_10: 0.0735	 hit@1:0.022778	 hit@5:0.0905	 hit@10: 0.1441
+target best!
+......................................................................................................................................................target: 	 mrr: 0.065165	 ndcg_5: 0.0548	 ndcg_10: 0.0765	 hit@1:0.020328	 hit@5:0.0901	 hit@10: 0.1578
+epoch 1: train_loss = 2.176879, source_mrr = 0.065029, source_hit@10 = 0.1441, source_ndcg@10 = 0.0735, target_mrr = 0.065165, target_hit@10 = 0.1578, target_ndcg@10 = 0.0765
+
+2024-08-12 10:47:44.165844: step 1894/75760 (epoch 2/80), loss = 2.024681 (252.576 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+.......................................................................................................................................................................................................................
+source: 	 mrr: 0.057225	 ndcg_5: 0.0452	 ndcg_10: 0.0642	 hit@1:0.018544	 hit@5:0.0726	 hit@10: 0.1318
+target: 	 mrr: 0.064423	 ndcg_5: 0.0549	 ndcg_10: 0.0747	 hit@1:0.020791	 hit@5:0.0897	 hit@10: 0.1512
+epoch 2: train_loss = 2.024681, source_mrr = 0.057225, source_hit@10 = 0.1318, source_ndcg@10 = 0.0642, target_mrr = 0.064423, target_hit@10 = 0.1512, target_ndcg@10 = 0.0747
+
