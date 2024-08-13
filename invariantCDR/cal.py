@@ -8,33 +8,7 @@ def calculate_average(name, hit, ndcg):
     avg_ndcg = calculate_average_(ndcg)
     print("{}\thit@10:{:.2f}, ndcg@10:{:.2f}".format(name, avg_hit, avg_ndcg))
     
-cdrib_cloth_hit = [13.24, 13.15, 12.86, 12.80, 13.15]
-cdrib_cloth_ndcg = [7.17, 7.22, 6.91, 6.83, 7.26]
-cdrib_sport_hit = [10.67, 10.74, 11.17, 11.20, 11.73]
-cdrib_sport_ndcg = [5.36, 5.54, 5.83, 5.98, 6.19]
-print("----------------------CDRIB cloth_sport-------------------------")
-average = calculate_average("CDRIB_cloth", cdrib_cloth_hit, cdrib_cloth_ndcg)
-average = calculate_average("CDRIB_sport", cdrib_sport_hit, cdrib_sport_ndcg)
-
-DisCo_cloth_hit = [12.55, 12.86, 11.15, 12.39, 13.97]
-DisCo_cloth_ndcg = [6.42, 7.08, 6.23, 6.88, 7.42]
-DisCo_sport_hit = [10.67, 10.76, 10.20, 11.20, 10.59]
-DisCo_sport_ndcg = [5.50, 5.35, 5.21, 5.98, 5.40]
-print("----------------------DisCo cloth_sport-------------------------")
-average = calculate_average("DisCo_cloth", DisCo_cloth_hit, DisCo_cloth_ndcg)
-average = calculate_average("DisCo_sport", DisCo_sport_hit, DisCo_sport_ndcg)
-
-
-
-
-cdrib_game_hit = [9.05, 10.07, 9.13, 10.28, 9.92]
-cdrib_game_ndcg = [4.62, 5.36, 5.34, 5.12, 5.08]
-cdrib_video_hit = [12.20, 12.89, 12.61, 13.45, 12.14]
-cdrib_video_ndcg = [6.19, 6.66, 6.83, 6.95, 6.66]
-print("----------------------CDRIB game_video-------------------------")
-average = calculate_average("CDRIB_game", cdrib_game_hit, cdrib_game_ndcg)
-average = calculate_average("CDRIB_video", cdrib_video_hit, cdrib_video_ndcg)
-
+print("**********************************DisCo*************************************")
 DisCo_game_hit = [9.85, 8.98, 9.56, 10.12, 9.20]
 DisCo_game_ndcg = [4.71, 4.59, 4.44, 4.99, 4.75]
 DisCo_video_hit = [13.31, 13.52, 13.31, 13.45, 13.31]
@@ -43,9 +17,52 @@ print("----------------------DisCo game_video-------------------------")
 average = calculate_average("DisCo_game", DisCo_game_hit, DisCo_game_ndcg)
 average = calculate_average("DisCo_video", DisCo_video_hit, DisCo_video_ndcg)
 
+DisCo_cloth_hit = [12.55, 12.86, 11.15, 12.39, 13.97]
+DisCo_cloth_ndcg = [6.42, 7.08, 6.23, 6.88, 7.42]
+DisCo_sport_hit = [10.67, 10.76, 10.20, 11.20, 10.59]
+DisCo_sport_ndcg = [5.50, 5.35, 5.21, 5.98, 5.40]
+print("----------------------DisCo cloth_sport-------------------------")
+average = calculate_average("DisCo_cloth", DisCo_cloth_hit, DisCo_cloth_ndcg)
+average = calculate_average("DisCo_sport", DisCo_sport_hit, DisCo_sport_ndcg)
+print("*******************************************************************************")
 
+print("\n**********************************CDRIB*************************************")
+cdrib_game_hit = [9.05, 10.07, 9.13, 10.28, 9.92]
+cdrib_game_ndcg = [4.62, 5.36, 5.34, 5.12, 5.08]
+cdrib_video_hit = [12.20, 12.89, 12.61, 13.45, 12.14]
+cdrib_video_ndcg = [6.19, 6.66, 6.83, 6.95, 6.66]
+print("----------------------CDRIB game_video-------------------------")
+average = calculate_average("CDRIB_game", cdrib_game_hit, cdrib_game_ndcg)
+average = calculate_average("CDRIB_video", cdrib_video_hit, cdrib_video_ndcg)
 
+cdrib_cloth_hit = [13.24, 13.15, 12.86, 12.80, 13.15]
+cdrib_cloth_ndcg = [7.17, 7.22, 6.91, 6.83, 7.26]
+cdrib_sport_hit = [10.67, 10.74, 11.17, 11.20, 11.73]
+cdrib_sport_ndcg = [5.36, 5.54, 5.83, 5.98, 6.19]
+print("----------------------CDRIB cloth_sport-------------------------")
+average = calculate_average("CDRIB_cloth", cdrib_cloth_hit, cdrib_cloth_ndcg)
+average = calculate_average("CDRIB_sport", cdrib_sport_hit, cdrib_sport_ndcg)
 
+CDRIB_cell_hit = [18.73, 18.29, 18.59, 17.76, 18.48]
+CDRIB_cell_ndcg = [10.43, 10.12, 10.16, 9.92, 10.19]
+# CDRIB_electronic_hit = [20.81, 21.23, 21.49, 20.85, 20.62]
+# CDRIB_electronic_ndcg = [12.10, 12.13, 12.48, 11.81, 12.01]
+CDRIB_electronic_hit = [20.81, 21.23, 20.85]
+CDRIB_electronic_ndcg = [12.10, 12.13, 11.81]
+print("----------------------CDRIB cell_electronic-------------------------")
+average = calculate_average("CDRIB_cell", CDRIB_cell_hit, CDRIB_cell_ndcg)
+average = calculate_average("CDRIB_eletronic", CDRIB_electronic_hit, CDRIB_electronic_ndcg)
+print("*******************************************************************************")
+
+print("\n**********************************UniCDR*************************************")
+
+UniCDR_cloth_hit = [11.31, 11.59, 11.72, 11.85, 11.62]
+UniCDR_cloth_ndcg = [6.95, 7.50, 7.09, 7.45, 7.56]
+UniCDR_sport_hit = [10.81, 10.96, 10.60, 10.01, 10.97] 
+UniCDR_sport_ndcg = [6.22, 6.74, 6.33, 5.31, 6.37] 
+print("----------------------UniCDR cloth_sport-------------------------")
+average = calculate_average("UniCDR_cloth", UniCDR_cloth_hit, UniCDR_cloth_ndcg)
+average = calculate_average("UniCDR_sport", UniCDR_sport_hit, UniCDR_sport_ndcg)
 
 UniCDR_cell_hit = [14.85, 14.42, 14.48, 14.04, 13.55]
 UniCDR_cell_ndcg = [9.53, 8.73, 8.98, 8.59, 8.53]
@@ -54,3 +71,4 @@ UniCDR_electronic_ndcg = [9.54, 8.96, 9.49, 9.49, 8.76]
 print("----------------------UniCDR cell_electronic-------------------------")
 average = calculate_average("UniCDR_cell", UniCDR_cell_hit, UniCDR_cell_ndcg)
 average = calculate_average("UniCDR_eletronic", UniCDR_electronic_hit, UniCDR_electronic_ndcg)
+print("*******************************************************************************")
