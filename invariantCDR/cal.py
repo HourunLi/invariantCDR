@@ -56,6 +56,14 @@ print("*************************************************************************
 
 print("\n**********************************UniCDR*************************************")
 
+UniCDR_game_hit = [7.60, 7.96, 7.20, 7.17, 7.96]
+UniCDR_game_ndcg = [3.98, 4.14, 3.52, 3.88, 3.93]
+UniCDR_video_hit = [9.54, 10.90, 10.08, 10.10, 10.10] 
+UniCDR_video_ndcg = [4.87, 5.64, 5.53, 5.23, 5.44] 
+print("----------------------UniCDR game_video-------------------------")
+average = calculate_average("UniCDR_game", UniCDR_game_hit, UniCDR_game_ndcg)
+average = calculate_average("UniCDR_video", UniCDR_video_hit, UniCDR_video_ndcg)
+
 UniCDR_cloth_hit = [11.31, 11.59, 11.72, 11.85, 11.62]
 UniCDR_cloth_ndcg = [6.95, 7.50, 7.09, 7.45, 7.56]
 UniCDR_sport_hit = [10.81, 10.96, 10.60, 10.01, 10.97] 

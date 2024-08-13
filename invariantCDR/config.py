@@ -91,8 +91,8 @@ parser.add_argument('--test_sample_number', type=int, default=999)
 
 # train
 parser.add_argument('--epoch', type=int, default=80, help='number of epoches')
-parser.add_argument("--min_epoch", type=int, default=50, help="min epoch")
-parser.add_argument('--rectify_epoch', type=int, default=30, help='transfer learning after this epoch.')
+parser.add_argument("--min_epoch", type=int, default=60, help="min epoch")
+parser.add_argument('--rectify_epoch', type=int, default=40, help='transfer learning after this epoch.')
 parser.add_argument('--log_epoch', type=int, default=5, help='log every log_epoch')
 parser.add_argument("--patience", type=int, default=20, help="patience for early stop")
 parser.add_argument('--batch_size', type=int, default=1024, help='batch size')
