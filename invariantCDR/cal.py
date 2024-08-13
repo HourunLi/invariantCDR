@@ -25,8 +25,6 @@ average = calculate_average("DisCo_cloth", DisCo_cloth_hit, DisCo_cloth_ndcg)
 average = calculate_average("DisCo_sport", DisCo_sport_hit, DisCo_sport_ndcg)
 
 
-
-
 cdrib_game_hit = [9.05, 10.07, 9.13, 10.28, 9.92]
 cdrib_game_ndcg = [4.62, 5.36, 5.34, 5.12, 5.08]
 cdrib_video_hit = [12.20, 12.89, 12.61, 13.45, 12.14]
@@ -42,9 +40,6 @@ DisCo_video_ndcg = [6.99, 6.66, 7.09, 6.55, 6.99]
 print("----------------------DisCo game_video-------------------------")
 average = calculate_average("DisCo_game", DisCo_game_hit, DisCo_game_ndcg)
 average = calculate_average("DisCo_video", DisCo_video_hit, DisCo_video_ndcg)
-
-
-
 
 
 UniCDR_cell_hit = [14.85, 14.42, 14.48, 14.04, 13.55]
