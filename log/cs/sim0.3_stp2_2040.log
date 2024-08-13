@@ -1,0 +1,6 @@
+source: 	 mrr: 0.043197	 ndcg_5: 0.0345	 ndcg_10: 0.0446	 hit@1:0.017110	 hit@5:0.0516	 hit@10: 0.0830
+target: 	 mrr: 0.044107	 ndcg_5: 0.0364	 ndcg_10: 0.0466	 hit@1:0.015603	 hit@5:0.0566	 hit@10: 0.0883
+epoch 80: train_loss = 1.510825, source_mrr = 0.043197, source_hit@10 = 0.0830, source_ndcg@10 = 0.0446, target_mrr = 0.044107, target_hit@10 = 0.0883, target_ndcg@10 = 0.0466
+
+source best:  source_mrr = 0.057355, source_hit@10 = 0.1210, source_ndcg@10 = 0.0635
+target best:  target_mrr = 0.045195, target_hit@10 = 0.0975, target_ndcg@10 = 0.0491

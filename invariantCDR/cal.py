@@ -29,23 +29,32 @@ print("\n")
 print("*******************************************************************************")
 
 print("\n**********************************CDRIB*************************************")
-cdrib_game_hit = [9.05, 10.07, 9.13, 10.28, 9.92]
-cdrib_game_ndcg = [4.62, 5.36, 5.34, 5.12, 5.08]
-cdrib_video_hit = [12.20, 12.89, 12.61, 13.45, 12.14]
-cdrib_video_ndcg = [6.19, 6.66, 6.83, 6.95, 6.66]
+CDRIB_game_hit = [9.05, 10.07, 9.13, 10.28, 9.92]
+CDRIB_game_ndcg = [4.62, 5.36, 5.34, 5.12, 5.08]
+CDRIB_video_hit = [12.20, 12.89, 12.61, 13.45, 12.14]
+CDRIB_video_ndcg = [6.19, 6.66, 6.83, 6.95, 6.66]
 print("----------------------CDRIB game_video-------------------------")
-average = calculate_average("CDRIB_game", cdrib_game_hit, cdrib_game_ndcg)
-average = calculate_average("CDRIB_video", cdrib_video_hit, cdrib_video_ndcg)
+average = calculate_average("CDRIB_game", CDRIB_game_hit, CDRIB_game_ndcg)
+average = calculate_average("CDRIB_video", CDRIB_video_hit, CDRIB_video_ndcg)
 print("\n")
 
-cdrib_cloth_hit = [13.24, 13.15, 12.86, 12.80, 13.15]
-cdrib_cloth_ndcg = [7.17, 7.22, 6.91, 6.83, 7.26]
-cdrib_sport_hit = [10.67, 10.74, 11.17, 11.20, 11.73]
-cdrib_sport_ndcg = [5.36, 5.54, 5.83, 5.98, 6.19]
+CDRIB_cloth_hit = [13.24, 13.15, 12.86, 12.80, 13.15]
+CDRIB_cloth_ndcg = [7.17, 7.22, 6.91, 6.83, 7.26]
+CDRIB_sport_hit = [10.67, 10.74, 11.17, 11.20, 11.73]
+CDRIB_sport_ndcg = [5.36, 5.54, 5.83, 5.98, 6.19]
 print("----------------------CDRIB cloth_sport-------------------------")
-average = calculate_average("CDRIB_cloth", cdrib_cloth_hit, cdrib_cloth_ndcg)
-average = calculate_average("CDRIB_sport", cdrib_sport_hit, cdrib_sport_ndcg)
+average = calculate_average("CDRIB_cloth", CDRIB_cloth_hit, CDRIB_cloth_ndcg)
+average = calculate_average("CDRIB_sport", CDRIB_sport_hit, CDRIB_sport_ndcg)
 print("\n")
+
+# CDRIB_cd_hit = [18.73, 18.29, 18.81, 17.76, 18.48]
+# CDRIB_cd_ndcg = [10.43, 10.12, 10.48, 9.92, 10.19]
+# CDRIB_movie_hit = [20.81, 21.23, 21.49, 20.85, 20.62]
+# CDRIB_movie_ndcg = [12.10, 12.13, 12.48, 11.94, 12.01]
+# print("----------------------CDRIB cd_movie-------------------------")
+# average = calculate_average("CDRIB_cd", CDRIB_cd_hit, CDRIB_cd_ndcg)
+# average = calculate_average("CDRIB_movie", CDRIB_movie_hit, CDRIB_movie_ndcg)
+# print("\n")
 
 CDRIB_cell_hit = [18.73, 18.29, 18.59, 17.76, 18.48]
 CDRIB_cell_ndcg = [10.43, 10.12, 10.16, 9.92, 10.19]
