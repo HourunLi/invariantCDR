@@ -16,6 +16,7 @@ DisCo_video_ndcg = [6.99, 6.66, 7.09, 6.55, 6.99]
 print("----------------------DisCo game_video-------------------------")
 average = calculate_average("DisCo_game", DisCo_game_hit, DisCo_game_ndcg)
 average = calculate_average("DisCo_video", DisCo_video_hit, DisCo_video_ndcg)
+print("\n")
 
 DisCo_cloth_hit = [12.55, 12.86, 11.15, 12.39, 13.97]
 DisCo_cloth_ndcg = [6.42, 7.08, 6.23, 6.88, 7.42]
@@ -24,6 +25,7 @@ DisCo_sport_ndcg = [5.50, 5.35, 5.21, 5.98, 5.40]
 print("----------------------DisCo cloth_sport-------------------------")
 average = calculate_average("DisCo_cloth", DisCo_cloth_hit, DisCo_cloth_ndcg)
 average = calculate_average("DisCo_sport", DisCo_sport_hit, DisCo_sport_ndcg)
+print("\n")
 print("*******************************************************************************")
 
 print("\n**********************************CDRIB*************************************")
@@ -34,6 +36,7 @@ cdrib_video_ndcg = [6.19, 6.66, 6.83, 6.95, 6.66]
 print("----------------------CDRIB game_video-------------------------")
 average = calculate_average("CDRIB_game", cdrib_game_hit, cdrib_game_ndcg)
 average = calculate_average("CDRIB_video", cdrib_video_hit, cdrib_video_ndcg)
+print("\n")
 
 cdrib_cloth_hit = [13.24, 13.15, 12.86, 12.80, 13.15]
 cdrib_cloth_ndcg = [7.17, 7.22, 6.91, 6.83, 7.26]
@@ -42,6 +45,7 @@ cdrib_sport_ndcg = [5.36, 5.54, 5.83, 5.98, 6.19]
 print("----------------------CDRIB cloth_sport-------------------------")
 average = calculate_average("CDRIB_cloth", cdrib_cloth_hit, cdrib_cloth_ndcg)
 average = calculate_average("CDRIB_sport", cdrib_sport_hit, cdrib_sport_ndcg)
+print("\n")
 
 CDRIB_cell_hit = [18.73, 18.29, 18.59, 17.76, 18.48]
 CDRIB_cell_ndcg = [10.43, 10.12, 10.16, 9.92, 10.19]
@@ -52,6 +56,7 @@ CDRIB_electronic_ndcg = [12.10, 12.13, 11.81]
 print("----------------------CDRIB cell_electronic-------------------------")
 average = calculate_average("CDRIB_cell", CDRIB_cell_hit, CDRIB_cell_ndcg)
 average = calculate_average("CDRIB_eletronic", CDRIB_electronic_hit, CDRIB_electronic_ndcg)
+print("\n")
 print("*******************************************************************************")
 
 print("\n**********************************UniCDR*************************************")
@@ -63,6 +68,7 @@ UniCDR_video_ndcg = [4.87, 5.64, 5.53, 5.23, 5.44]
 print("----------------------UniCDR game_video-------------------------")
 average = calculate_average("UniCDR_game", UniCDR_game_hit, UniCDR_game_ndcg)
 average = calculate_average("UniCDR_video", UniCDR_video_hit, UniCDR_video_ndcg)
+print("\n")
 
 UniCDR_cloth_hit = [11.31, 11.59, 11.72, 11.85, 11.62]
 UniCDR_cloth_ndcg = [6.95, 7.50, 7.09, 7.45, 7.56]
@@ -71,6 +77,16 @@ UniCDR_sport_ndcg = [6.22, 6.74, 6.33, 5.31, 6.37]
 print("----------------------UniCDR cloth_sport-------------------------")
 average = calculate_average("UniCDR_cloth", UniCDR_cloth_hit, UniCDR_cloth_ndcg)
 average = calculate_average("UniCDR_sport", UniCDR_sport_hit, UniCDR_sport_ndcg)
+print("\n")
+
+UniCDR_cd_hit = [11.06, 11.30, 11.73, 10.80, 11.57]
+UniCDR_cd_ndcg = [5.87, 5.92, 6.20, 5.24, 6.18]
+UniCDR_movie_hit = [12.42, 11.78, 12.28, 12.67, 11.35] 
+UniCDR_movie_ndcg = [6.29, 5.95, 6.11, 6.47, 5.73] 
+print("----------------------UniCDR cd_movie-------------------------")
+average = calculate_average("UniCDR_cd", UniCDR_cd_hit, UniCDR_cd_ndcg)
+average = calculate_average("UniCDR_movie", UniCDR_movie_hit, UniCDR_movie_ndcg)
+print("\n")
 
 UniCDR_cell_hit = [14.85, 14.42, 14.48, 14.04, 13.55]
 UniCDR_cell_ndcg = [9.53, 8.73, 8.98, 8.59, 8.53]
@@ -79,4 +95,5 @@ UniCDR_electronic_ndcg = [9.54, 8.96, 9.49, 9.49, 8.76]
 print("----------------------UniCDR cell_electronic-------------------------")
 average = calculate_average("UniCDR_cell", UniCDR_cell_hit, UniCDR_cell_ndcg)
 average = calculate_average("UniCDR_eletronic", UniCDR_electronic_hit, UniCDR_electronic_ndcg)
+print("\n")
 print("*******************************************************************************")
