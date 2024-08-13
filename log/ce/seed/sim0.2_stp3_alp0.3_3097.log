@@ -1,0 +1,52 @@
+nohup: ignoring input
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:54: UserWarning: An issue occurred while importing 'pyg-lib'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'pyg-lib'. "
+/home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/torch_geometric/typing.py:110: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.29' not found (required by /home1/lhr/anaconda3/envs/torch/lib/python3.8/site-packages/libpyg.so)
+  warnings.warn(f"An issue occurred while importing 'torch-sparse'. "
+using gpu:5 to train the model
+using gpu:5 to train the model
+cuda:5
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.3, batch_size=1024, beta_inter=0.2, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=5), device_id='5', domains='cell_electronic', dropout=0.4, epoch=80, feature_dim=126, gamma_intra=0.8, hidden_dim=126, inter_tau=0.2, intra_tau=0.4, lambda_critic=0.1, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=60, mode='train', model_file=None, model_name='ce', momentum=0.98, num_latent_factors=3, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=40, residual=1, save=False, save_dir='./saved_models', seed=3097, similarity_tau=0.2, step=3, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 27519
+number_item 9481
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+/home1/lhr/invariantCDR/invariantCDR/utils/GraphMaker.py:72: UserWarning: torch.sparse.SparseTensor(indices, values, shape, *, device=) is deprecated.  Please use torch.sparse_coo_tensor(indices, values, shape, dtype=, device=). (Triggered internally at /opt/conda/conda-bld/pytorch_1711403590347/work/torch/csrc/utils/tensor_new.cpp:618.)
+  return torch.sparse.FloatTensor(indices, values, shape)
+real graph loaded!
+number_user 107984
+number_item 40460
+real graph loaded!
+graph loaded!
+Loading data from cell_electronic with batch size 1024...
+unseen test: 0
+test length: 6417
+unseen test: 0
+test length: 6322
+unseen test: 0
+test length: 15199
+unseen test: 0
+test length: 15053
+source_user_num 27519
+target_user_num 107984
+source_item_num 9481
+target_item_num 40460
+shared users id: 16337
+test users 2049, 2042
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 148271, target train data: 821301, source test data : 6322, target test data : 15053, source dev data : 1000, target dev data : 1000
+2024-08-13 23:48:28.193234: step 947/75760 (epoch 1/80), loss = 2.200778 (687.498 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+.......................................................................................................................................................................................................................
+source: 	 mrr: 0.066932	 ndcg_5: 0.0583	 ndcg_10: 0.0755	 hit@1:0.025557	 hit@5:0.0918	 hit@10: 0.1454
+target: 	 mrr: 0.075681	 ndcg_5: 0.0669	 ndcg_10: 0.0849	 hit@1:0.029541	 hit@5:0.1040	 hit@10: 0.1599
+source best!
+...............................................................
+source: 	 mrr: 0.068316	 ndcg_5: 0.0587	 ndcg_10: 0.0765	 hit@1:0.026416	 hit@5:0.0908	 hit@10: 0.1458
+target best!
+......................................................................................................................................................target: 	 mrr: 0.081021	 ndcg_5: 0.0724	 ndcg_10: 0.0914	 hit@1:0.034146	 hit@5:0.1101	 hit@10: 0.1692
+epoch 1: train_loss = 2.200778, source_mrr = 0.068316, source_hit@10 = 0.1458, source_ndcg@10 = 0.0765, target_mrr = 0.081021, target_hit@10 = 0.1692, target_ndcg@10 = 0.0914
+
