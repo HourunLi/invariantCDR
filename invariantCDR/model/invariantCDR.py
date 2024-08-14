@@ -641,11 +641,12 @@ class invariantCDR(nn.Module):
         x_k_abs = x_k.norm(dim=-1)
         
         # part 1
-        sim_matrix = torch.einsum('bid,bjd->bij', x_q, x_k) / (1e-8 + torch.einsum('bi,bj->bij', x_q_abs, x_k_abs))
-        sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim=-1) 
-        score = sim_matrix[:, range(K), range(K)]
-        score = score.view(B, K)
-        loss_1 = -torch.log(score).mean()
+        # sim_matrix = torch.einsum('bid,bjd->bij', x_q, x_k) / (1e-8 + torch.einsum('bi,bj->bij', x_q_abs, x_k_abs))
+        # sim_matrix = F.softmax(sim_matrix / self.intra_tau, dim=-1) 
+        # score = sim_matrix[:, range(K), range(K)]
+        # score = score.view(B, K)
+        # loss_1 = -torch.log(score).mean()
+        loss_1 = 0
         
         # part 2
         # (K, B, B)
