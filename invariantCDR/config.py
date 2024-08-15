@@ -126,7 +126,7 @@ parser.add_argument('--beta_inter', type=float, default=0.2)
 parser.add_argument('--gamma_intra', type=float, default=0.8, help='the parameter of critic loss function')
 parser.add_argument('--intra_tau', type=float, default=0.4, help="temperature parameter for scaling the intra similarity scores")
 parser.add_argument('--inter_tau', type=float, default=0.2, help="temperature parameter for scaling the inter similarity scores")
-parser.add_argument('--similarity_tau', type=float, default=0.1, help="temperature parameter for scaling the intra similarity scores")
+parser.add_argument('--similarity_tau', type=float, default=0.2, help="temperature parameter for scaling the intra similarity scores")
 parser.add_argument('--step', type=int, default=5, help="temperature parameter for scaling the intra similarity scores")
 args = parser.parse_args()
 

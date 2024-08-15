@@ -29,7 +29,7 @@ from sklearn.model_selection import GridSearchCV, StratifiedKFold
 
 class Runner(object):
     def __init__(self, args, recmodel, train_batch, source_valid_batch, source_test_batch, target_valid_batch, target_test_batch, source_dev_batch, target_dev_batch, start_epoch=1, writer=None, **kwargs):
-        seed_everything(args.seed)
+        # seed_everything(args.seed)
         self.args = args
         self.device = args.device
         self.recmodel = recmodel.to(args.device)

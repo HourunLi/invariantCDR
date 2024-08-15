@@ -8,11 +8,11 @@ def print_config(config):
         info += "\t{} : {}\n".format(k, str(v))
     print("\n" + info + "\n")
 
-def seed_everything(seed: int):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
+# def seed_everything(seed: int):
+#     random.seed(seed)
+#     np.random.seed(seed)
+#     torch.manual_seed(seed)
+#     torch.cuda.manual_seed_all(seed)
 
 def get_user_idx(user, user_base = 0):
     return 2 * (user + user_base)

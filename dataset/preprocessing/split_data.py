@@ -83,7 +83,6 @@ def generate_train_valid_test(file, total, common, user, item, choose):
     print("sss", itemx)
 
 if __name__ == '__main__':
-    random.seed(42)
     # cloth sport
     # cell electronic
     # game video
