@@ -1,0 +1,595 @@
+nohup: ignoring input
+using gpu:1 to train the model
+using gpu:1 to train the model
+cuda:1
+Namespace(A_split=False, JK='sum', a_fold=100, aggregate=False, alpha=0.5, batch_size=1024, beta_inter=0.2, conv_layers=4, cuda=True, decay_epoch=10, device=device(type='cuda', index=1), device_id='1', domains='game_video', dropout=0.4, epoch=80, feature_dim=126, gamma_intra=0.8, hidden_dim=126, inter_tau=0.2, intra_tau=0.4, lambda_critic=0.1, leakey=0.05, load=False, log='logs.txt', log_epoch=1, lr=0.004, lr_decay=0.95, min_epoch=60, mode='train', model_file=None, model_name='gv', momentum=0.98, num_latent_factors=5, num_negative=100, optim='adam', patience=20, proj_layers=1, projection=1, rectify_epoch=40, residual=1, save=False, save_dir='./saved_models', seed=32, similarity_tau=0.1, step=5, test_sample_number=999, user_batch_size=256, weight_decay=0.0002)
+number_user 25025
+number_item 12319
+/home/hourun/invariantCDR_v2/invariantCDR/utils/GraphMaker.py:46: RuntimeWarning: divide by zero encountered in power
+  r_inv = np.power(rowsum, -1).flatten()
+real graph loaded!
+number_user 19457
+number_item 8751
+real graph loaded!
+graph loaded!
+Loading data from game_video with batch size 1024...
+unseen test: 0
+test length: 1381
+unseen test: 0
+test length: 1304
+unseen test: 0
+test length: 1435
+unseen test: 0
+test length: 1458
+source_user_num 25025
+target_user_num 19457
+source_item_num 12319
+target_item_num 8751
+shared users id: 1737
+test users 226, 217
+unseen test: 0
+dev length: 1000
+unseen test: 0
+dev length: 1000
+source train data : 155036, target train data: 156091, source test data : 1304, target test data : 1458, source dev data : 1000, target dev data : 1000
+2024-08-14 20:39:21.685964: step 304/24320 (epoch 1/80), loss = 2.077927 (48.637 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.022393	 ndcg_5: 0.0160	 ndcg_10: 0.0216	 hit@1:0.004345	 hit@5:0.0282	 hit@10: 0.0456
+target: 	 mrr: 0.041551	 ndcg_5: 0.0336	 ndcg_10: 0.0439	 hit@1:0.016725	 hit@5:0.0509	 hit@10: 0.0829
+source best!
+.............
+source: 	 mrr: 0.020722	 ndcg_5: 0.0132	 ndcg_10: 0.0199	 hit@1:0.003067	 hit@5:0.0238	 hit@10: 0.0445
+target best!
+..............target: 	 mrr: 0.043173	 ndcg_5: 0.0355	 ndcg_10: 0.0434	 hit@1:0.016461	 hit@5:0.0542	 hit@10: 0.0789
+epoch 1: train_loss = 2.077927, source_mrr = 0.020722, source_hit@10 = 0.0445, source_ndcg@10 = 0.0199, target_mrr = 0.043173, target_hit@10 = 0.0789, target_ndcg@10 = 0.0434
+
+2024-08-14 20:40:10.799194: step 608/24320 (epoch 2/80), loss = 1.707845 (48.466 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.019426	 ndcg_5: 0.0112	 ndcg_10: 0.0187	 hit@1:0.002896	 hit@5:0.0203	 hit@10: 0.0434
+target: 	 mrr: 0.031550	 ndcg_5: 0.0230	 ndcg_10: 0.0312	 hit@1:0.011150	 hit@5:0.0362	 hit@10: 0.0620
+epoch 2: train_loss = 1.707845, source_mrr = 0.019426, source_hit@10 = 0.0434, source_ndcg@10 = 0.0187, target_mrr = 0.031550, target_hit@10 = 0.0620, target_ndcg@10 = 0.0312
+
+2024-08-14 20:40:59.698060: step 912/24320 (epoch 3/80), loss = 1.642925 (48.548 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041564	 ndcg_5: 0.0315	 ndcg_10: 0.0413	 hit@1:0.013758	 hit@5:0.0485	 hit@10: 0.0789
+target: 	 mrr: 0.031218	 ndcg_5: 0.0222	 ndcg_10: 0.0317	 hit@1:0.008362	 hit@5:0.0376	 hit@10: 0.0669
+source best!
+.............
+source: 	 mrr: 0.036990	 ndcg_5: 0.0262	 ndcg_10: 0.0363	 hit@1:0.009202	 hit@5:0.0422	 hit@10: 0.0744
+epoch 3: train_loss = 1.642925, source_mrr = 0.036990, source_hit@10 = 0.0744, source_ndcg@10 = 0.0363, target_mrr = 0.031218, target_hit@10 = 0.0669, target_ndcg@10 = 0.0317
+
+2024-08-14 20:41:48.368808: step 1216/24320 (epoch 4/80), loss = 1.596837 (48.189 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035039	 ndcg_5: 0.0249	 ndcg_10: 0.0352	 hit@1:0.009413	 hit@5:0.0406	 hit@10: 0.0731
+target: 	 mrr: 0.042361	 ndcg_5: 0.0341	 ndcg_10: 0.0430	 hit@1:0.016725	 hit@5:0.0516	 hit@10: 0.0794
+target best!
+..............target: 	 mrr: 0.039502	 ndcg_5: 0.0310	 ndcg_10: 0.0423	 hit@1:0.010974	 hit@5:0.0514	 hit@10: 0.0871
+epoch 4: train_loss = 1.596837, source_mrr = 0.035039, source_hit@10 = 0.0731, source_ndcg@10 = 0.0352, target_mrr = 0.039502, target_hit@10 = 0.0871, target_ndcg@10 = 0.0423
+
+2024-08-14 20:42:37.564077: step 1520/24320 (epoch 5/80), loss = 1.569042 (48.697 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.014600	 ndcg_5: 0.0067	 ndcg_10: 0.0102	 hit@1:0.000724	 hit@5:0.0130	 hit@10: 0.0239
+target: 	 mrr: 0.034910	 ndcg_5: 0.0290	 ndcg_10: 0.0381	 hit@1:0.009059	 hit@5:0.0495	 hit@10: 0.0780
+epoch 5: train_loss = 1.569042, source_mrr = 0.014600, source_hit@10 = 0.0239, source_ndcg@10 = 0.0102, target_mrr = 0.034910, target_hit@10 = 0.0780, target_ndcg@10 = 0.0381
+
+2024-08-14 20:43:26.990748: step 1824/24320 (epoch 6/80), loss = 1.549443 (49.063 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.037490	 ndcg_5: 0.0230	 ndcg_10: 0.0365	 hit@1:0.007965	 hit@5:0.0369	 hit@10: 0.0789
+target: 	 mrr: 0.040360	 ndcg_5: 0.0335	 ndcg_10: 0.0411	 hit@1:0.014634	 hit@5:0.0530	 hit@10: 0.0774
+epoch 6: train_loss = 1.549443, source_mrr = 0.037490, source_hit@10 = 0.0789, source_ndcg@10 = 0.0365, target_mrr = 0.040360, target_hit@10 = 0.0774, target_ndcg@10 = 0.0411
+
+2024-08-14 20:44:15.955978: step 2128/24320 (epoch 7/80), loss = 1.535964 (48.570 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.025412	 ndcg_5: 0.0155	 ndcg_10: 0.0241	 hit@1:0.005793	 hit@5:0.0253	 hit@10: 0.0529
+target: 	 mrr: 0.046219	 ndcg_5: 0.0375	 ndcg_10: 0.0494	 hit@1:0.018118	 hit@5:0.0571	 hit@10: 0.0948
+target best!
+..............target: 	 mrr: 0.041046	 ndcg_5: 0.0324	 ndcg_10: 0.0442	 hit@1:0.010974	 hit@5:0.0562	 hit@10: 0.0933
+epoch 7: train_loss = 1.535964, source_mrr = 0.025412, source_hit@10 = 0.0529, source_ndcg@10 = 0.0241, target_mrr = 0.041046, target_hit@10 = 0.0933, target_ndcg@10 = 0.0442
+
+2024-08-14 20:45:04.571298: step 2432/24320 (epoch 8/80), loss = 1.523770 (48.085 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.039895	 ndcg_5: 0.0296	 ndcg_10: 0.0388	 hit@1:0.011586	 hit@5:0.0485	 hit@10: 0.0768
+target: 	 mrr: 0.038104	 ndcg_5: 0.0314	 ndcg_10: 0.0380	 hit@1:0.013937	 hit@5:0.0481	 hit@10: 0.0690
+epoch 8: train_loss = 1.523770, source_mrr = 0.039895, source_hit@10 = 0.0768, source_ndcg@10 = 0.0388, target_mrr = 0.038104, target_hit@10 = 0.0690, target_ndcg@10 = 0.0380
+
+2024-08-14 20:45:53.530796: step 2736/24320 (epoch 9/80), loss = 1.510678 (48.610 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.032968	 ndcg_5: 0.0230	 ndcg_10: 0.0309	 hit@1:0.007241	 hit@5:0.0384	 hit@10: 0.0630
+target: 	 mrr: 0.045344	 ndcg_5: 0.0356	 ndcg_10: 0.0485	 hit@1:0.017422	 hit@5:0.0544	 hit@10: 0.0948
+epoch 9: train_loss = 1.510678, source_mrr = 0.032968, source_hit@10 = 0.0630, source_ndcg@10 = 0.0309, target_mrr = 0.045344, target_hit@10 = 0.0948, target_ndcg@10 = 0.0485
+
+2024-08-14 20:46:42.127750: step 3040/24320 (epoch 10/80), loss = 1.503868 (48.247 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038153	 ndcg_5: 0.0257	 ndcg_10: 0.0388	 hit@1:0.008689	 hit@5:0.0420	 hit@10: 0.0818
+target: 	 mrr: 0.045684	 ndcg_5: 0.0393	 ndcg_10: 0.0482	 hit@1:0.017422	 hit@5:0.0620	 hit@10: 0.0892
+epoch 10: train_loss = 1.503868, source_mrr = 0.038153, source_hit@10 = 0.0818, source_ndcg@10 = 0.0388, target_mrr = 0.045684, target_hit@10 = 0.0892, target_ndcg@10 = 0.0482
+
+2024-08-14 20:47:30.562974: step 3344/24320 (epoch 11/80), loss = 1.500679 (48.079 sec/epoch), lr: 0.004000
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041827	 ndcg_5: 0.0320	 ndcg_10: 0.0454	 hit@1:0.010138	 hit@5:0.0550	 hit@10: 0.0970
+target: 	 mrr: 0.034510	 ndcg_5: 0.0262	 ndcg_10: 0.0329	 hit@1:0.011847	 hit@5:0.0390	 hit@10: 0.0606
+source best!
+.............
+source: 	 mrr: 0.040270	 ndcg_5: 0.0285	 ndcg_10: 0.0422	 hit@1:0.010736	 hit@5:0.0460	 hit@10: 0.0890
+epoch 11: train_loss = 1.500679, source_mrr = 0.040270, source_hit@10 = 0.0890, source_ndcg@10 = 0.0422, target_mrr = 0.034510, target_hit@10 = 0.0606, target_ndcg@10 = 0.0329
+
+2024-08-14 20:48:19.877426: step 3648/24320 (epoch 12/80), loss = 1.488598 (48.829 sec/epoch), lr: 0.003800
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.040796	 ndcg_5: 0.0313	 ndcg_10: 0.0425	 hit@1:0.010862	 hit@5:0.0514	 hit@10: 0.0862
+target: 	 mrr: 0.051128	 ndcg_5: 0.0440	 ndcg_10: 0.0575	 hit@1:0.018118	 hit@5:0.0711	 hit@10: 0.1129
+target best!
+..............target: 	 mrr: 0.053811	 ndcg_5: 0.0440	 ndcg_10: 0.0595	 hit@1:0.018519	 hit@5:0.0679	 hit@10: 0.1159
+epoch 12: train_loss = 1.488598, source_mrr = 0.040796, source_hit@10 = 0.0862, source_ndcg@10 = 0.0425, target_mrr = 0.053811, target_hit@10 = 0.1159, target_ndcg@10 = 0.0595
+
+2024-08-14 20:49:08.888204: step 3952/24320 (epoch 13/80), loss = 1.484238 (48.499 sec/epoch), lr: 0.003800
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.025384	 ndcg_5: 0.0131	 ndcg_10: 0.0227	 hit@1:0.005793	 hit@5:0.0203	 hit@10: 0.0492
+target: 	 mrr: 0.038705	 ndcg_5: 0.0304	 ndcg_10: 0.0406	 hit@1:0.013240	 hit@5:0.0474	 hit@10: 0.0787
+epoch 13: train_loss = 1.484238, source_mrr = 0.025384, source_hit@10 = 0.0492, source_ndcg@10 = 0.0227, target_mrr = 0.038705, target_hit@10 = 0.0787, target_ndcg@10 = 0.0406
+
+2024-08-14 20:49:57.379095: step 4256/24320 (epoch 14/80), loss = 1.474562 (48.112 sec/epoch), lr: 0.003610
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.033155	 ndcg_5: 0.0225	 ndcg_10: 0.0309	 hit@1:0.009413	 hit@5:0.0355	 hit@10: 0.0623
+target: 	 mrr: 0.049245	 ndcg_5: 0.0406	 ndcg_10: 0.0507	 hit@1:0.022300	 hit@5:0.0578	 hit@10: 0.0892
+epoch 14: train_loss = 1.474562, source_mrr = 0.033155, source_hit@10 = 0.0623, source_ndcg@10 = 0.0309, target_mrr = 0.049245, target_hit@10 = 0.0892, target_ndcg@10 = 0.0507
+
+2024-08-14 20:50:46.186079: step 4560/24320 (epoch 15/80), loss = 1.472745 (48.445 sec/epoch), lr: 0.003610
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042096	 ndcg_5: 0.0318	 ndcg_10: 0.0415	 hit@1:0.013034	 hit@5:0.0500	 hit@10: 0.0789
+target: 	 mrr: 0.043982	 ndcg_5: 0.0348	 ndcg_10: 0.0475	 hit@1:0.015331	 hit@5:0.0530	 hit@10: 0.0927
+source best!
+.............
+source: 	 mrr: 0.037303	 ndcg_5: 0.0272	 ndcg_10: 0.0378	 hit@1:0.009202	 hit@5:0.0468	 hit@10: 0.0798
+epoch 15: train_loss = 1.472745, source_mrr = 0.037303, source_hit@10 = 0.0798, source_ndcg@10 = 0.0378, target_mrr = 0.043982, target_hit@10 = 0.0927, target_ndcg@10 = 0.0475
+
+2024-08-14 20:51:35.090410: step 4864/24320 (epoch 16/80), loss = 1.469201 (48.422 sec/epoch), lr: 0.003610
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038544	 ndcg_5: 0.0258	 ndcg_10: 0.0375	 hit@1:0.010862	 hit@5:0.0413	 hit@10: 0.0775
+target: 	 mrr: 0.041432	 ndcg_5: 0.0307	 ndcg_10: 0.0451	 hit@1:0.011847	 hit@5:0.0488	 hit@10: 0.0934
+epoch 16: train_loss = 1.469201, source_mrr = 0.038544, source_hit@10 = 0.0775, source_ndcg@10 = 0.0375, target_mrr = 0.041432, target_hit@10 = 0.0934, target_ndcg@10 = 0.0451
+
+2024-08-14 20:52:24.413656: step 5168/24320 (epoch 17/80), loss = 1.457977 (48.964 sec/epoch), lr: 0.003429
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.026131	 ndcg_5: 0.0166	 ndcg_10: 0.0236	 hit@1:0.006517	 hit@5:0.0261	 hit@10: 0.0478
+target: 	 mrr: 0.048614	 ndcg_5: 0.0423	 ndcg_10: 0.0531	 hit@1:0.016725	 hit@5:0.0676	 hit@10: 0.1010
+epoch 17: train_loss = 1.457977, source_mrr = 0.026131, source_hit@10 = 0.0478, source_ndcg@10 = 0.0236, target_mrr = 0.048614, target_hit@10 = 0.1010, target_ndcg@10 = 0.0531
+
+2024-08-14 20:53:13.123500: step 5472/24320 (epoch 18/80), loss = 1.452325 (48.357 sec/epoch), lr: 0.003258
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043158	 ndcg_5: 0.0319	 ndcg_10: 0.0431	 hit@1:0.016655	 hit@5:0.0471	 hit@10: 0.0825
+target: 	 mrr: 0.049675	 ndcg_5: 0.0418	 ndcg_10: 0.0561	 hit@1:0.017422	 hit@5:0.0669	 hit@10: 0.1115
+source best!
+.............
+source: 	 mrr: 0.036157	 ndcg_5: 0.0225	 ndcg_10: 0.0346	 hit@1:0.011503	 hit@5:0.0345	 hit@10: 0.0721
+epoch 18: train_loss = 1.452325, source_mrr = 0.036157, source_hit@10 = 0.0721, source_ndcg@10 = 0.0346, target_mrr = 0.049675, target_hit@10 = 0.1115, target_ndcg@10 = 0.0561
+
+2024-08-14 20:54:02.105798: step 5776/24320 (epoch 19/80), loss = 1.446212 (48.502 sec/epoch), lr: 0.003258
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.039058	 ndcg_5: 0.0293	 ndcg_10: 0.0385	 hit@1:0.012310	 hit@5:0.0471	 hit@10: 0.0760
+target: 	 mrr: 0.054479	 ndcg_5: 0.0454	 ndcg_10: 0.0598	 hit@1:0.023693	 hit@5:0.0662	 hit@10: 0.1108
+target best!
+..............target: 	 mrr: 0.050373	 ndcg_5: 0.0401	 ndcg_10: 0.0559	 hit@1:0.018519	 hit@5:0.0631	 hit@10: 0.1118
+epoch 19: train_loss = 1.446212, source_mrr = 0.039058, source_hit@10 = 0.0760, source_ndcg@10 = 0.0385, target_mrr = 0.050373, target_hit@10 = 0.1118, target_ndcg@10 = 0.0559
+
+2024-08-14 20:54:51.381195: step 6080/24320 (epoch 20/80), loss = 1.445895 (48.771 sec/epoch), lr: 0.003258
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038314	 ndcg_5: 0.0261	 ndcg_10: 0.0385	 hit@1:0.011586	 hit@5:0.0420	 hit@10: 0.0804
+target: 	 mrr: 0.049163	 ndcg_5: 0.0426	 ndcg_10: 0.0513	 hit@1:0.018815	 hit@5:0.0655	 hit@10: 0.0927
+epoch 20: train_loss = 1.445895, source_mrr = 0.038314, source_hit@10 = 0.0804, source_ndcg@10 = 0.0385, target_mrr = 0.049163, target_hit@10 = 0.0927, target_ndcg@10 = 0.0513
+
+2024-08-14 20:55:40.331088: step 6384/24320 (epoch 21/80), loss = 1.434404 (48.602 sec/epoch), lr: 0.003095
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.035201	 ndcg_5: 0.0229	 ndcg_10: 0.0346	 hit@1:0.010862	 hit@5:0.0355	 hit@10: 0.0724
+target: 	 mrr: 0.038439	 ndcg_5: 0.0296	 ndcg_10: 0.0420	 hit@1:0.010453	 hit@5:0.0495	 hit@10: 0.0878
+epoch 21: train_loss = 1.434404, source_mrr = 0.035201, source_hit@10 = 0.0724, source_ndcg@10 = 0.0346, target_mrr = 0.038439, target_hit@10 = 0.0878, target_ndcg@10 = 0.0420
+
+2024-08-14 20:56:29.018430: step 6688/24320 (epoch 22/80), loss = 1.428891 (48.313 sec/epoch), lr: 0.002940
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042500	 ndcg_5: 0.0335	 ndcg_10: 0.0400	 hit@1:0.014482	 hit@5:0.0521	 hit@10: 0.0724
+target: 	 mrr: 0.053514	 ndcg_5: 0.0480	 ndcg_10: 0.0583	 hit@1:0.020209	 hit@5:0.0746	 hit@10: 0.1066
+epoch 22: train_loss = 1.428891, source_mrr = 0.042500, source_hit@10 = 0.0724, source_ndcg@10 = 0.0400, target_mrr = 0.053514, target_hit@10 = 0.1066, target_ndcg@10 = 0.0583
+
+2024-08-14 20:57:17.836449: step 6992/24320 (epoch 23/80), loss = 1.427568 (48.435 sec/epoch), lr: 0.002940
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.039334	 ndcg_5: 0.0277	 ndcg_10: 0.0389	 hit@1:0.012310	 hit@5:0.0434	 hit@10: 0.0782
+target: 	 mrr: 0.046846	 ndcg_5: 0.0388	 ndcg_10: 0.0498	 hit@1:0.019512	 hit@5:0.0585	 hit@10: 0.0927
+epoch 23: train_loss = 1.427568, source_mrr = 0.039334, source_hit@10 = 0.0782, source_ndcg@10 = 0.0389, target_mrr = 0.046846, target_hit@10 = 0.0927, target_ndcg@10 = 0.0498
+
+2024-08-14 20:58:06.526007: step 7296/24320 (epoch 24/80), loss = 1.419965 (48.338 sec/epoch), lr: 0.002793
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038015	 ndcg_5: 0.0261	 ndcg_10: 0.0382	 hit@1:0.009413	 hit@5:0.0427	 hit@10: 0.0804
+target: 	 mrr: 0.045167	 ndcg_5: 0.0358	 ndcg_10: 0.0495	 hit@1:0.015331	 hit@5:0.0557	 hit@10: 0.0976
+epoch 24: train_loss = 1.419965, source_mrr = 0.038015, source_hit@10 = 0.0804, source_ndcg@10 = 0.0382, target_mrr = 0.045167, target_hit@10 = 0.0976, target_ndcg@10 = 0.0495
+
+2024-08-14 20:58:55.381292: step 7600/24320 (epoch 25/80), loss = 1.413311 (48.497 sec/epoch), lr: 0.002654
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.047328	 ndcg_5: 0.0358	 ndcg_10: 0.0450	 hit@1:0.019551	 hit@5:0.0507	 hit@10: 0.0789
+target: 	 mrr: 0.047049	 ndcg_5: 0.0377	 ndcg_10: 0.0515	 hit@1:0.016028	 hit@5:0.0599	 hit@10: 0.1024
+source best!
+.............
+source: 	 mrr: 0.039796	 ndcg_5: 0.0272	 ndcg_10: 0.0407	 hit@1:0.011503	 hit@5:0.0452	 hit@10: 0.0874
+epoch 25: train_loss = 1.413311, source_mrr = 0.039796, source_hit@10 = 0.0874, source_ndcg@10 = 0.0407, target_mrr = 0.047049, target_hit@10 = 0.1024, target_ndcg@10 = 0.0515
+
+2024-08-14 20:59:44.179057: step 7904/24320 (epoch 26/80), loss = 1.408958 (48.303 sec/epoch), lr: 0.002654
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042322	 ndcg_5: 0.0293	 ndcg_10: 0.0413	 hit@1:0.014482	 hit@5:0.0442	 hit@10: 0.0811
+target: 	 mrr: 0.053674	 ndcg_5: 0.0467	 ndcg_10: 0.0564	 hit@1:0.022300	 hit@5:0.0704	 hit@10: 0.1003
+epoch 26: train_loss = 1.408958, source_mrr = 0.042322, source_hit@10 = 0.0811, source_ndcg@10 = 0.0413, target_mrr = 0.053674, target_hit@10 = 0.1003, target_ndcg@10 = 0.0564
+
+2024-08-14 21:00:33.342008: step 8208/24320 (epoch 27/80), loss = 1.412959 (48.812 sec/epoch), lr: 0.002654
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.044336	 ndcg_5: 0.0331	 ndcg_10: 0.0447	 hit@1:0.015206	 hit@5:0.0521	 hit@10: 0.0883
+target: 	 mrr: 0.042232	 ndcg_5: 0.0324	 ndcg_10: 0.0447	 hit@1:0.014634	 hit@5:0.0495	 hit@10: 0.0878
+epoch 27: train_loss = 1.412959, source_mrr = 0.044336, source_hit@10 = 0.0883, source_ndcg@10 = 0.0447, target_mrr = 0.042232, target_hit@10 = 0.0878, target_ndcg@10 = 0.0447
+
+2024-08-14 21:01:22.503394: step 8512/24320 (epoch 28/80), loss = 1.398179 (48.811 sec/epoch), lr: 0.002521
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.034418	 ndcg_5: 0.0250	 ndcg_10: 0.0330	 hit@1:0.007965	 hit@5:0.0420	 hit@10: 0.0666
+target: 	 mrr: 0.050099	 ndcg_5: 0.0416	 ndcg_10: 0.0550	 hit@1:0.018118	 hit@5:0.0641	 hit@10: 0.1059
+epoch 28: train_loss = 1.398179, source_mrr = 0.034418, source_hit@10 = 0.0666, source_ndcg@10 = 0.0330, target_mrr = 0.050099, target_hit@10 = 0.1059, target_ndcg@10 = 0.0550
+
+2024-08-14 21:02:11.167941: step 8816/24320 (epoch 29/80), loss = 1.398143 (48.303 sec/epoch), lr: 0.002395
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042755	 ndcg_5: 0.0317	 ndcg_10: 0.0408	 hit@1:0.015206	 hit@5:0.0492	 hit@10: 0.0775
+target: 	 mrr: 0.052197	 ndcg_5: 0.0438	 ndcg_10: 0.0559	 hit@1:0.020209	 hit@5:0.0676	 hit@10: 0.1052
+epoch 29: train_loss = 1.398143, source_mrr = 0.042755, source_hit@10 = 0.0775, source_ndcg@10 = 0.0408, target_mrr = 0.052197, target_hit@10 = 0.1052, target_ndcg@10 = 0.0559
+
+2024-08-14 21:02:59.780960: step 9120/24320 (epoch 30/80), loss = 1.395522 (48.259 sec/epoch), lr: 0.002395
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045330	 ndcg_5: 0.0344	 ndcg_10: 0.0449	 hit@1:0.015206	 hit@5:0.0536	 hit@10: 0.0862
+target: 	 mrr: 0.051103	 ndcg_5: 0.0437	 ndcg_10: 0.0551	 hit@1:0.018815	 hit@5:0.0676	 hit@10: 0.1031
+epoch 30: train_loss = 1.395522, source_mrr = 0.045330, source_hit@10 = 0.0862, source_ndcg@10 = 0.0449, target_mrr = 0.051103, target_hit@10 = 0.1031, target_ndcg@10 = 0.0551
+
+2024-08-14 21:03:48.490556: step 9424/24320 (epoch 31/80), loss = 1.394061 (48.358 sec/epoch), lr: 0.002395
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045630	 ndcg_5: 0.0366	 ndcg_10: 0.0465	 hit@1:0.015930	 hit@5:0.0579	 hit@10: 0.0891
+target: 	 mrr: 0.049809	 ndcg_5: 0.0409	 ndcg_10: 0.0548	 hit@1:0.019512	 hit@5:0.0641	 hit@10: 0.1066
+epoch 31: train_loss = 1.394061, source_mrr = 0.045630, source_hit@10 = 0.0891, source_ndcg@10 = 0.0465, target_mrr = 0.049809, target_hit@10 = 0.1066, target_ndcg@10 = 0.0548
+
+2024-08-14 21:04:36.816319: step 9728/24320 (epoch 32/80), loss = 1.388529 (47.976 sec/epoch), lr: 0.002275
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.027772	 ndcg_5: 0.0157	 ndcg_10: 0.0261	 hit@1:0.005793	 hit@5:0.0261	 hit@10: 0.0579
+target: 	 mrr: 0.057418	 ndcg_5: 0.0494	 ndcg_10: 0.0619	 hit@1:0.024390	 hit@5:0.0746	 hit@10: 0.1136
+target best!
+..............target: 	 mrr: 0.060812	 ndcg_5: 0.0513	 ndcg_10: 0.0669	 hit@1:0.024691	 hit@5:0.0775	 hit@10: 0.1255
+epoch 32: train_loss = 1.388529, source_mrr = 0.027772, source_hit@10 = 0.0579, source_ndcg@10 = 0.0261, target_mrr = 0.060812, target_hit@10 = 0.1255, target_ndcg@10 = 0.0669
+
+2024-08-14 21:05:25.967485: step 10032/24320 (epoch 33/80), loss = 1.382708 (48.632 sec/epoch), lr: 0.002161
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.046138	 ndcg_5: 0.0353	 ndcg_10: 0.0449	 hit@1:0.016655	 hit@5:0.0543	 hit@10: 0.0847
+target: 	 mrr: 0.042841	 ndcg_5: 0.0337	 ndcg_10: 0.0447	 hit@1:0.016725	 hit@5:0.0509	 hit@10: 0.0850
+epoch 33: train_loss = 1.382708, source_mrr = 0.046138, source_hit@10 = 0.0847, source_ndcg@10 = 0.0449, target_mrr = 0.042841, target_hit@10 = 0.0850, target_ndcg@10 = 0.0447
+
+2024-08-14 21:06:14.845320: step 10336/24320 (epoch 34/80), loss = 1.377919 (48.514 sec/epoch), lr: 0.002161
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.040892	 ndcg_5: 0.0307	 ndcg_10: 0.0406	 hit@1:0.012310	 hit@5:0.0485	 hit@10: 0.0789
+target: 	 mrr: 0.048587	 ndcg_5: 0.0424	 ndcg_10: 0.0503	 hit@1:0.016725	 hit@5:0.0676	 hit@10: 0.0920
+epoch 34: train_loss = 1.377919, source_mrr = 0.040892, source_hit@10 = 0.0789, source_ndcg@10 = 0.0406, target_mrr = 0.048587, target_hit@10 = 0.0920, target_ndcg@10 = 0.0503
+
+2024-08-14 21:07:03.461124: step 10640/24320 (epoch 35/80), loss = 1.374032 (48.264 sec/epoch), lr: 0.002161
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045999	 ndcg_5: 0.0362	 ndcg_10: 0.0459	 hit@1:0.015206	 hit@5:0.0565	 hit@10: 0.0869
+target: 	 mrr: 0.060649	 ndcg_5: 0.0525	 ndcg_10: 0.0646	 hit@1:0.027178	 hit@5:0.0767	 hit@10: 0.1143
+target best!
+..............target: 	 mrr: 0.060415	 ndcg_5: 0.0536	 ndcg_10: 0.0632	 hit@1:0.028121	 hit@5:0.0809	 hit@10: 0.1104
+epoch 35: train_loss = 1.374032, source_mrr = 0.045999, source_hit@10 = 0.0869, source_ndcg@10 = 0.0459, target_mrr = 0.060415, target_hit@10 = 0.1104, target_ndcg@10 = 0.0632
+
+2024-08-14 21:07:52.117261: step 10944/24320 (epoch 36/80), loss = 1.374754 (48.164 sec/epoch), lr: 0.002161
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042306	 ndcg_5: 0.0307	 ndcg_10: 0.0418	 hit@1:0.013034	 hit@5:0.0485	 hit@10: 0.0833
+target: 	 mrr: 0.048814	 ndcg_5: 0.0433	 ndcg_10: 0.0537	 hit@1:0.017422	 hit@5:0.0683	 hit@10: 0.1010
+epoch 36: train_loss = 1.374754, source_mrr = 0.042306, source_hit@10 = 0.0833, source_ndcg@10 = 0.0418, target_mrr = 0.048814, target_hit@10 = 0.1010, target_ndcg@10 = 0.0537
+
+2024-08-14 21:08:41.148625: step 11248/24320 (epoch 37/80), loss = 1.370157 (48.677 sec/epoch), lr: 0.002053
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.047054	 ndcg_5: 0.0357	 ndcg_10: 0.0467	 hit@1:0.017379	 hit@5:0.0558	 hit@10: 0.0905
+target: 	 mrr: 0.040251	 ndcg_5: 0.0320	 ndcg_10: 0.0434	 hit@1:0.013937	 hit@5:0.0509	 hit@10: 0.0857
+epoch 37: train_loss = 1.370157, source_mrr = 0.047054, source_hit@10 = 0.0905, source_ndcg@10 = 0.0467, target_mrr = 0.040251, target_hit@10 = 0.0857, target_ndcg@10 = 0.0434
+
+2024-08-14 21:09:29.540118: step 11552/24320 (epoch 38/80), loss = 1.362656 (48.044 sec/epoch), lr: 0.001951
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.036178	 ndcg_5: 0.0245	 ndcg_10: 0.0362	 hit@1:0.013034	 hit@5:0.0369	 hit@10: 0.0739
+target: 	 mrr: 0.046083	 ndcg_5: 0.0391	 ndcg_10: 0.0510	 hit@1:0.013240	 hit@5:0.0648	 hit@10: 0.1017
+epoch 38: train_loss = 1.362656, source_mrr = 0.036178, source_hit@10 = 0.0739, source_ndcg@10 = 0.0362, target_mrr = 0.046083, target_hit@10 = 0.1017, target_ndcg@10 = 0.0510
+
+2024-08-14 21:10:19.140898: step 11856/24320 (epoch 39/80), loss = 1.358609 (49.251 sec/epoch), lr: 0.001853
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.047108	 ndcg_5: 0.0373	 ndcg_10: 0.0470	 hit@1:0.017379	 hit@5:0.0579	 hit@10: 0.0883
+target: 	 mrr: 0.041598	 ndcg_5: 0.0346	 ndcg_10: 0.0452	 hit@1:0.010453	 hit@5:0.0606	 hit@10: 0.0934
+epoch 39: train_loss = 1.358609, source_mrr = 0.047108, source_hit@10 = 0.0883, source_ndcg@10 = 0.0470, target_mrr = 0.041598, target_hit@10 = 0.0934, target_ndcg@10 = 0.0452
+
+2024-08-14 21:11:07.779714: step 12160/24320 (epoch 40/80), loss = 1.360155 (48.282 sec/epoch), lr: 0.001853
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043093	 ndcg_5: 0.0326	 ndcg_10: 0.0432	 hit@1:0.013034	 hit@5:0.0514	 hit@10: 0.0847
+target: 	 mrr: 0.048254	 ndcg_5: 0.0391	 ndcg_10: 0.0523	 hit@1:0.017422	 hit@5:0.0613	 hit@10: 0.1024
+epoch 40: train_loss = 1.360155, source_mrr = 0.043093, source_hit@10 = 0.0847, source_ndcg@10 = 0.0432, target_mrr = 0.048254, target_hit@10 = 0.1024, target_ndcg@10 = 0.0523
+shift to transfer learning mode
+
+2024-08-14 21:11:57.084620: step 12464/24320 (epoch 41/80), loss = 1.372878 (48.952 sec/epoch), lr: 0.001853
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.049586	 ndcg_5: 0.0386	 ndcg_10: 0.0500	 hit@1:0.018827	 hit@5:0.0572	 hit@10: 0.0927
+target: 	 mrr: 0.052802	 ndcg_5: 0.0452	 ndcg_10: 0.0559	 hit@1:0.019512	 hit@5:0.0697	 hit@10: 0.1031
+source best!
+.............
+source: 	 mrr: 0.042766	 ndcg_5: 0.0308	 ndcg_10: 0.0415	 hit@1:0.015337	 hit@5:0.0483	 hit@10: 0.0821
+epoch 41: train_loss = 1.372878, source_mrr = 0.042766, source_hit@10 = 0.0821, source_ndcg@10 = 0.0415, target_mrr = 0.052802, target_hit@10 = 0.1031, target_ndcg@10 = 0.0559
+
+2024-08-14 21:12:47.092358: step 12768/24320 (epoch 42/80), loss = 1.373721 (49.526 sec/epoch), lr: 0.001853
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045667	 ndcg_5: 0.0346	 ndcg_10: 0.0472	 hit@1:0.015206	 hit@5:0.0543	 hit@10: 0.0927
+target: 	 mrr: 0.062034	 ndcg_5: 0.0513	 ndcg_10: 0.0658	 hit@1:0.028571	 hit@5:0.0718	 hit@10: 0.1171
+target best!
+..............target: 	 mrr: 0.062145	 ndcg_5: 0.0536	 ndcg_10: 0.0687	 hit@1:0.026063	 hit@5:0.0830	 hit@10: 0.1303
+epoch 42: train_loss = 1.373721, source_mrr = 0.045667, source_hit@10 = 0.0927, source_ndcg@10 = 0.0472, target_mrr = 0.062145, target_hit@10 = 0.1303, target_ndcg@10 = 0.0687
+
+2024-08-14 21:13:36.814600: step 13072/24320 (epoch 43/80), loss = 1.369661 (49.209 sec/epoch), lr: 0.001853
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.046269	 ndcg_5: 0.0353	 ndcg_10: 0.0467	 hit@1:0.018827	 hit@5:0.0529	 hit@10: 0.0883
+target: 	 mrr: 0.048508	 ndcg_5: 0.0406	 ndcg_10: 0.0541	 hit@1:0.014634	 hit@5:0.0655	 hit@10: 0.1080
+epoch 43: train_loss = 1.369661, source_mrr = 0.046269, source_hit@10 = 0.0883, source_ndcg@10 = 0.0467, target_mrr = 0.048508, target_hit@10 = 0.1080, target_ndcg@10 = 0.0541
+
+2024-08-14 21:14:26.704822: step 13376/24320 (epoch 44/80), loss = 1.369042 (49.542 sec/epoch), lr: 0.001761
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041315	 ndcg_5: 0.0322	 ndcg_10: 0.0439	 hit@1:0.010138	 hit@5:0.0558	 hit@10: 0.0927
+target: 	 mrr: 0.047274	 ndcg_5: 0.0410	 ndcg_10: 0.0526	 hit@1:0.016028	 hit@5:0.0669	 hit@10: 0.1024
+epoch 44: train_loss = 1.369042, source_mrr = 0.041315, source_hit@10 = 0.0927, source_ndcg@10 = 0.0439, target_mrr = 0.047274, target_hit@10 = 0.1024, target_ndcg@10 = 0.0526
+
+2024-08-14 21:15:16.657026: step 13680/24320 (epoch 45/80), loss = 1.362855 (49.586 sec/epoch), lr: 0.001672
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043946	 ndcg_5: 0.0319	 ndcg_10: 0.0447	 hit@1:0.013758	 hit@5:0.0507	 hit@10: 0.0905
+target: 	 mrr: 0.051091	 ndcg_5: 0.0431	 ndcg_10: 0.0544	 hit@1:0.020209	 hit@5:0.0655	 hit@10: 0.1010
+epoch 45: train_loss = 1.362855, source_mrr = 0.043946, source_hit@10 = 0.0905, source_ndcg@10 = 0.0447, target_mrr = 0.051091, target_hit@10 = 0.1010, target_ndcg@10 = 0.0544
+
+2024-08-14 21:16:06.270336: step 13984/24320 (epoch 46/80), loss = 1.360044 (49.250 sec/epoch), lr: 0.001672
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041120	 ndcg_5: 0.0293	 ndcg_10: 0.0412	 hit@1:0.010862	 hit@5:0.0485	 hit@10: 0.0862
+target: 	 mrr: 0.044063	 ndcg_5: 0.0331	 ndcg_10: 0.0467	 hit@1:0.015331	 hit@5:0.0495	 hit@10: 0.0920
+epoch 46: train_loss = 1.360044, source_mrr = 0.041120, source_hit@10 = 0.0862, source_ndcg@10 = 0.0412, target_mrr = 0.044063, target_hit@10 = 0.0920, target_ndcg@10 = 0.0467
+
+2024-08-14 21:16:55.740900: step 14288/24320 (epoch 47/80), loss = 1.360307 (49.121 sec/epoch), lr: 0.001589
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043821	 ndcg_5: 0.0310	 ndcg_10: 0.0420	 hit@1:0.017379	 hit@5:0.0442	 hit@10: 0.0782
+target: 	 mrr: 0.054995	 ndcg_5: 0.0481	 ndcg_10: 0.0584	 hit@1:0.020906	 hit@5:0.0753	 hit@10: 0.1080
+epoch 47: train_loss = 1.360307, source_mrr = 0.043821, source_hit@10 = 0.0782, source_ndcg@10 = 0.0420, target_mrr = 0.054995, target_hit@10 = 0.1080, target_ndcg@10 = 0.0584
+
+2024-08-14 21:17:45.062014: step 14592/24320 (epoch 48/80), loss = 1.358955 (48.973 sec/epoch), lr: 0.001589
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045685	 ndcg_5: 0.0362	 ndcg_10: 0.0463	 hit@1:0.014482	 hit@5:0.0565	 hit@10: 0.0883
+target: 	 mrr: 0.052861	 ndcg_5: 0.0432	 ndcg_10: 0.0590	 hit@1:0.018815	 hit@5:0.0669	 hit@10: 0.1171
+epoch 48: train_loss = 1.358955, source_mrr = 0.045685, source_hit@10 = 0.0883, source_ndcg@10 = 0.0463, target_mrr = 0.052861, target_hit@10 = 0.1171, target_ndcg@10 = 0.0590
+
+2024-08-14 21:18:35.378717: step 14896/24320 (epoch 49/80), loss = 1.351344 (49.951 sec/epoch), lr: 0.001509
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043782	 ndcg_5: 0.0307	 ndcg_10: 0.0430	 hit@1:0.015206	 hit@5:0.0456	 hit@10: 0.0840
+target: 	 mrr: 0.039681	 ndcg_5: 0.0315	 ndcg_10: 0.0403	 hit@1:0.011150	 hit@5:0.0523	 hit@10: 0.0801
+epoch 49: train_loss = 1.351344, source_mrr = 0.043782, source_hit@10 = 0.0840, source_ndcg@10 = 0.0430, target_mrr = 0.039681, target_hit@10 = 0.0801, target_ndcg@10 = 0.0403
+
+2024-08-14 21:19:25.451151: step 15200/24320 (epoch 50/80), loss = 1.348020 (49.715 sec/epoch), lr: 0.001434
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041689	 ndcg_5: 0.0307	 ndcg_10: 0.0415	 hit@1:0.011586	 hit@5:0.0492	 hit@10: 0.0825
+target: 	 mrr: 0.043624	 ndcg_5: 0.0339	 ndcg_10: 0.0465	 hit@1:0.016725	 hit@5:0.0523	 hit@10: 0.0920
+epoch 50: train_loss = 1.348020, source_mrr = 0.041689, source_hit@10 = 0.0825, source_ndcg@10 = 0.0415, target_mrr = 0.043624, target_hit@10 = 0.0920, target_ndcg@10 = 0.0465
+
+2024-08-14 21:20:16.402441: step 15504/24320 (epoch 51/80), loss = 1.347458 (50.599 sec/epoch), lr: 0.001434
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045196	 ndcg_5: 0.0349	 ndcg_10: 0.0464	 hit@1:0.017379	 hit@5:0.0521	 hit@10: 0.0883
+target: 	 mrr: 0.047984	 ndcg_5: 0.0387	 ndcg_10: 0.0533	 hit@1:0.014634	 hit@5:0.0634	 hit@10: 0.1094
+epoch 51: train_loss = 1.347458, source_mrr = 0.045196, source_hit@10 = 0.0883, source_ndcg@10 = 0.0464, target_mrr = 0.047984, target_hit@10 = 0.1094, target_ndcg@10 = 0.0533
+
+2024-08-14 21:21:06.394480: step 15808/24320 (epoch 52/80), loss = 1.346411 (49.641 sec/epoch), lr: 0.001434
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043865	 ndcg_5: 0.0338	 ndcg_10: 0.0457	 hit@1:0.015206	 hit@5:0.0543	 hit@10: 0.0920
+target: 	 mrr: 0.054709	 ndcg_5: 0.0463	 ndcg_10: 0.0599	 hit@1:0.019512	 hit@5:0.0732	 hit@10: 0.1157
+epoch 52: train_loss = 1.346411, source_mrr = 0.043865, source_hit@10 = 0.0920, source_ndcg@10 = 0.0457, target_mrr = 0.054709, target_hit@10 = 0.1157, target_ndcg@10 = 0.0599
+
+2024-08-14 21:21:56.919748: step 16112/24320 (epoch 53/80), loss = 1.344769 (50.179 sec/epoch), lr: 0.001434
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.050301	 ndcg_5: 0.0412	 ndcg_10: 0.0520	 hit@1:0.018103	 hit@5:0.0637	 hit@10: 0.0978
+target: 	 mrr: 0.042959	 ndcg_5: 0.0331	 ndcg_10: 0.0468	 hit@1:0.012544	 hit@5:0.0530	 hit@10: 0.0955
+source best!
+.............
+source: 	 mrr: 0.043114	 ndcg_5: 0.0330	 ndcg_10: 0.0446	 hit@1:0.012270	 hit@5:0.0544	 hit@10: 0.0905
+epoch 53: train_loss = 1.344769, source_mrr = 0.043114, source_hit@10 = 0.0905, source_ndcg@10 = 0.0446, target_mrr = 0.042959, target_hit@10 = 0.0955, target_ndcg@10 = 0.0468
+
+2024-08-14 21:22:46.778653: step 16416/24320 (epoch 54/80), loss = 1.337026 (49.377 sec/epoch), lr: 0.001362
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.046983	 ndcg_5: 0.0339	 ndcg_10: 0.0469	 hit@1:0.016655	 hit@5:0.0507	 hit@10: 0.0912
+target: 	 mrr: 0.043247	 ndcg_5: 0.0333	 ndcg_10: 0.0455	 hit@1:0.013937	 hit@5:0.0523	 hit@10: 0.0906
+epoch 54: train_loss = 1.337026, source_mrr = 0.046983, source_hit@10 = 0.0912, source_ndcg@10 = 0.0469, target_mrr = 0.043247, target_hit@10 = 0.0906, target_ndcg@10 = 0.0455
+
+2024-08-14 21:23:36.560794: step 16720/24320 (epoch 55/80), loss = 1.332545 (49.427 sec/epoch), lr: 0.001294
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.048339	 ndcg_5: 0.0379	 ndcg_10: 0.0484	 hit@1:0.015930	 hit@5:0.0601	 hit@10: 0.0927
+target: 	 mrr: 0.037354	 ndcg_5: 0.0260	 ndcg_10: 0.0376	 hit@1:0.012544	 hit@5:0.0390	 hit@10: 0.0753
+epoch 55: train_loss = 1.332545, source_mrr = 0.048339, source_hit@10 = 0.0927, source_ndcg@10 = 0.0484, target_mrr = 0.037354, target_hit@10 = 0.0753, target_ndcg@10 = 0.0376
+
+2024-08-14 21:24:26.487417: step 17024/24320 (epoch 56/80), loss = 1.331316 (49.549 sec/epoch), lr: 0.001229
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041272	 ndcg_5: 0.0297	 ndcg_10: 0.0408	 hit@1:0.013034	 hit@5:0.0456	 hit@10: 0.0804
+target: 	 mrr: 0.041264	 ndcg_5: 0.0329	 ndcg_10: 0.0446	 hit@1:0.010453	 hit@5:0.0564	 hit@10: 0.0927
+epoch 56: train_loss = 1.331316, source_mrr = 0.041272, source_hit@10 = 0.0804, source_ndcg@10 = 0.0408, target_mrr = 0.041264, target_hit@10 = 0.0927, target_ndcg@10 = 0.0446
+
+2024-08-14 21:25:16.222350: step 17328/24320 (epoch 57/80), loss = 1.320493 (49.377 sec/epoch), lr: 0.001168
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042734	 ndcg_5: 0.0317	 ndcg_10: 0.0416	 hit@1:0.015930	 hit@5:0.0485	 hit@10: 0.0797
+target: 	 mrr: 0.041482	 ndcg_5: 0.0309	 ndcg_10: 0.0413	 hit@1:0.014634	 hit@5:0.0460	 hit@10: 0.0787
+epoch 57: train_loss = 1.320493, source_mrr = 0.042734, source_hit@10 = 0.0797, source_ndcg@10 = 0.0416, target_mrr = 0.041482, target_hit@10 = 0.0787, target_ndcg@10 = 0.0413
+
+2024-08-14 21:26:05.394408: step 17632/24320 (epoch 58/80), loss = 1.324498 (48.823 sec/epoch), lr: 0.001168
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.045060	 ndcg_5: 0.0346	 ndcg_10: 0.0466	 hit@1:0.016655	 hit@5:0.0550	 hit@10: 0.0927
+target: 	 mrr: 0.043919	 ndcg_5: 0.0325	 ndcg_10: 0.0440	 hit@1:0.016028	 hit@5:0.0502	 hit@10: 0.0864
+epoch 58: train_loss = 1.324498, source_mrr = 0.045060, source_hit@10 = 0.0927, source_ndcg@10 = 0.0466, target_mrr = 0.043919, target_hit@10 = 0.0864, target_ndcg@10 = 0.0440
+
+2024-08-14 21:26:55.455434: step 17936/24320 (epoch 59/80), loss = 1.324333 (49.707 sec/epoch), lr: 0.001168
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.032370	 ndcg_5: 0.0225	 ndcg_10: 0.0321	 hit@1:0.010138	 hit@5:0.0369	 hit@10: 0.0666
+target: 	 mrr: 0.047941	 ndcg_5: 0.0378	 ndcg_10: 0.0491	 hit@1:0.016725	 hit@5:0.0571	 hit@10: 0.0920
+epoch 59: train_loss = 1.324333, source_mrr = 0.032370, source_hit@10 = 0.0666, source_ndcg@10 = 0.0321, target_mrr = 0.047941, target_hit@10 = 0.0920, target_ndcg@10 = 0.0491
+
+2024-08-14 21:27:45.306553: step 18240/24320 (epoch 60/80), loss = 1.317794 (49.502 sec/epoch), lr: 0.001110
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038967	 ndcg_5: 0.0273	 ndcg_10: 0.0387	 hit@1:0.012310	 hit@5:0.0420	 hit@10: 0.0775
+target: 	 mrr: 0.053066	 ndcg_5: 0.0441	 ndcg_10: 0.0571	 hit@1:0.021603	 hit@5:0.0669	 hit@10: 0.1073
+epoch 60: train_loss = 1.317794, source_mrr = 0.038967, source_hit@10 = 0.0775, source_ndcg@10 = 0.0387, target_mrr = 0.053066, target_hit@10 = 0.1073, target_ndcg@10 = 0.0571
+
+2024-08-14 21:28:35.567053: step 18544/24320 (epoch 61/80), loss = 1.313531 (49.910 sec/epoch), lr: 0.001110
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.040882	 ndcg_5: 0.0292	 ndcg_10: 0.0416	 hit@1:0.012310	 hit@5:0.0463	 hit@10: 0.0854
+target: 	 mrr: 0.041656	 ndcg_5: 0.0325	 ndcg_10: 0.0420	 hit@1:0.012544	 hit@5:0.0516	 hit@10: 0.0808
+epoch 61: train_loss = 1.313531, source_mrr = 0.040882, source_hit@10 = 0.0854, source_ndcg@10 = 0.0416, target_mrr = 0.041656, target_hit@10 = 0.0808, target_ndcg@10 = 0.0420
+
+2024-08-14 21:29:23.939118: step 18848/24320 (epoch 62/80), loss = 1.309182 (47.981 sec/epoch), lr: 0.001054
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.044707	 ndcg_5: 0.0329	 ndcg_10: 0.0451	 hit@1:0.016655	 hit@5:0.0514	 hit@10: 0.0898
+target: 	 mrr: 0.047575	 ndcg_5: 0.0390	 ndcg_10: 0.0498	 hit@1:0.018118	 hit@5:0.0599	 hit@10: 0.0934
+epoch 62: train_loss = 1.309182, source_mrr = 0.044707, source_hit@10 = 0.0898, source_ndcg@10 = 0.0451, target_mrr = 0.047575, target_hit@10 = 0.0934, target_ndcg@10 = 0.0498
+
+2024-08-14 21:30:10.836642: step 19152/24320 (epoch 63/80), loss = 1.308950 (46.552 sec/epoch), lr: 0.001054
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041822	 ndcg_5: 0.0318	 ndcg_10: 0.0424	 hit@1:0.012310	 hit@5:0.0514	 hit@10: 0.0847
+target: 	 mrr: 0.044515	 ndcg_5: 0.0387	 ndcg_10: 0.0513	 hit@1:0.010453	 hit@5:0.0676	 hit@10: 0.1073
+epoch 63: train_loss = 1.308950, source_mrr = 0.041822, source_hit@10 = 0.0847, source_ndcg@10 = 0.0424, target_mrr = 0.044515, target_hit@10 = 0.1073, target_ndcg@10 = 0.0513
+
+2024-08-14 21:30:57.791141: step 19456/24320 (epoch 64/80), loss = 1.303112 (46.608 sec/epoch), lr: 0.001001
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.040315	 ndcg_5: 0.0304	 ndcg_10: 0.0402	 hit@1:0.014482	 hit@5:0.0471	 hit@10: 0.0775
+target: 	 mrr: 0.053581	 ndcg_5: 0.0446	 ndcg_10: 0.0600	 hit@1:0.022300	 hit@5:0.0662	 hit@10: 0.1143
+epoch 64: train_loss = 1.303112, source_mrr = 0.040315, source_hit@10 = 0.0775, source_ndcg@10 = 0.0402, target_mrr = 0.053581, target_hit@10 = 0.1143, target_ndcg@10 = 0.0600
+
+2024-08-14 21:31:45.701250: step 19760/24320 (epoch 65/80), loss = 1.299935 (47.565 sec/epoch), lr: 0.001001
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.037931	 ndcg_5: 0.0271	 ndcg_10: 0.0394	 hit@1:0.009413	 hit@5:0.0449	 hit@10: 0.0840
+target: 	 mrr: 0.045562	 ndcg_5: 0.0346	 ndcg_10: 0.0512	 hit@1:0.016725	 hit@5:0.0523	 hit@10: 0.1052
+epoch 65: train_loss = 1.299935, source_mrr = 0.037931, source_hit@10 = 0.0840, source_ndcg@10 = 0.0394, target_mrr = 0.045562, target_hit@10 = 0.1052, target_ndcg@10 = 0.0512
+
+2024-08-14 21:32:32.797656: step 20064/24320 (epoch 66/80), loss = 1.293197 (46.755 sec/epoch), lr: 0.000951
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043429	 ndcg_5: 0.0302	 ndcg_10: 0.0440	 hit@1:0.015206	 hit@5:0.0463	 hit@10: 0.0898
+target: 	 mrr: 0.046458	 ndcg_5: 0.0383	 ndcg_10: 0.0497	 hit@1:0.014634	 hit@5:0.0613	 hit@10: 0.0969
+epoch 66: train_loss = 1.293197, source_mrr = 0.043429, source_hit@10 = 0.0898, source_ndcg@10 = 0.0440, target_mrr = 0.046458, target_hit@10 = 0.0969, target_ndcg@10 = 0.0497
+
+2024-08-14 21:33:19.817663: step 20368/24320 (epoch 67/80), loss = 1.293371 (46.673 sec/epoch), lr: 0.000951
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.038357	 ndcg_5: 0.0273	 ndcg_10: 0.0369	 hit@1:0.010862	 hit@5:0.0434	 hit@10: 0.0731
+target: 	 mrr: 0.056385	 ndcg_5: 0.0472	 ndcg_10: 0.0597	 hit@1:0.022997	 hit@5:0.0697	 hit@10: 0.1087
+epoch 67: train_loss = 1.293371, source_mrr = 0.038357, source_hit@10 = 0.0731, source_ndcg@10 = 0.0369, target_mrr = 0.056385, target_hit@10 = 0.1087, target_ndcg@10 = 0.0597
+
+2024-08-14 21:34:06.710623: step 20672/24320 (epoch 68/80), loss = 1.289630 (46.547 sec/epoch), lr: 0.000951
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.043504	 ndcg_5: 0.0320	 ndcg_10: 0.0454	 hit@1:0.015206	 hit@5:0.0485	 hit@10: 0.0905
+target: 	 mrr: 0.055014	 ndcg_5: 0.0476	 ndcg_10: 0.0618	 hit@1:0.019512	 hit@5:0.0746	 hit@10: 0.1185
+epoch 68: train_loss = 1.289630, source_mrr = 0.043504, source_hit@10 = 0.0905, source_ndcg@10 = 0.0454, target_mrr = 0.055014, target_hit@10 = 0.1185, target_ndcg@10 = 0.0618
+
+2024-08-14 21:34:54.073011: step 20976/24320 (epoch 69/80), loss = 1.288857 (47.018 sec/epoch), lr: 0.000951
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.041502	 ndcg_5: 0.0308	 ndcg_10: 0.0416	 hit@1:0.013758	 hit@5:0.0478	 hit@10: 0.0811
+target: 	 mrr: 0.053396	 ndcg_5: 0.0440	 ndcg_10: 0.0557	 hit@1:0.020906	 hit@5:0.0662	 hit@10: 0.1017
+epoch 69: train_loss = 1.288857, source_mrr = 0.041502, source_hit@10 = 0.0811, source_ndcg@10 = 0.0416, target_mrr = 0.053396, target_hit@10 = 0.1017, target_ndcg@10 = 0.0557
+
+2024-08-14 21:35:39.784305: step 21280/24320 (epoch 70/80), loss = 1.287822 (45.367 sec/epoch), lr: 0.000904
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.042779	 ndcg_5: 0.0328	 ndcg_10: 0.0421	 hit@1:0.016655	 hit@5:0.0492	 hit@10: 0.0782
+target: 	 mrr: 0.057462	 ndcg_5: 0.0503	 ndcg_10: 0.0625	 hit@1:0.023693	 hit@5:0.0767	 hit@10: 0.1143
+epoch 70: train_loss = 1.287822, source_mrr = 0.042779, source_hit@10 = 0.0782, source_ndcg@10 = 0.0421, target_mrr = 0.057462, target_hit@10 = 0.1143, target_ndcg@10 = 0.0625
+
+2024-08-14 21:36:26.201965: step 21584/24320 (epoch 71/80), loss = 1.282275 (46.076 sec/epoch), lr: 0.000904
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.037764	 ndcg_5: 0.0289	 ndcg_10: 0.0378	 hit@1:0.013034	 hit@5:0.0463	 hit@10: 0.0746
+target: 	 mrr: 0.054788	 ndcg_5: 0.0465	 ndcg_10: 0.0579	 hit@1:0.020906	 hit@5:0.0711	 hit@10: 0.1059
+epoch 71: train_loss = 1.282275, source_mrr = 0.037764, source_hit@10 = 0.0746, source_ndcg@10 = 0.0378, target_mrr = 0.054788, target_hit@10 = 0.1059, target_ndcg@10 = 0.0579
+
+2024-08-14 21:37:13.009922: step 21888/24320 (epoch 72/80), loss = 1.278320 (46.467 sec/epoch), lr: 0.000859
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.040591	 ndcg_5: 0.0304	 ndcg_10: 0.0390	 hit@1:0.017379	 hit@5:0.0427	 hit@10: 0.0695
+target: 	 mrr: 0.052083	 ndcg_5: 0.0448	 ndcg_10: 0.0583	 hit@1:0.015331	 hit@5:0.0725	 hit@10: 0.1143
+epoch 72: train_loss = 1.278320, source_mrr = 0.040591, source_hit@10 = 0.0695, source_ndcg@10 = 0.0390, target_mrr = 0.052083, target_hit@10 = 0.1143, target_ndcg@10 = 0.0583
+
+2024-08-14 21:38:01.741318: step 22192/24320 (epoch 73/80), loss = 1.275201 (48.388 sec/epoch), lr: 0.000859
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.036143	 ndcg_5: 0.0263	 ndcg_10: 0.0345	 hit@1:0.012310	 hit@5:0.0391	 hit@10: 0.0644
+target: 	 mrr: 0.040533	 ndcg_5: 0.0307	 ndcg_10: 0.0437	 hit@1:0.012544	 hit@5:0.0488	 hit@10: 0.0892
+epoch 73: train_loss = 1.275201, source_mrr = 0.036143, source_hit@10 = 0.0644, source_ndcg@10 = 0.0345, target_mrr = 0.040533, target_hit@10 = 0.0892, target_ndcg@10 = 0.0437
+
+2024-08-14 21:38:49.865581: step 22496/24320 (epoch 74/80), loss = 1.277355 (47.783 sec/epoch), lr: 0.000816
+Evaluating on dev set...
+...........................
+source: 	 mrr: 0.036630	 ndcg_5: 0.0257	 ndcg_10: 0.0339	 hit@1:0.010862	 hit@5:0.0406	 hit@10: 0.0659
+target: 	 mrr: 0.041868	 ndcg_5: 0.0344	 ndcg_10: 0.0445	 hit@1:0.012544	 hit@5:0.0571	 hit@10: 0.0885
+epoch 74: train_loss = 1.277355, source_mrr = 0.036630, source_hit@10 = 0.0659, source_ndcg@10 = 0.0339, target_mrr = 0.041868, target_hit@10 = 0.0885, target_ndcg@10 = 0.0445
+early termination of training
+source best:  source_mrr = 0.050301, source_hit@10 = 0.0978, source_ndcg@10 = 0.0520
+target best:  target_mrr = 0.055014, target_hit@10 = 0.1185, target_ndcg@10 = 0.0618
