@@ -1,12 +1,16 @@
+import math
 def calculate_average_(numbers):
     if not numbers:
-        return 0  # 如果列表为空，返回0
-    return sum(numbers) / len(numbers)
+        return 0, 0 
+    average = sum(numbers) / len(numbers)
+    variance = sum((x - average) ** 2 for x in numbers) / len(numbers)
+    stddev = math.sqrt(variance)
+    return average, stddev
 
 def calculate_average(name, hit, ndcg):
-    avg_hit = calculate_average_(hit)
-    avg_ndcg = calculate_average_(ndcg)
-    print("{}\thit@10:{:.2f}, ndcg@10:{:.2f}".format(name, avg_hit, avg_ndcg))
+    hit_mean, hit_mean_std = calculate_average_(hit)
+    ndcg_mean, ndcg_std = calculate_average_(ndcg)
+    print("{}\thit@10_mean:{:.2f}, hit@10_std:{:.2f}\tndcg_mean@10:{:.2f}, ndcg_std@10:{:.2f}".format(name, hit_mean, hit_mean_std, ndcg_mean, ndcg_std))
     
 print("**********************************DisCo*************************************")
 DisCo_game_hit = [9.85, 8.98, 9.56, 10.12, 9.20]
